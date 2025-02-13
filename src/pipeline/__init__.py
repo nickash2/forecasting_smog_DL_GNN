@@ -2,8 +2,8 @@
 
 # __init__py for the imperatively programmed data pipeline package
 
-__version__ = '0.0.0' # MAJOR.MINOR.PATCH versioning
-__author__ = 'valentijn7' # GitHub username
+__version__ = "0.0.0"  # MAJOR.MINOR.PATCH versioning
+__author__ = "valentijn7"  # GitHub username
 
 print("\nRunning __init__.py for data pipeline...")
 
@@ -13,6 +13,7 @@ from .extract import read_four_contaminants
 from .tidy import get_metadata
 from .tidy import tidy_raw_contaminant_data
 from .tidy import tidy_raw_meteo_data
+from .tidy import rename_pollutant_cols
 from .transform import subset_sensors
 from .split import perform_data_split
 from .split import perform_data_split_without_train
