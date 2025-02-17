@@ -12,5 +12,10 @@ def export_minmax(df: pd.DataFrame, filename: str) -> None:
 
     :param df: dataframe
     """
-    df.to_csv(f"../data/data_combined/{filename}.csv", 
-               index = True, sep = ';', decimal = '.', encoding = 'utf-8')
+    df.to_csv(
+        f"data/data_combined/{filename}.csv",
+        index=True,
+        sep=";",
+        decimal=".",
+        encoding="utf-8",
+    )

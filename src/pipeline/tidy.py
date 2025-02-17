@@ -169,6 +169,8 @@ def fill_NaNs_linear(df: pd.DataFrame) -> pd.DataFrame:
     # Convert to numeric if not already
     df = df.apply(pd.to_numeric, errors="coerce")
 
+    df = df.apply(lambda col: col.map(lambda x: x if x >= 0 else np.nan))
+
     return df.interpolate(method="linear", limit=24 * 7)
 
 
@@ -350,72 +352,57 @@ def replace_WD_990_with_NaN(df: pd.DataFrame, col: str) -> pd.DataFrame:
 def tidy_raw_meteo_data(
     df: pd.DataFrame,
     col: str,
-    only_260: bool,
+    station: int,
     year: str,
-    subset_months,
-    start_mon,
-    end_mon,
-    fill_NaNs=True,
-):
+    subset_months: bool,
+    start_mon: str,
+    end_mon: str,
+    fill_NaNs: bool = True,
+) -> pd.DataFrame:
     """
-    Tidies the raw meteo data by various preprocessing steps:
-    - removing leading and trailing whitespace in column names;
-    - renaming the station column to 'STN';
-    - removing unuseful columns (i.e. unused meteorological parameters);
-    - subtracting 1 from the hour column to get a 0-23 hour range;
-    - changing the date format to yyyy-mm-dd hh:mm;
-    - setting the DateTime column as the index;
-    - replacing 990 in the WD column with NaN;
-    - continuing with only the 260 station (the one used in the thesis):
-    - filling NaN values with linear interpolation;
-    - subsetting the data to the specified months;
-    - renaming the column to the station name;
-    - deleting February 29th and firework days;
-    - returning the 260 station data for the specified year and air component.
-
-    Here, station 260 is the De Bilt station used in the thesis. For the code
-    to potentially work with other stations, the station number should be changed
-    together with some of the rest of the function calls to properly work.
+    Tidies the raw meteo data by various preprocessing steps for a single station.
 
     :param df: the DataFrame to tidy
     :param col: the column to keep in the DataFrame
-    :param only_260: whether to return only the 260 station data
+    :param station: station ID to process (e.g. 260 for De Bilt)
     :param year: the year of the data
     :param subset_months: whether to subset the months
     :param start_mon: the starting month for the subset
     :param end_mon: the ending month for the subset
     :param fill_NaNs: whether to fill NaN values with linear interpolation
-    :return: the 260 station DataFrame
+    :return: DataFrame with data for the specified station
     """
-    df.columns = df.columns.str.strip()  # remove leading and trailing ws in col names
-
+    # Basic data cleaning
+    df.columns = df.columns.str.strip()
+    if "# STN" in df.columns:
+        df = df.rename(columns={"# STN": "STN"})
     df = remove_unuseful_cols(
-        # "['VV', 'N', 'U', 'WW', 'IX', 'M', 'R', 'O', 'S', 'Y']
-        df,
-        ["T10N", "FF"],
+        df, ["T10N", "FF", "VV", "N", "U", "WW", "IX", "M", "R", "O", "S", "Y"]
     )
-    df["HH"] = df["HH"].subtract(1)  # 1-24 to 0-23 hour range
-    df = change_meteo_date_format(df)  # create DateTime column
-    df = df.set_index("DateTime")  # set DateTime as index
-    df = make_index_timezone_naive(df)  # make the index timezone naive
+    df["HH"] = df["HH"].subtract(1)
+    df = change_meteo_date_format(df)
+    df = df.set_index("DateTime")
+    df = make_index_timezone_naive(df)
 
-    df = df[[col, "STN"]].copy()  # keep only selected col and station name col
-    if col == "DD":  # 990 (change in DD (or WD)) -> 0, for more even influence
+    # Keep only relevant columns
+    df = df[[col, "STN"]].copy()
+
+    # Handle wind direction special case
+    if col == "DD":
         df = replace_WD_990_with_NaN(df, col)
 
-        # continue with the 260 station:
-    df_260 = remove_unuseful_cols(df[df["STN"] == 260], "STN")
+    # Process specific station
+    df_station = remove_unuseful_cols(df[df["STN"] == station], "STN")
 
     if fill_NaNs:
-        df_260 = fill_NaNs_linear(df_260).astype("float64")
+        df_station = fill_NaNs_linear(df_station).astype("float64")
 
     if subset_months:
-        df_260 = subset_month_range(df_260, start_mon, end_mon, year)
-    df_260 = df_260.rename(columns={df.columns[0]: "S260"})
-    df_260 = delete_feb_29th(df_260)
-    df_260 = delete_firework_days(df_260)
+        df_station = subset_month_range(df_station, start_mon, end_mon, year)
 
-    if only_260:  # return only the 260 station (only_260 var is unused)
-        return df_260
-    else:
-        return None
+    # Rename column to include station ID
+    df_station = df_station.rename(columns={df.columns[0]: f"S{station}"})
+    df_station = delete_feb_29th(df_station)
+    df_station = delete_firework_days(df_station)
+
+    return df_station
