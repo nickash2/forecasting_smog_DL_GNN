@@ -32,10 +32,12 @@ from pipeline import assert_equal_shape
 from pipeline import assert_equal_index
 from pipeline import assert_no_NaNs
 from pipeline import assert_range
+import pandas as pd
+import numpy as np
 
 
 def execute_pipeline(
-    contaminants: list = ["PM10", "O3", "NO2"],
+    contaminants: list = ["PM25", "PM10", "O3", "NO2"],
     locations: list = ["NL10636", "NL10641", 260],
     city_name: str = "Utrecht",
     years: list = [2017, 2018],
@@ -57,901 +59,222 @@ def execute_pipeline(
     stations = locations[2]
 
     # First step, load in the raw data
-    df_PM25_2016_raw, df_PM10_2016_raw, df_O3_2016_raw, df_NO2_2016_raw = (
-        read_four_contaminants(2016, contaminants)
-    )
-    df_PM25_2017_raw, df_PM10_2017_raw, df_O3_2017_raw, df_NO2_2017_raw = (
-        read_four_contaminants(2017, contaminants)
-    )
-    df_PM25_2018_raw, df_PM10_2018_raw, df_O3_2018_raw, df_NO2_2018_raw = (
-        read_four_contaminants(2018, contaminants)
-    )
-    df_PM25_2019_raw, df_PM10_2019_raw, df_O3_2019_raw, df_NO2_2019_raw = (
-        read_four_contaminants(2019, contaminants)
-    )
-    df_PM25_2020_raw, df_PM10_2020_raw, df_O3_2020_raw, df_NO2_2020_raw = (
-        read_four_contaminants(2020, contaminants)
-    )
-    df_PM25_2021_raw, df_PM10_2021_raw, df_O3_2021_raw, df_NO2_2021_raw = (
-        read_four_contaminants(2021, contaminants)
-    )
-    df_PM25_2022_raw, df_PM10_2022_raw, df_O3_2022_raw, df_NO2_2022_raw = (
-        read_four_contaminants(2022, contaminants)
-    )
-    df_PM25_2023_raw, df_PM10_2023_raw, df_O3_2023_raw, df_NO2_2023_raw = (
-        read_four_contaminants(2023, contaminants)
-    )
+    raw_data = {}
+    meteo_data = {}
 
-    df_meteo_2016_raw = read_meteo_csv_from_data_raw(2016)
-    df_meteo_2017_raw = read_meteo_csv_from_data_raw(2017)
-    df_meteo_2018_raw = read_meteo_csv_from_data_raw(2018)
-    df_meteo_2019_raw = read_meteo_csv_from_data_raw(2019)
-    df_meteo_2020_raw = read_meteo_csv_from_data_raw(2020)
-    df_meteo_2021_raw = read_meteo_csv_from_data_raw(2021)
-    df_meteo_2022_raw = read_meteo_csv_from_data_raw(2022)
-    df_meteo_2023_raw = read_meteo_csv_from_data_raw(2023)
+    for year in years:
+        raw_data[year] = read_four_contaminants(year, contaminants)
+        meteo_data[year] = read_meteo_csv_from_data_raw(year)
 
     if LOG:
         print("(1/8): Data read successfully")
 
     # First, tidy the contamination data
+    metadata = {}
 
-    PM25_2016_meta = get_metadata(df_PM25_2016_raw)
-    PM10_2016_meta = get_metadata(df_PM10_2016_raw)
-    O3_2016_meta = get_metadata(df_O3_2016_raw)
-    NO2_2016_meta = get_metadata(df_NO2_2016_raw)
-    PM25_2017_meta = get_metadata(df_PM25_2017_raw)
-    PM10_2017_meta = get_metadata(df_PM10_2017_raw)
-    O3_2017_meta = get_metadata(df_O3_2017_raw)
-    NO2_2017_meta = get_metadata(df_NO2_2017_raw)
-    PM25_2018_meta = get_metadata(df_PM25_2018_raw)
-    PM10_2018_meta = get_metadata(df_PM10_2018_raw)
-    O3_2018_meta = get_metadata(df_O3_2018_raw)
-    NO2_2018_meta = get_metadata(df_NO2_2018_raw)
-    PM25_2019_meta = get_metadata(df_PM25_2019_raw)
-    PM10_2019_meta = get_metadata(df_PM10_2019_raw)
-    O3_2019_meta = get_metadata(df_O3_2019_raw)
-    NO2_2019_meta = get_metadata(df_NO2_2019_raw)
-    PM25_2020_meta = get_metadata(df_PM25_2020_raw)
-    PM10_2020_meta = get_metadata(df_PM10_2020_raw)
-    O3_2020_meta = get_metadata(df_O3_2020_raw)
-    NO2_2020_meta = get_metadata(df_NO2_2020_raw)
-    PM25_2021_meta = get_metadata(df_PM25_2021_raw)
-    PM10_2021_meta = get_metadata(df_PM10_2021_raw)
-    O3_2021_meta = get_metadata(df_O3_2021_raw)
-    NO2_2021_meta = get_metadata(df_NO2_2021_raw)
-    PM25_2022_meta = get_metadata(df_PM25_2022_raw)
-    PM10_2022_meta = get_metadata(df_PM10_2022_raw)
-    O3_2022_meta = get_metadata(df_O3_2022_raw)
-    NO2_2022_meta = get_metadata(df_NO2_2022_raw)
-    PM25_2023_meta = get_metadata(df_PM25_2023_raw)
-    PM10_2023_meta = get_metadata(df_PM10_2023_raw)
-    O3_2023_meta = get_metadata(df_O3_2023_raw)
-    NO2_2023_meta = get_metadata(df_NO2_2023_raw)
-
-    df_PM25_2016_tidy = tidy_raw_contaminant_data(
-        df_PM25_2016_raw, "2016", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_PM10_2016_tidy = tidy_raw_contaminant_data(
-        df_PM10_2016_raw, "2016", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_O3_2016_tidy = tidy_raw_contaminant_data(
-        df_O3_2016_raw, "2016", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_NO2_2016_tidy = tidy_raw_contaminant_data(
-        df_NO2_2016_raw, "2016", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_PM25_2017_tidy = tidy_raw_contaminant_data(
-        df_PM25_2017_raw, "2017", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_PM10_2017_tidy = tidy_raw_contaminant_data(
-        df_PM10_2017_raw, "2017", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_O3_2017_tidy = tidy_raw_contaminant_data(
-        df_O3_2017_raw, "2017", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_NO2_2017_tidy = tidy_raw_contaminant_data(
-        df_NO2_2017_raw, "2017", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_PM25_2018_tidy = tidy_raw_contaminant_data(
-        df_PM25_2018_raw, "2018", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_PM10_2018_tidy = tidy_raw_contaminant_data(
-        df_PM10_2018_raw, "2018", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_O3_2018_tidy = tidy_raw_contaminant_data(
-        df_O3_2018_raw, "2018", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_NO2_2018_tidy = tidy_raw_contaminant_data(
-        df_NO2_2018_raw, "2018", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_PM25_2019_tidy = tidy_raw_contaminant_data(
-        df_PM25_2019_raw, "2019", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_PM10_2019_tidy = tidy_raw_contaminant_data(
-        df_PM10_2019_raw, "2019", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_O3_2019_tidy = tidy_raw_contaminant_data(
-        df_O3_2019_raw, "2019", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_NO2_2019_tidy = tidy_raw_contaminant_data(
-        df_NO2_2019_raw, "2019", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_PM25_2020_tidy = tidy_raw_contaminant_data(
-        df_PM25_2020_raw, "2020", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_PM10_2020_tidy = tidy_raw_contaminant_data(
-        df_PM10_2020_raw, "2020", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_O3_2020_tidy = tidy_raw_contaminant_data(
-        df_O3_2020_raw, "2020", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_NO2_2020_tidy = tidy_raw_contaminant_data(
-        df_NO2_2020_raw, "2020", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_PM25_2021_tidy = tidy_raw_contaminant_data(
-        df_PM25_2021_raw, "2021", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_PM10_2021_tidy = tidy_raw_contaminant_data(
-        df_PM10_2021_raw, "2021", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_O3_2021_tidy = tidy_raw_contaminant_data(
-        df_O3_2021_raw, "2021", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_NO2_2021_tidy = tidy_raw_contaminant_data(
-        df_NO2_2021_raw, "2021", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_PM25_2022_tidy = tidy_raw_contaminant_data(
-        df_PM25_2022_raw, "2022", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_PM10_2022_tidy = tidy_raw_contaminant_data(
-        df_PM10_2022_raw, "2022", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_O3_2022_tidy = tidy_raw_contaminant_data(
-        df_O3_2022_raw, "2022", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_NO2_2022_tidy = tidy_raw_contaminant_data(
-        df_NO2_2022_raw, "2022", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_PM25_2023_tidy = tidy_raw_contaminant_data(
-        df_PM25_2023_raw, "2023", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_PM10_2023_tidy = tidy_raw_contaminant_data(
-        df_PM10_2023_raw, "2023", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_O3_2023_tidy = tidy_raw_contaminant_data(
-        df_O3_2023_raw, "2023", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_NO2_2023_tidy = tidy_raw_contaminant_data(
-        df_NO2_2023_raw, "2023", SUBSET_MONTHS, START_MON, END_MON
-    )
+    # Get metadata for each contaminant and year
+    for year in years:
+        metadata[year] = {}
+        for i, contaminant in enumerate(contaminants):
+            metadata[year][contaminant] = get_metadata(raw_data[year][i])
 
     if LOG:
-        assert_equal_shape(
-            [
-                # df_PM25_2016_tidy, df_PM10_2016_tidy, df_O3_2016_tidy, df_NO2_2016_tidy,
-                df_PM25_2017_tidy,
-                df_PM10_2017_tidy,
-                df_O3_2017_tidy,
-                df_NO2_2017_tidy,
-                df_PM25_2018_tidy,
-                df_PM10_2018_tidy,
-                df_O3_2018_tidy,
-                df_NO2_2018_tidy,
-                # df_PM25_2019_tidy, df_PM10_2019_tidy, df_O3_2019_tidy, df_NO2_2019_tidy,
-                df_PM25_2020_tidy,
-                df_PM10_2020_tidy,
-                df_O3_2020_tidy,
-                df_NO2_2020_tidy,
-                df_PM25_2021_tidy,
-                df_PM10_2021_tidy,
-                df_O3_2021_tidy,
-                df_NO2_2021_tidy,
-                df_PM25_2022_tidy,
-                df_PM10_2022_tidy,
-                df_O3_2022_tidy,
-                df_NO2_2022_tidy,
-                df_PM25_2023_tidy,
-                df_PM10_2023_tidy,
-                df_O3_2023_tidy,
-                df_NO2_2023_tidy,
-                # Check for equal row length, not column length (there are a variable amount of
-                # locations that measure each components, so column number is unequal)
-            ],
-            True,
-            False,
-            "Tidying of pollutant data",
-        )
+        print(f"Got metadata for years {years} and contaminants {contaminants}")
+
+    # Create tidied data structures
+    tidy_data = {}
+
+    # Tidy data for each contaminant and year
+    for year in years:
+        tidy_data[year] = {}
+        for i, contaminant in enumerate(contaminants):
+            tidy_data[year][contaminant] = tidy_raw_contaminant_data(
+                raw_data[year][i], str(year), SUBSET_MONTHS, START_MON, END_MON
+            )
+
+    if LOG:
+        # Verify shape of tidied data
+        tidy_frames = []
+        for year in years:
+            tidy_frames.extend(list(tidy_data[year].values()))
+
+        assert_equal_shape(tidy_frames, True, False, "Tidying of pollutant data")
         print("(2/8): Pollutant data tidied successfully")
 
     # Second, tidy the meteorological data
+    meteo_vars = {
+        "temp": {"code": "T"},
+        "dewP": {"code": "TD"},
+        "WD": {"code": "DD"},
+        "Wvh": {"code": "FH"},
+        "Wmax": {"code": "FX"},
+        "preT": {"code": "DR"},
+        "P": {"code": "P"},
+        "preS": {"code": "RH"},
+        "SQ": {"code": "SQ"},
+        "Q": {"code": "Q"},
+    }
 
-    # # 2016
-    # df_temp_2016_tidy = tidy_raw_meteo_data(
-    #     df_meteo_2016_raw, 'T', stations, SUBSET_MONTHS, START_MON, END_MON)
-    # df_dewP_2016_tidy = tidy_raw_meteo_data(
-    #     df_meteo_2016_raw, 'TD', stations, SUBSET_MONTHS, START_MON, END_MON)
-    # df_WD_2016_tidy   = tidy_raw_meteo_data(
-    #     df_meteo_2016_raw, 'DD', stations, SUBSET_MONTHS, START_MON, END_MON)
-    # df_Wvh_2016_tidy  = tidy_raw_meteo_data(
-    #     df_meteo_2016_raw, 'FH', stations, SUBSET_MONTHS, START_MON, END_MON)
-    # df_Wmax_2016_tidy = tidy_raw_meteo_data(
-    #     df_meteo_2016_raw, 'FX', stations, SUBSET_MONTHS, START_MON, END_MON)
-    # df_preT_2016_tidy = tidy_raw_meteo_data(
-    #     df_meteo_2016_raw, 'DR', stations, SUBSET_MONTHS, START_MON, END_MON)
-    # df_P_2016_tidy    = tidy_raw_meteo_data(
-    #     df_meteo_2016_raw, 'P', stations, SUBSET_MONTHS, START_MON, END_MON)
-    # df_preS_2016_tidy = tidy_raw_meteo_data(
-    #     df_meteo_2016_raw, 'RH', stations, SUBSET_MONTHS, START_MON, END_MON)
-    # df_SQ_2016_tidy   = tidy_raw_meteo_data(
-    #     df_meteo_2016_raw, 'SQ', stations, SUBSET_MONTHS, START_MON, END_MON)
-    # df_Q_2016_tidy    = tidy_raw_meteo_data(
-    #     df_meteo_2016_raw, 'Q', stations, SUBSET_MONTHS, START_MON, END_MON)
-    # 2017
-    df_temp_2017_tidy = tidy_raw_meteo_data(
-        df_meteo_2017_raw, "T", stations, "2017", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_dewP_2017_tidy = tidy_raw_meteo_data(
-        df_meteo_2017_raw, "TD", stations, "2017", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_WD_2017_tidy = tidy_raw_meteo_data(
-        df_meteo_2017_raw, "DD", stations, "2017", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_Wvh_2017_tidy = tidy_raw_meteo_data(
-        df_meteo_2017_raw, "FH", stations, "2017", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_Wmax_2017_tidy = tidy_raw_meteo_data(
-        df_meteo_2017_raw, "FX", stations, "2017", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_preT_2017_tidy = tidy_raw_meteo_data(
-        df_meteo_2017_raw, "DR", stations, "2017", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_P_2017_tidy = tidy_raw_meteo_data(
-        df_meteo_2017_raw, "P", stations, "2017", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_preS_2017_tidy = tidy_raw_meteo_data(
-        df_meteo_2017_raw, "RH", stations, "2017", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_SQ_2017_tidy = tidy_raw_meteo_data(
-        df_meteo_2017_raw, "SQ", stations, "2017", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_Q_2017_tidy = tidy_raw_meteo_data(
-        df_meteo_2017_raw, "Q", stations, "2017", SUBSET_MONTHS, START_MON, END_MON
-    )
-    # 2018
-    df_temp_2018_tidy = tidy_raw_meteo_data(
-        df_meteo_2018_raw, "T", stations, "2018", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_dewP_2018_tidy = tidy_raw_meteo_data(
-        df_meteo_2018_raw, "TD", stations, "2018", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_WD_2018_tidy = tidy_raw_meteo_data(
-        df_meteo_2018_raw, "DD", stations, "2018", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_Wvh_2018_tidy = tidy_raw_meteo_data(
-        df_meteo_2018_raw, "FH", stations, "2018", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_Wmax_2018_tidy = tidy_raw_meteo_data(
-        df_meteo_2018_raw, "FX", stations, "2018", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_preT_2018_tidy = tidy_raw_meteo_data(
-        df_meteo_2018_raw, "DR", stations, "2018", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_P_2018_tidy = tidy_raw_meteo_data(
-        df_meteo_2018_raw, "P", stations, "2018", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_preS_2018_tidy = tidy_raw_meteo_data(
-        df_meteo_2018_raw, "RH", stations, "2018", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_SQ_2018_tidy = tidy_raw_meteo_data(
-        df_meteo_2018_raw, "SQ", stations, "2018", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_Q_2018_tidy = tidy_raw_meteo_data(
-        df_meteo_2018_raw, "Q", stations, "2018", SUBSET_MONTHS, START_MON, END_MON
-    )
-    # # 2019
-    # df_temp_2019_tidy = tidy_raw_meteo_data(
-    #     df_meteo_2019_raw, 'T', stations, '2019', SUBSET_MONTHS, START_MON, END_MON)
-    # df_dewP_2019_tidy = tidy_raw_meteo_data(
-    #     df_meteo_2019_raw, 'TD', stations, '2019', SUBSET_MONTHS, START_MON, END_MON)
-    # df_WD_2019_tidy   = tidy_raw_meteo_data(
-    #     df_meteo_2019_raw, 'DD', stations, '2019', SUBSET_MONTHS, START_MON, END_MON)
-    # df_Wvh_2019_tidy  = tidy_raw_meteo_data(
-    #     df_meteo_2019_raw, 'FH', stations, '2019', SUBSET_MONTHS, START_MON, END_MON)
-    # df_Wmax_2019_tidy = tidy_raw_meteo_data(
-    #     df_meteo_2019_raw, 'FX', stations, '2019', SUBSET_MONTHS, START_MON, END_MON)
-    # df_preT_2019_tidy = tidy_raw_meteo_data(
-    #     df_meteo_2019_raw, 'DR', stations, '2019', SUBSET_MONTHS, START_MON, END_MON)
-    # df_P_2019_tidy    = tidy_raw_meteo_data(
-    #     df_meteo_2019_raw, 'P', stations, '2019', SUBSET_MONTHS, START_MON, END_MON)
-    # df_preS_2019_tidy = tidy_raw_meteo_data(
-    #     df_meteo_2019_raw, 'RH', stations, '2019', SUBSET_MONTHS, START_MON, END_MON)
-    # df_SQ_2019_tidy   = tidy_raw_meteo_data(
-    #     df_meteo_2019_raw, 'SQ', stations, '2019', SUBSET_MONTHS, START_MON, END_MON)
-    # df_Q_2019_tidy    = tidy_raw_meteo_data(
-    #     df_meteo_2019_raw, 'Q', stations, '2019', SUBSET_MONTHS, START_MON, END_MON)
-    # 2020
-    df_temp_2020_tidy = tidy_raw_meteo_data(
-        df_meteo_2020_raw, "T", stations, "2020", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_dewP_2020_tidy = tidy_raw_meteo_data(
-        df_meteo_2020_raw, "TD", stations, "2020", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_WD_2020_tidy = tidy_raw_meteo_data(
-        df_meteo_2020_raw, "DD", stations, "2020", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_Wvh_2020_tidy = tidy_raw_meteo_data(
-        df_meteo_2020_raw, "FH", stations, "2020", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_Wmax_2020_tidy = tidy_raw_meteo_data(
-        df_meteo_2020_raw, "FX", stations, "2020", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_preT_2020_tidy = tidy_raw_meteo_data(
-        df_meteo_2020_raw, "DR", stations, "2020", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_P_2020_tidy = tidy_raw_meteo_data(
-        df_meteo_2020_raw, "P", stations, "2020", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_preS_2020_tidy = tidy_raw_meteo_data(
-        df_meteo_2020_raw, "RH", stations, "2020", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_SQ_2020_tidy = tidy_raw_meteo_data(
-        df_meteo_2020_raw, "SQ", stations, "2020", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_Q_2020_tidy = tidy_raw_meteo_data(
-        df_meteo_2020_raw, "Q", stations, "2020", SUBSET_MONTHS, START_MON, END_MON
-    )
-    # 2021
-    df_temp_2021_tidy = tidy_raw_meteo_data(
-        df_meteo_2021_raw, "T", stations, "2021", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_dewP_2021_tidy = tidy_raw_meteo_data(
-        df_meteo_2021_raw, "TD", stations, "2021", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_WD_2021_tidy = tidy_raw_meteo_data(
-        df_meteo_2021_raw, "DD", stations, "2021", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_Wvh_2021_tidy = tidy_raw_meteo_data(
-        df_meteo_2021_raw, "FH", stations, "2021", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_Wmax_2021_tidy = tidy_raw_meteo_data(
-        df_meteo_2021_raw, "FX", stations, "2021", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_preT_2021_tidy = tidy_raw_meteo_data(
-        df_meteo_2021_raw, "DR", stations, "2021", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_P_2021_tidy = tidy_raw_meteo_data(
-        df_meteo_2021_raw, "P", stations, "2021", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_preS_2021_tidy = tidy_raw_meteo_data(
-        df_meteo_2021_raw, "RH", stations, "2021", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_SQ_2021_tidy = tidy_raw_meteo_data(
-        df_meteo_2021_raw, "SQ", stations, "2021", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_Q_2021_tidy = tidy_raw_meteo_data(
-        df_meteo_2021_raw, "Q", stations, "2021", SUBSET_MONTHS, START_MON, END_MON
-    )
-    # 2022
-    df_temp_2022_tidy = tidy_raw_meteo_data(
-        df_meteo_2022_raw, "T", stations, "2022", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_dewP_2022_tidy = tidy_raw_meteo_data(
-        df_meteo_2022_raw, "TD", stations, "2022", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_WD_2022_tidy = tidy_raw_meteo_data(
-        df_meteo_2022_raw, "DD", stations, "2022", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_Wvh_2022_tidy = tidy_raw_meteo_data(
-        df_meteo_2022_raw, "FH", stations, "2022", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_Wmax_2022_tidy = tidy_raw_meteo_data(
-        df_meteo_2022_raw, "FX", stations, "2022", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_preT_2022_tidy = tidy_raw_meteo_data(
-        df_meteo_2022_raw, "DR", stations, "2022", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_P_2022_tidy = tidy_raw_meteo_data(
-        df_meteo_2022_raw, "P", stations, "2022", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_preS_2022_tidy = tidy_raw_meteo_data(
-        df_meteo_2022_raw, "RH", stations, "2022", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_SQ_2022_tidy = tidy_raw_meteo_data(
-        df_meteo_2022_raw, "SQ", stations, "2022", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_Q_2022_tidy = tidy_raw_meteo_data(
-        df_meteo_2022_raw, "Q", stations, "2022", SUBSET_MONTHS, START_MON, END_MON
-    )
-    # 2023
-    df_temp_2023_tidy = tidy_raw_meteo_data(
-        df_meteo_2023_raw, "T", stations, "2023", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_dewP_2023_tidy = tidy_raw_meteo_data(
-        df_meteo_2023_raw, "TD", stations, "2023", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_WD_2023_tidy = tidy_raw_meteo_data(
-        df_meteo_2023_raw, "DD", stations, "2023", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_Wvh_2023_tidy = tidy_raw_meteo_data(
-        df_meteo_2023_raw, "FH", stations, "2023", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_Wmax_2023_tidy = tidy_raw_meteo_data(
-        df_meteo_2023_raw, "FX", stations, "2023", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_preT_2023_tidy = tidy_raw_meteo_data(
-        df_meteo_2023_raw, "DR", stations, "2023", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_P_2023_tidy = tidy_raw_meteo_data(
-        df_meteo_2023_raw, "P", stations, "2023", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_preS_2023_tidy = tidy_raw_meteo_data(
-        df_meteo_2023_raw, "RH", stations, "2023", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_SQ_2023_tidy = tidy_raw_meteo_data(
-        df_meteo_2023_raw, "SQ", stations, "2023", SUBSET_MONTHS, START_MON, END_MON
-    )
-    df_Q_2023_tidy = tidy_raw_meteo_data(
-        df_meteo_2023_raw, "Q", stations, "2023", SUBSET_MONTHS, START_MON, END_MON
-    )
+    tidy_meteo = {}
+
+    # Process each year's meteorological data
+    for year in years:
+        tidy_meteo[year] = {}
+        for var_name, var_info in meteo_vars.items():
+            tidy_meteo[year][var_name] = tidy_raw_meteo_data(
+                meteo_data[year],
+                var_info["code"],
+                stations,
+                str(year),
+                SUBSET_MONTHS,
+                START_MON,
+                END_MON,
+            )
 
     if LOG:
+        # Verify shape of tidied meteorological data
+        tidy_meteo_frames = []
+        for year in years:
+            tidy_meteo_frames.extend(list(tidy_meteo[year].values()))
+
         assert_equal_shape(
-            [
-                # df_temp_2016_tidy, df_dewP_2016_tidy, df_WD_2016_tidy, df_Wvh_2016_tidy, df_Wmax_2016_tidy,
-                # df_preT_2016_tidy, df_P_2016_tidy, df_preS_2016_tidy, df_SQ_2016_tidy, df_Q_2016_tidy,
-                df_temp_2017_tidy,
-                df_dewP_2017_tidy,
-                df_WD_2017_tidy,
-                df_Wvh_2017_tidy,
-                df_Wmax_2017_tidy,
-                df_preT_2017_tidy,
-                df_P_2017_tidy,
-                df_preS_2017_tidy,
-                df_SQ_2017_tidy,
-                df_Q_2017_tidy,
-                df_temp_2018_tidy,
-                df_dewP_2018_tidy,
-                df_WD_2018_tidy,
-                df_Wvh_2018_tidy,
-                df_Wmax_2018_tidy,
-                df_preT_2018_tidy,
-                df_P_2018_tidy,
-                df_preS_2018_tidy,
-                df_SQ_2018_tidy,
-                df_Q_2018_tidy,
-                # df_temp_2019_tidy, df_dewP_2019_tidy, df_WD_2019_tidy, df_Wvh_2019_tidy, df_Wmax_2019_tidy,
-                # df_preT_2019_tidy, df_P_2019_tidy, df_preS_2019_tidy, df_SQ_2019_tidy, df_Q_2019_tidy,
-                df_temp_2020_tidy,
-                df_dewP_2020_tidy,
-                df_WD_2020_tidy,
-                df_Wvh_2020_tidy,
-                df_Wmax_2020_tidy,
-                df_preT_2020_tidy,
-                df_P_2020_tidy,
-                df_preS_2020_tidy,
-                df_SQ_2020_tidy,
-                df_Q_2020_tidy,
-                df_temp_2021_tidy,
-                df_dewP_2021_tidy,
-                df_WD_2021_tidy,
-                df_Wvh_2021_tidy,
-                df_Wmax_2021_tidy,
-                df_preT_2021_tidy,
-                df_P_2021_tidy,
-                df_preS_2021_tidy,
-                df_SQ_2021_tidy,
-                df_Q_2021_tidy,
-                df_temp_2022_tidy,
-                df_dewP_2022_tidy,
-                df_WD_2022_tidy,
-                df_Wvh_2022_tidy,
-                df_Wmax_2022_tidy,
-                df_preT_2022_tidy,
-                df_P_2022_tidy,
-                df_preS_2022_tidy,
-                df_SQ_2022_tidy,
-                df_Q_2022_tidy,
-                df_temp_2023_tidy,
-                df_dewP_2023_tidy,
-                df_WD_2023_tidy,
-                df_Wvh_2023_tidy,
-                df_Wmax_2023_tidy,
-                df_preT_2023_tidy,
-                df_P_2023_tidy,
-                df_preS_2023_tidy,
-                df_SQ_2023_tidy,
-                df_Q_2023_tidy,
-                # The meteorological tidying is done per component, so here we can check for
-                # equal column length and equal row length (in contrast to the pollutant data)
-            ],
-            True,
-            True,
-            "Tidying of meteorological data",
+            tidy_meteo_frames, True, True, "Tidying of meteorological data"
         )
-        # As can be seen in the raw data, the KNMI data should be complete and have no NaNs
-        assert_no_NaNs(
-            [
-                # df_temp_2016_tidy, df_dewP_2016_tidy, df_WD_2016_tidy, df_Wvh_2016_tidy, df_Wmax_2016_tidy,
-                # df_preT_2016_tidy, df_P_2016_tidy, df_preS_2016_tidy, df_SQ_2016_tidy, df_Q_2016_tidy,
-                df_temp_2017_tidy,
-                df_dewP_2017_tidy,
-                df_WD_2017_tidy,
-                df_Wvh_2017_tidy,
-                df_Wmax_2017_tidy,
-                df_preT_2017_tidy,
-                df_P_2017_tidy,
-                df_preS_2017_tidy,
-                df_SQ_2017_tidy,
-                df_Q_2017_tidy,
-                df_temp_2018_tidy,
-                df_dewP_2018_tidy,
-                df_WD_2018_tidy,
-                df_Wvh_2018_tidy,
-                df_Wmax_2018_tidy,
-                df_preT_2018_tidy,
-                df_P_2018_tidy,
-                df_preS_2018_tidy,
-                df_SQ_2018_tidy,
-                df_Q_2018_tidy,
-                # df_temp_2019_tidy, df_dewP_2019_tidy, df_WD_2019_tidy, df_Wvh_2019_tidy, df_Wmax_2019_tidy,
-                # df_preT_2019_tidy, df_P_2019_tidy, df_preS_2019_tidy, df_SQ_2019_tidy, df_Q_2019_tidy,
-                df_temp_2020_tidy,
-                df_dewP_2020_tidy,
-                df_WD_2020_tidy,
-                df_Wvh_2020_tidy,
-                df_Wmax_2020_tidy,
-                df_preT_2020_tidy,
-                df_P_2020_tidy,
-                df_preS_2020_tidy,
-                df_SQ_2020_tidy,
-                df_Q_2020_tidy,
-                df_temp_2021_tidy,
-                df_dewP_2021_tidy,
-                df_WD_2021_tidy,
-                df_Wvh_2021_tidy,
-                df_Wmax_2021_tidy,
-                df_preT_2021_tidy,
-                df_P_2021_tidy,
-                df_preS_2021_tidy,
-                df_SQ_2021_tidy,
-                df_Q_2021_tidy,
-                df_temp_2022_tidy,
-                df_dewP_2022_tidy,
-                df_WD_2022_tidy,
-                df_Wvh_2022_tidy,
-                df_Wmax_2022_tidy,
-                df_preT_2022_tidy,
-                df_P_2022_tidy,
-                df_preS_2022_tidy,
-                df_SQ_2022_tidy,
-                df_Q_2022_tidy,
-                df_temp_2023_tidy,
-                df_dewP_2023_tidy,
-                df_WD_2023_tidy,
-                df_Wvh_2023_tidy,
-                df_Wmax_2023_tidy,
-                df_preT_2023_tidy,
-                df_P_2023_tidy,
-                df_preS_2023_tidy,
-                df_SQ_2023_tidy,
-                df_Q_2023_tidy,
-            ],
-            "Tydying of meteorological data",
-        )
+
+        # Verify no NaNs in meteorological data
+        assert_no_NaNs(tidy_meteo_frames, "Tidying of meteorological data")
         print("(3/8): Meteorological data tidied successfully")
 
-    # print("Printing some basic statistics for the pollutants:")
-    # print("(Sensor NL10636 is TUINDORP)\n")
-
-    # print_aggegrated_sensor_metrics(
-    #     [df_PM25_2017_tidy,
-    #      df_PM25_2018_tidy,
-    #      df_PM25_2020_tidy,
-    #      df_PM25_2021_tidy,
-    #      df_PM25_2022_tidy,
-    #      df_PM25_2023_tidy], TUINDORP, PM25_2017_meta
-    # )
-
-    # print_aggegrated_sensor_metrics(
-    #     [df_PM10_2017_tidy,
-    #      df_PM10_2018_tidy,
-    #      df_PM10_2020_tidy,
-    #      df_PM10_2021_tidy,
-    #      df_PM10_2022_tidy,
-    #      df_PM10_2023_tidy], TUINDORP, PM10_2017_meta
-    # )
-
-    # print_aggegrated_sensor_metrics(
-    #     [df_O3_2017_tidy,
-    #      df_O3_2018_tidy,
-    #      df_O3_2020_tidy,
-    #      df_O3_2021_tidy,
-    #      df_O3_2022_tidy,
-    #      df_O3_2023_tidy], TUINDORP, O3_2017_meta
-    # )
-
-    # print_aggegrated_sensor_metrics(
-    #     [df_NO2_2017_tidy,
-    #      df_NO2_2018_tidy,
-    #      df_NO2_2020_tidy,
-    #      df_NO2_2021_tidy,
-    #      df_NO2_2022_tidy,
-    #      df_NO2_2023_tidy], TUINDORP, NO2_2017_meta
-    # )
-
-    del df_PM25_2016_raw, df_PM10_2016_raw, df_O3_2016_raw, df_NO2_2016_raw
-    del df_PM25_2017_raw, df_PM10_2017_raw, df_O3_2017_raw, df_NO2_2017_raw
-    del df_PM25_2018_raw, df_PM10_2018_raw, df_O3_2018_raw, df_NO2_2018_raw
-    del df_PM25_2019_raw, df_PM10_2019_raw, df_O3_2019_raw, df_NO2_2019_raw
-    del df_PM25_2020_raw, df_PM10_2020_raw, df_O3_2020_raw, df_NO2_2020_raw
-    del df_PM25_2021_raw, df_PM10_2021_raw, df_O3_2021_raw, df_NO2_2021_raw
-    del df_PM25_2022_raw, df_PM10_2022_raw, df_O3_2022_raw, df_NO2_2022_raw
-    del df_PM25_2023_raw, df_PM10_2023_raw, df_O3_2023_raw, df_NO2_2023_raw
-    del df_meteo_2016_raw
-    del df_meteo_2017_raw
-    del df_meteo_2018_raw
-    del df_meteo_2019_raw
-    del df_meteo_2020_raw
-    del df_meteo_2021_raw
-    del df_meteo_2022_raw
-    del df_meteo_2023_raw
+    # Clean up raw meteorological data
+    del meteo_data
+    del raw_data
 
     # Here, we'll select the locations we want to use. The
     # I/O-task can be either 0-dimensional, or 1-dimensional.
-
-    # EDIT: The project is continued with a one-dimensional set-up,
-    # but some code might still be accustomed to both possible set-ups.
-
     sensors_1D = [TUINDORP, BREUKELEN]
 
-    df_PM25_2017_tidy_subset_1D = subset_sensors(df_PM25_2017_tidy, sensors_1D)
-    df_PM10_2017_tidy_subset_1D = subset_sensors(df_PM10_2017_tidy, sensors_1D)
-    df_O3_2017_tidy_subset_1D = subset_sensors(df_O3_2017_tidy, sensors_1D)
-    df_NO2_2017_tidy_subset_1D = subset_sensors(df_NO2_2017_tidy, sensors_1D)
-    df_PM25_2018_tidy_subset_1D = subset_sensors(df_PM25_2018_tidy, sensors_1D)
-    df_PM10_2018_tidy_subset_1D = subset_sensors(df_PM10_2018_tidy, sensors_1D)
-    df_O3_2018_tidy_subset_1D = subset_sensors(df_O3_2018_tidy, sensors_1D)
-    df_NO2_2018_tidy_subset_1D = subset_sensors(df_NO2_2018_tidy, sensors_1D)
-    df_PM25_2020_tidy_subset_1D = subset_sensors(df_PM25_2020_tidy, sensors_1D)
-    df_PM10_2020_tidy_subset_1D = subset_sensors(df_PM10_2020_tidy, sensors_1D)
-    df_O3_2020_tidy_subset_1D = subset_sensors(df_O3_2020_tidy, sensors_1D)
-    df_NO2_2020_tidy_subset_1D = subset_sensors(df_NO2_2020_tidy, sensors_1D)
-    df_PM25_2021_tidy_subset_1D = subset_sensors(df_PM25_2021_tidy, sensors_1D)
-    df_PM10_2021_tidy_subset_1D = subset_sensors(df_PM10_2021_tidy, sensors_1D)
-    df_O3_2021_tidy_subset_1D = subset_sensors(df_O3_2021_tidy, sensors_1D)
-    df_NO2_2021_tidy_subset_1D = subset_sensors(df_NO2_2021_tidy, sensors_1D)
-    df_PM25_2022_tidy_subset_1D = subset_sensors(df_PM25_2022_tidy, sensors_1D)
-    df_PM10_2022_tidy_subset_1D = subset_sensors(df_PM10_2022_tidy, sensors_1D)
-    df_O3_2022_tidy_subset_1D = subset_sensors(df_O3_2022_tidy, sensors_1D)
-    df_NO2_2022_tidy_subset_1D = subset_sensors(df_NO2_2022_tidy, sensors_1D)
-    df_PM25_2023_tidy_subset_1D = subset_sensors(df_PM25_2023_tidy, sensors_1D)
-    df_PM10_2023_tidy_subset_1D = subset_sensors(df_PM10_2023_tidy, sensors_1D)
-    df_O3_2023_tidy_subset_1D = subset_sensors(df_O3_2023_tidy, sensors_1D)
-    df_NO2_2023_tidy_subset_1D = subset_sensors(df_NO2_2023_tidy, sensors_1D)
+    # Create dictionary for subset data
+    tidy_subset = {}
 
-    del df_PM25_2017_tidy, df_PM10_2017_tidy, df_O3_2017_tidy, df_NO2_2017_tidy
-    del df_PM25_2018_tidy, df_PM10_2018_tidy, df_O3_2018_tidy, df_NO2_2018_tidy
-    del df_PM25_2020_tidy, df_PM10_2020_tidy, df_O3_2020_tidy, df_NO2_2020_tidy
-    del df_PM25_2021_tidy, df_PM10_2021_tidy, df_O3_2021_tidy, df_NO2_2021_tidy
-    del df_PM25_2022_tidy, df_PM10_2022_tidy, df_O3_2022_tidy, df_NO2_2022_tidy
-    del df_PM25_2023_tidy, df_PM10_2023_tidy, df_O3_2023_tidy, df_NO2_2023_tidy
-
-    # # print(df_NO2_2016_tidy_subset_1D.shape, df_O3_2016_tidy_subset_1D.shape,
-    # #       df_PM25_2016_tidy_subset_1D.shape, df_PM10_2016_tidy_subset_1D.shape)
-    # print(df_NO2_2017_tidy_subset_1D.shape, df_O3_2017_tidy_subset_1D.shape,
-    #         df_PM25_2017_tidy_subset_1D.shape, df_PM10_2017_tidy_subset_1D.shape)
-    # print(df_NO2_2018_tidy_subset_1D.shape, df_O3_2018_tidy_subset_1D.shape,
-    #         df_PM25_2018_tidy_subset_1D.shape, df_PM10_2018_tidy_subset_1D.shape)
-    # # print(df_NO2_2019_tidy_subset_1D.shape, df_O3_2019_tidy_subset_1D.shape,
-    # #         df_PM25_2019_tidy_subset_1D.shape, df_PM10_2019_tidy_subset_1D.shape)
-    # print(df_NO2_2020_tidy_subset_1D.shape, df_O3_2020_tidy_subset_1D.shape,
-    #         df_PM25_2020_tidy_subset_1D.shape, df_PM10_2020_tidy_subset_1D.shape)
-    # print(df_NO2_2021_tidy_subset_1D.shape, df_O3_2021_tidy_subset_1D.shape,
-    #         df_PM25_2021_tidy_subset_1D.shape, df_PM10_2021_tidy_subset_1D.shape)
-    # print(df_NO2_2022_tidy_subset_1D.shape, df_O3_2022_tidy_subset_1D.shape,
-    #         df_PM25_2022_tidy_subset_1D.shape, df_PM10_2022_tidy_subset_1D.shape)
-
-    # # # Add dummy column for missing cols
-    # # df_O3_2016_tidy_subset_1D[TUINDORP] = np.nan
-    # # df_O3_2019_tidy_subset_1D[TUINDORP] = np.nan
+    # Subset sensors for each year and contaminant
+    for year in years:
+        tidy_subset[year] = {}
+        for contaminant in contaminants:
+            tidy_subset[year][contaminant] = subset_sensors(
+                tidy_data[year][contaminant], sensors_1D
+            )
 
     if LOG:
+        # Verify shape of subset data
+        subset_frames = []
+        for year in years:
+            print(f"Year {year}, {contaminant}: {tidy_subset[year][contaminant].shape}")
+            subset_frames.append(tidy_subset[year][contaminant])
+        # print(subset_frames)
         assert_equal_shape(
-            [
-                # df_NO2_2016_tidy_subset_1D, df_O3_2016_tidy_subset_1D,
-                # df_PM25_2016_tidy_subset_1D, df_PM10_2016_tidy_subset_1D,
-                df_NO2_2017_tidy_subset_1D,
-                df_O3_2017_tidy_subset_1D,
-                df_PM25_2017_tidy_subset_1D,
-                df_PM10_2017_tidy_subset_1D,
-                df_NO2_2018_tidy_subset_1D,
-                df_O3_2018_tidy_subset_1D,
-                df_PM25_2018_tidy_subset_1D,
-                df_PM10_2018_tidy_subset_1D,
-                # df_NO2_2019_tidy_subset_1D, df_O3_2019_tidy_subset_1D,
-                # df_PM25_2019_tidy_subset_1D, df_PM10_2019_tidy_subset_1D,
-                df_NO2_2020_tidy_subset_1D,
-                df_O3_2020_tidy_subset_1D,
-                df_PM25_2020_tidy_subset_1D,
-                df_PM10_2020_tidy_subset_1D,
-                df_NO2_2021_tidy_subset_1D,
-                df_O3_2021_tidy_subset_1D,
-                df_PM25_2021_tidy_subset_1D,
-                df_PM10_2021_tidy_subset_1D,
-                df_NO2_2022_tidy_subset_1D,
-                df_O3_2022_tidy_subset_1D,
-                df_PM25_2022_tidy_subset_1D,
-                df_PM10_2022_tidy_subset_1D,
-                # Check for both row and column length, as the data is now subsetted
-                # for locations, and should have n_col of a year and n_row of x locations
-            ],
-            True,
-            True,
-            "Location-wise subsetting of pollutant data",
+            subset_frames, True, True, "Location-wise subsetting of pollutant data"
         )
-        assert_no_NaNs(
-            [
-                # df_NO2_2016_tidy_subset_1D, df_O3_2016_tidy_subset_1D,
-                # df_PM25_2016_tidy_subset_1D, df_PM10_2016_tidy_subset_1D,
-                df_NO2_2017_tidy_subset_1D,
-                df_O3_2017_tidy_subset_1D,
-                df_PM25_2017_tidy_subset_1D,
-                df_PM10_2017_tidy_subset_1D,
-                df_NO2_2018_tidy_subset_1D,
-                df_O3_2018_tidy_subset_1D,
-                df_PM25_2018_tidy_subset_1D,
-                df_PM10_2018_tidy_subset_1D,
-                # df_NO2_2019_tidy_subset_1D, df_O3_2019_tidy_subset_1D,
-                # df_PM25_2019_tidy_subset_1D, df_PM10_2019_tidy_subset_1D,
-                df_NO2_2020_tidy_subset_1D,
-                df_O3_2020_tidy_subset_1D,
-                df_PM25_2020_tidy_subset_1D,
-                df_PM10_2020_tidy_subset_1D,
-                df_NO2_2021_tidy_subset_1D,
-                df_O3_2021_tidy_subset_1D,
-                df_PM25_2021_tidy_subset_1D,
-                df_PM10_2021_tidy_subset_1D,
-                df_NO2_2022_tidy_subset_1D,
-                df_O3_2022_tidy_subset_1D,
-                df_PM25_2022_tidy_subset_1D,
-                df_PM10_2022_tidy_subset_1D,
-                # By now, only locations with sufficient data should be left, and,
-                # hence, no NaNs should be left in any of the pollutant dataframes
-            ],
-            "Location-wise subsetting of pollutant data",
-        )
+
+        # Verify no NaNs in subset data
+        assert_no_NaNs(subset_frames, "Location-wise subsetting of pollutant data")
         print("(4/8): Location-wise subsetting of pollutant data successful")
 
-    # Splitting the data into train, validation and test sets.
-    # Each component is split separately. (All data remains
-    # segregate for now for proper normalisation later.)
+    # Clean up original tidy data
+    del tidy_data
 
-    df_PM25_2017_train_1D = df_PM25_2017_tidy_subset_1D.copy()
-    df_PM10_2017_train_1D = df_PM10_2017_tidy_subset_1D.copy()
-    df_NO2_2017_train_1D = df_NO2_2017_tidy_subset_1D.copy()
-    df_O3_2017_train_1D = df_O3_2017_tidy_subset_1D.copy()
-    df_temp_2017_train = df_temp_2017_tidy.copy()
-    df_dewP_2017_train = df_dewP_2017_tidy.copy()
-    df_WD_2017_train = df_WD_2017_tidy.copy()
-    df_Wvh_2017_train = df_Wvh_2017_tidy.copy()
-    df_P_2017_train = df_P_2017_tidy.copy()
-    df_SQ_2017_train = df_SQ_2017_tidy.copy()
+    print("Printing some basic statistics for the pollutants:")
+    print(f"(Sensor {TUINDORP} is TUINDORP)\n")
 
-    df_PM25_2018_train_1D = df_PM25_2018_tidy_subset_1D.copy()
-    df_PM10_2018_train_1D = df_PM10_2018_tidy_subset_1D.copy()
-    df_NO2_2018_train_1D = df_NO2_2018_tidy_subset_1D.copy()
-    df_O3_2018_train_1D = df_O3_2018_tidy_subset_1D.copy()
-    df_temp_2018_train = df_temp_2018_tidy.copy()
-    df_dewP_2018_train = df_dewP_2018_tidy.copy()
-    df_WD_2018_train = df_WD_2018_tidy.copy()
-    df_Wvh_2018_train = df_Wvh_2018_tidy.copy()
-    df_P_2018_train = df_P_2018_tidy.copy()
-    df_SQ_2018_train = df_SQ_2018_tidy.copy()
+    # Aggregate sensor metrics
+    for contaminant in contaminants:
+        # Collect all frames for this contaminant across years
+        frames = []
+        for year in years:
+            if year in tidy_subset:
+                frames.append(tidy_subset[year][contaminant])
 
-    df_PM25_2020_train_1D = df_PM25_2020_tidy_subset_1D.copy()
-    df_PM10_2020_train_1D = df_PM10_2020_tidy_subset_1D.copy()
-    df_NO2_2020_train_1D = df_NO2_2020_tidy_subset_1D.copy()
-    df_O3_2020_train_1D = df_O3_2020_tidy_subset_1D.copy()
-    df_temp_2020_train = df_temp_2020_tidy.copy()
-    df_dewP_2020_train = df_dewP_2020_tidy.copy()
-    df_WD_2020_train = df_WD_2020_tidy.copy()
-    df_Wvh_2020_train = df_Wvh_2020_tidy.copy()
-    df_P_2020_train = df_P_2020_tidy.copy()
-    df_SQ_2020_train = df_SQ_2020_tidy.copy()
+        # Use metadata from the first available year for this contaminant
+        first_year = min(years)
+        meta = metadata[first_year][contaminant]
 
-    df_PM25_2021_train_1D, df_PM25_2021_val_1D, df_PM25_2021_test_1D = (
-        perform_data_split(df_PM25_2021_tidy_subset_1D, days_vali, days_test)
-    )
-    df_PM10_2021_train_1D, df_PM10_2021_val_1D, df_PM10_2021_test_1D = (
-        perform_data_split(df_PM10_2021_tidy_subset_1D, days_vali, days_test)
-    )
-    df_NO2_2021_train_1D, df_NO2_2021_val_1D, df_NO2_2021_test_1D = perform_data_split(
-        df_NO2_2021_tidy_subset_1D, days_vali, days_test
-    )
-    df_O3_2021_train_1D, df_O3_2021_val_1D, df_O3_2021_test_1D = perform_data_split(
-        df_O3_2021_tidy_subset_1D, days_vali, days_test
-    )
-    df_temp_2021_train, df_temp_2021_val, df_temp_2021_test = perform_data_split(
-        df_temp_2021_tidy, days_vali, days_test
-    )
-    df_dewP_2021_train, df_dewP_2021_val, df_dewP_2021_test = perform_data_split(
-        df_dewP_2021_tidy, days_vali, days_test
-    )
-    df_WD_2021_train, df_WD_2021_val, df_WD_2021_test = perform_data_split(
-        df_WD_2021_tidy, days_vali, days_test
-    )
-    df_Wvh_2021_train, df_Wvh_2021_val, df_Wvh_2021_test = perform_data_split(
-        df_Wvh_2021_tidy, days_vali, days_test
-    )
-    df_P_2021_train, df_P_2021_val, df_P_2021_test = perform_data_split(
-        df_P_2021_tidy, days_vali, days_test
-    )
-    df_SQ_2021_train, df_SQ_2021_val, df_SQ_2021_test = perform_data_split(
-        df_SQ_2021_tidy, days_vali, days_test
-    )
+        # Print metrics for this contaminant
+        print(f"\n{contaminant} statistics:")
+        print_aggegrated_sensor_metrics(frames, TUINDORP, meta)
 
-    df_PM25_2022_train_1D, df_PM25_2022_val_1D, df_PM25_2022_test_1D = (
-        perform_data_split(df_PM25_2022_tidy_subset_1D, days_vali, days_test)
-    )
-    df_PM10_2022_train_1D, df_PM10_2022_val_1D, df_PM10_2022_test_1D = (
-        perform_data_split(df_PM10_2022_tidy_subset_1D, days_vali, days_test)
-    )
-    df_NO2_2022_train_1D, df_NO2_2022_val_1D, df_NO2_2022_test_1D = perform_data_split(
-        df_NO2_2022_tidy_subset_1D, days_vali, days_test
-    )
-    df_O3_2022_train_1D, df_O3_2022_val_1D, df_O3_2022_test_1D = perform_data_split(
-        df_O3_2022_tidy_subset_1D, days_vali, days_test
-    )
-    df_temp_2022_train, df_temp_2022_val, df_temp_2022_test = perform_data_split(
-        df_temp_2022_tidy, days_vali, days_test
-    )
-    df_dewP_2022_train, df_dewP_2022_val, df_dewP_2022_test = perform_data_split(
-        df_dewP_2022_tidy, days_vali, days_test
-    )
-    df_WD_2022_train, df_WD_2022_val, df_WD_2022_test = perform_data_split(
-        df_WD_2022_tidy, days_vali, days_test
-    )
-    df_Wvh_2022_train, df_Wvh_2022_val, df_Wvh_2022_test = perform_data_split(
-        df_Wvh_2022_tidy, days_vali, days_test
-    )
-    df_P_2022_train, df_P_2022_val, df_P_2022_test = perform_data_split(
-        df_P_2022_tidy, days_vali, days_test
-    )
-    df_SQ_2022_train, df_SQ_2022_val, df_SQ_2022_test = perform_data_split(
-        df_SQ_2022_tidy, days_vali, days_test
-    )
+    # Initialize dictionary to store split data
+    split_data = {"train": {}, "val": {}, "test": {}}
 
-    df_PM25_2023_val_1D, df_PM25_2023_test_1D = perform_data_split_without_train(
-        df_PM25_2023_tidy_subset_1D, days_vali_final_yrs, days_test_final_yrs
-    )
-    df_PM10_2023_val_1D, df_PM10_2023_test_1D = perform_data_split_without_train(
-        df_PM10_2023_tidy_subset_1D, days_vali_final_yrs, days_test_final_yrs
-    )
-    df_NO2_2023_val_1D, df_NO2_2023_test_1D = perform_data_split_without_train(
-        df_NO2_2023_tidy_subset_1D, days_vali_final_yrs, days_test_final_yrs
-    )
-    df_O3_2023_val_1D, df_O3_2023_test_1D = perform_data_split_without_train(
-        df_O3_2023_tidy_subset_1D, days_vali_final_yrs, days_test_final_yrs
-    )
-    df_temp_2023_val, df_temp_2023_test = perform_data_split_without_train(
-        df_temp_2023_tidy, days_vali_final_yrs, days_test_final_yrs
-    )
-    df_dewP_2023_val, df_dewP_2023_test = perform_data_split_without_train(
-        df_dewP_2023_tidy, days_vali_final_yrs, days_test_final_yrs
-    )
-    df_WD_2023_val, df_WD_2023_test = perform_data_split_without_train(
-        df_WD_2023_tidy, days_vali_final_yrs, days_test_final_yrs
-    )
-    df_Wvh_2023_val, df_Wvh_2023_test = perform_data_split_without_train(
-        df_Wvh_2023_tidy, days_vali_final_yrs, days_test_final_yrs
-    )
-    df_P_2023_val, df_P_2023_test = perform_data_split_without_train(
-        df_P_2023_tidy, days_vali_final_yrs, days_test_final_yrs
-    )
-    df_SQ_2023_val, df_SQ_2023_test = perform_data_split_without_train(
-        df_SQ_2023_tidy, days_vali_final_yrs, days_test_final_yrs
-    )
+    # Process each year
+    for year in years:
+        # Initialize year in split_data if needed
+        for split in ["train", "val", "test"]:
+            split_data[split][year] = {}
+
+        # Handle early years (2017, 2018, 2020) - only training data
+        if year in [2017, 2018, 2020]:
+            # Process contaminants
+            for cont in contaminants:
+                if year in tidy_subset and cont in tidy_subset[year]:
+                    split_data["train"][year][cont] = tidy_subset[year][cont].copy()
+
+            # Process meteorological variables
+            for var in meteo_vars:
+                if year in tidy_meteo and var in tidy_meteo[year]:
+                    split_data["train"][year][var] = tidy_meteo[year][var].copy()
+
+        # Handle middle years (2021, 2022) - split into train/val/test
+        elif year in [2021, 2022]:
+            # Process contaminants
+            for cont in contaminants:
+                if year in tidy_subset and cont in tidy_subset[year]:
+                    train, val, test = perform_data_split(
+                        tidy_subset[year][cont], days_vali, days_test
+                    )
+                    split_data["train"][year][cont] = train
+                    split_data["val"][year][cont] = val
+                    split_data["test"][year][cont] = test
+
+            # Process meteorological variables
+            for var in meteo_vars:
+                if year in tidy_meteo and var in tidy_meteo[year]:
+                    train, val, test = perform_data_split(
+                        tidy_meteo[year][var], days_vali, days_test
+                    )
+                    split_data["train"][year][var] = train
+                    split_data["val"][year][var] = val
+                    split_data["test"][year][var] = test
+
+        # Handle final year (2023) - only val/test data
+        elif year == 2023:
+            # Process contaminants
+            for cont in contaminants:
+                if year in tidy_subset and cont in tidy_subset[year]:
+                    val, test = perform_data_split_without_train(
+                        tidy_subset[year][cont],
+                        days_vali_final_yrs,
+                        days_test_final_yrs,
+                    )
+                    split_data["val"][year][cont] = val
+                    split_data["test"][year][cont] = test
+
+            # Process meteorological variables
+            for var in meteo_vars:
+                if year in tidy_meteo and var in tidy_meteo[year]:
+                    val, test = perform_data_split_without_train(
+                        tidy_meteo[year][var], days_vali_final_yrs, days_test_final_yrs
+                    )
+                    split_data["val"][year][var] = val
+                    split_data["test"][year][var] = test
+
+    # Create individual variables for backward compatibility
+    for split in ["train", "val", "test"]:
+        for year in years:
+            if year in split_data[split]:
+                for var in contaminants + list(meteo_vars.keys()):
+                    if var in split_data[split][year]:
+                        suffix = "_1D" if var in contaminants else ""
+                        var_name = f"df_{var}_{year}_{split}{suffix}"
+                        globals()[var_name] = split_data[split][year][var]
 
     if LOG:
         # First, check for equal shape of pollutant data of unsplitted years
@@ -1125,7 +448,6 @@ def execute_pipeline(
         )
         print("(5/8): Train-validation-test split successful")
 
-    print()
     print_split_ratios(
         [
             df_PM25_2017_train_1D,
@@ -1139,410 +461,85 @@ def execute_pipeline(
         "the",
     )  # Could also print the pollutants here or any other string
 
-    # Normalise each component separately, using the training data extremes
+    # Initialize dictionary to store min/max parameters
+    min_max_params = {}
 
-    PM25_min_train, PM25_max_train = calc_combined_min_max_params(
-        [
-            df_PM25_2017_train_1D,
-            df_PM25_2018_train_1D,
-            df_PM25_2020_train_1D,
-            df_PM25_2021_train_1D,
-            df_PM25_2022_train_1D,
+    # Training years to use for normalization
+    train_years = [2017, 2018, 2020, 2021, 2022]
+
+    # Calculate min/max for contaminants
+    for cont in contaminants:
+        train_frames = [
+            split_data["train"][year][cont]
+            for year in train_years
+            if year in split_data["train"] and cont in split_data["train"][year]
         ]
-    )
-    PM10_min_train, PM10_max_train = calc_combined_min_max_params(
-        [
-            df_PM10_2017_train_1D,
-            df_PM10_2018_train_1D,
-            df_PM10_2020_train_1D,
-            df_PM10_2021_train_1D,
-            df_PM10_2022_train_1D,
+        min_val, max_val = calc_combined_min_max_params(train_frames)
+        min_max_params[cont] = {"min": min_val, "max": max_val}
+
+    # Calculate min/max for meteorological variables
+    for var in meteo_vars:
+        train_frames = [
+            split_data["train"][year][var]
+            for year in train_years
+            if year in split_data["train"] and var in split_data["train"][year]
         ]
-    )
-    O3_min_train, O3_max_train = calc_combined_min_max_params(
-        [
-            df_O3_2017_train_1D,
-            df_O3_2018_train_1D,
-            df_O3_2020_train_1D,
-            df_O3_2021_train_1D,
-            df_O3_2022_train_1D,
-        ]
-    )
-    NO2_min_train, NO2_max_train = calc_combined_min_max_params(
-        [
-            df_NO2_2017_train_1D,
-            df_NO2_2018_train_1D,
-            df_NO2_2020_train_1D,
-            df_NO2_2021_train_1D,
-            df_NO2_2022_train_1D,
-        ]
-    )
-    temp_min_train, temp_max_train = calc_combined_min_max_params(
-        [
-            df_temp_2017_train,
-            df_temp_2018_train,
-            df_temp_2020_train,
-            df_temp_2021_train,
-            df_temp_2022_train,
-        ]
-    )
-    dewP_min_train, dewP_max_train = calc_combined_min_max_params(
-        [
-            df_dewP_2017_train,
-            df_dewP_2018_train,
-            df_dewP_2020_train,
-            df_dewP_2021_train,
-            df_dewP_2022_train,
-        ]
-    )
-    WD_min_train, WD_max_train = calc_combined_min_max_params(
-        [
-            df_WD_2017_train,
-            df_WD_2018_train,
-            df_WD_2020_train,
-            df_WD_2021_train,
-            df_WD_2022_train,
-        ]
-    )
-    Wvh_min_train, Wvh_max_train = calc_combined_min_max_params(
-        [
-            df_Wvh_2017_train,
-            df_Wvh_2018_train,
-            df_Wvh_2020_train,
-            df_Wvh_2021_train,
-            df_Wvh_2022_train,
-        ]
-    )
-    P_min_train, P_max_train = calc_combined_min_max_params(
-        [
-            df_P_2017_train,
-            df_P_2018_train,
-            df_P_2020_train,
-            df_P_2021_train,
-            df_P_2022_train,
-        ]
-    )
-    SQ_min_train, SQ_max_train = calc_combined_min_max_params(
-        [
-            df_SQ_2017_train,
-            df_SQ_2018_train,
-            df_SQ_2020_train,
-            df_SQ_2021_train,
-            df_SQ_2022_train,
-        ]
-    )
+        min_val, max_val = calc_combined_min_max_params(train_frames)
+        min_max_params[var] = {"min": min_val, "max": max_val}
 
-    print()
-    print(NO2_min_train)
-    df_minmax = print_pollutant_extremes(
-        [
-            NO2_min_train,
-            NO2_max_train,
-            O3_min_train,
-            O3_max_train,
-            PM10_min_train,
-            PM10_max_train,
-            PM25_min_train,
-            PM25_max_train,
-        ]
-    )
-    print()
-    export_minmax(df_minmax, "contaminant_minmax")
+    # Create dataframe for pollutant extremes
+    if LOG:
+        print("\nPollutant min/max values:")
+        pollutant_values = []
+        for cont in ["NO2", "O3", "PM10", "PM25"]:
+            pollutant_values.extend(
+                [min_max_params[cont]["min"], min_max_params[cont]["max"]]
+            )
 
-    df_NO2_2017_train_norm_1D = normalise_linear(
-        df_NO2_2017_train_1D, NO2_min_train, NO2_max_train
-    )
-    df_NO2_2018_train_norm_1D = normalise_linear(
-        df_NO2_2018_train_1D, NO2_min_train, NO2_max_train
-    )
-    df_NO2_2020_train_norm_1D = normalise_linear(
-        df_NO2_2020_train_1D, NO2_min_train, NO2_max_train
-    )
-    df_NO2_2021_train_norm_1D = normalise_linear(
-        df_NO2_2021_train_1D, NO2_min_train, NO2_max_train
-    )
-    df_NO2_2021_val_norm_1D = normalise_linear(
-        df_NO2_2021_val_1D, NO2_min_train, NO2_max_train
-    )
-    df_NO2_2021_test_norm_1D = normalise_linear(
-        df_NO2_2021_test_1D, NO2_min_train, NO2_max_train
-    )
-    df_NO2_2022_train_norm_1D = normalise_linear(
-        df_NO2_2022_train_1D, NO2_min_train, NO2_max_train
-    )
-    df_NO2_val_2022_norm_1D = normalise_linear(
-        df_NO2_2022_val_1D, NO2_min_train, NO2_max_train
-    )
-    df_NO2_test_2022_norm_1D = normalise_linear(
-        df_NO2_2022_test_1D, NO2_min_train, NO2_max_train
-    )
-    df_NO2_val_2023_norm_1D = normalise_linear(
-        df_NO2_2023_val_1D, NO2_min_train, NO2_max_train
-    )
-    df_NO2_test_2023_norm_1D = normalise_linear(
-        df_NO2_2023_test_1D, NO2_min_train, NO2_max_train
-    )
+        df_minmax = print_pollutant_extremes(pollutant_values)
+        print()
+        export_minmax(df_minmax, "contaminant_minmax")
 
-    df_O3_2017_train_norm_1D = normalise_linear(
-        df_O3_2017_train_1D, O3_min_train, O3_max_train
-    )
-    df_O3_2018_train_norm_1D = normalise_linear(
-        df_O3_2018_train_1D, O3_min_train, O3_max_train
-    )
-    df_O3_2020_train_norm_1D = normalise_linear(
-        df_O3_2020_train_1D, O3_min_train, O3_max_train
-    )
-    df_O3_2021_train_norm_1D = normalise_linear(
-        df_O3_2021_train_1D, O3_min_train, O3_max_train
-    )
-    df_O3_2021_val_norm_1D = normalise_linear(
-        df_O3_2021_val_1D, O3_min_train, O3_max_train
-    )
-    df_O3_2021_test_norm_1D = normalise_linear(
-        df_O3_2021_test_1D, O3_min_train, O3_max_train
-    )
-    df_O3_2022_train_norm_1D = normalise_linear(
-        df_O3_2022_train_1D, O3_min_train, O3_max_train
-    )
-    df_O3_val_2022_norm_1D = normalise_linear(
-        df_O3_2022_val_1D, O3_min_train, O3_max_train
-    )
-    df_O3_test_2022_norm_1D = normalise_linear(
-        df_O3_2022_test_1D, O3_min_train, O3_max_train
-    )
-    df_O3_val_2023_norm_1D = normalise_linear(
-        df_O3_2023_val_1D, O3_min_train, O3_max_train
-    )
-    df_O3_test_2023_norm_1D = normalise_linear(
-        df_O3_2023_test_1D, O3_min_train, O3_max_train
-    )
+    # Create variables for backward compatibility
+    for var_name, params in min_max_params.items():
+        globals()[f"{var_name}_min_train"] = params["min"]
+        globals()[f"{var_name}_max_train"] = params["max"]
 
-    df_PM10_2017_train_norm_1D = normalise_linear(
-        df_PM10_2017_train_1D, PM10_min_train, PM10_max_train
-    )
-    df_PM10_2018_train_norm_1D = normalise_linear(
-        df_PM10_2018_train_1D, PM10_min_train, PM10_max_train
-    )
-    df_PM10_2020_train_norm_1D = normalise_linear(
-        df_PM10_2020_train_1D, PM10_min_train, PM10_max_train
-    )
-    df_PM10_2021_train_norm_1D = normalise_linear(
-        df_PM10_2021_train_1D, PM10_min_train, PM10_max_train
-    )
-    df_PM10_2021_val_norm_1D = normalise_linear(
-        df_PM10_2021_val_1D, PM10_min_train, PM10_max_train
-    )
-    df_PM10_2021_test_norm_1D = normalise_linear(
-        df_PM10_2021_test_1D, PM10_min_train, PM10_max_train
-    )
-    df_PM10_2022_train_norm_1D = normalise_linear(
-        df_PM10_2022_train_1D, PM10_min_train, PM10_max_train
-    )
-    df_PM10_val_2022_norm_1D = normalise_linear(
-        df_PM10_2022_val_1D, PM10_min_train, PM10_max_train
-    )
-    df_PM10_test_2022_norm_1D = normalise_linear(
-        df_PM10_2022_test_1D, PM10_min_train, PM10_max_train
-    )
-    df_PM10_val_2023_norm_1D = normalise_linear(
-        df_PM10_2023_val_1D, PM10_min_train, PM10_max_train
-    )
-    df_PM10_test_2023_norm_1D = normalise_linear(
-        df_PM10_2023_test_1D, PM10_min_train, PM10_max_train
-    )
+    # Initialize dictionary to store normalized data
+    normalized_data = {"train": {}, "val": {}, "test": {}}
 
-    df_PM25_2017_train_norm_1D = normalise_linear(
-        df_PM25_2017_train_1D, PM25_min_train, PM25_max_train
-    )
-    df_PM25_2018_train_norm_1D = normalise_linear(
-        df_PM25_2018_train_1D, PM25_min_train, PM25_max_train
-    )
-    df_PM25_2020_train_norm_1D = normalise_linear(
-        df_PM25_2020_train_1D, PM25_min_train, PM25_max_train
-    )
-    df_PM25_2021_train_norm_1D = normalise_linear(
-        df_PM25_2021_train_1D, PM25_min_train, PM25_max_train
-    )
-    df_PM25_2021_val_norm_1D = normalise_linear(
-        df_PM25_2021_val_1D, PM25_min_train, PM25_max_train
-    )
-    df_PM25_2021_test_norm_1D = normalise_linear(
-        df_PM25_2021_test_1D, PM25_min_train, PM25_max_train
-    )
-    df_PM25_2022_train_norm_1D = normalise_linear(
-        df_PM25_2022_train_1D, PM25_min_train, PM25_max_train
-    )
-    df_PM25_val_2022_norm_1D = normalise_linear(
-        df_PM25_2022_val_1D, PM25_min_train, PM25_max_train
-    )
-    df_PM25_test_2022_norm_1D = normalise_linear(
-        df_PM25_2022_test_1D, PM25_min_train, PM25_max_train
-    )
-    df_PM25_val_2023_norm_1D = normalise_linear(
-        df_PM25_2023_val_1D, PM25_min_train, PM25_max_train
-    )
-    df_PM25_test_2023_norm_1D = normalise_linear(
-        df_PM25_2023_test_1D, PM25_min_train, PM25_max_train
-    )
+    # Normalize all data using the calculated parameters
+    for split_type in ["train", "val", "test"]:
+        for year in years:
+            normalized_data[split_type][year] = {}
+            if year in split_data[split_type]:
+                # Normalize contaminants
+                for cont in contaminants:
+                    if cont in split_data[split_type][year]:
+                        normalized_data[split_type][year][cont] = normalise_linear(
+                            split_data[split_type][year][cont],
+                            min_max_params[cont]["min"],
+                            min_max_params[cont]["max"],
+                        )
 
-    df_temp_2017_train_norm = normalise_linear(
-        df_temp_2017_train, temp_min_train, temp_max_train
-    )
-    df_temp_2018_train_norm = normalise_linear(
-        df_temp_2018_train, temp_min_train, temp_max_train
-    )
-    df_temp_2020_train_norm = normalise_linear(
-        df_temp_2020_train, temp_min_train, temp_max_train
-    )
-    df_temp_2021_train_norm = normalise_linear(
-        df_temp_2021_train, temp_min_train, temp_max_train
-    )
-    df_temp_2021_val_norm = normalise_linear(
-        df_temp_2021_val, temp_min_train, temp_max_train
-    )
-    df_temp_2021_test_norm = normalise_linear(
-        df_temp_2021_test, temp_min_train, temp_max_train
-    )
-    df_temp_2022_train_norm = normalise_linear(
-        df_temp_2022_train, temp_min_train, temp_max_train
-    )
-    df_temp_val_2022_norm = normalise_linear(
-        df_temp_2022_val, temp_min_train, temp_max_train
-    )
-    df_temp_test_2022_norm = normalise_linear(
-        df_temp_2022_test, temp_min_train, temp_max_train
-    )
-    df_temp_val_2023_norm = normalise_linear(
-        df_temp_2023_val, temp_min_train, temp_max_train
-    )
-    df_temp_test_2023_norm = normalise_linear(
-        df_temp_2023_test, temp_min_train, temp_max_train
-    )
+                # Normalize meteorological variables
+                for var in meteo_vars:
+                    if var in split_data[split_type][year]:
+                        normalized_data[split_type][year][var] = normalise_linear(
+                            split_data[split_type][year][var],
+                            min_max_params[var]["min"],
+                            min_max_params[var]["max"],
+                        )
 
-    df_dewP_2017_train_norm = normalise_linear(
-        df_dewP_2017_train, dewP_min_train, dewP_max_train
-    )
-    df_dewP_2018_train_norm = normalise_linear(
-        df_dewP_2018_train, dewP_min_train, dewP_max_train
-    )
-    df_dewP_2020_train_norm = normalise_linear(
-        df_dewP_2020_train, dewP_min_train, dewP_max_train
-    )
-    df_dewP_2021_train_norm = normalise_linear(
-        df_dewP_2021_train, dewP_min_train, dewP_max_train
-    )
-    df_dewP_2021_val_norm = normalise_linear(
-        df_dewP_2021_val, dewP_min_train, dewP_max_train
-    )
-    df_dewP_2021_test_norm = normalise_linear(
-        df_dewP_2021_test, dewP_min_train, dewP_max_train
-    )
-    df_dewP_2022_train_norm = normalise_linear(
-        df_dewP_2022_train, dewP_min_train, dewP_max_train
-    )
-    df_dewP_val_2022_norm = normalise_linear(
-        df_dewP_2022_val, dewP_min_train, dewP_max_train
-    )
-    df_dewP_test_2022_norm = normalise_linear(
-        df_dewP_2022_test, dewP_min_train, dewP_max_train
-    )
-    df_dewP_val_2023_norm = normalise_linear(
-        df_dewP_2023_val, dewP_min_train, dewP_max_train
-    )
-    df_dewP_test_2023_norm = normalise_linear(
-        df_dewP_2023_test, dewP_min_train, dewP_max_train
-    )
-
-    df_WD_2017_train_norm = normalise_linear(
-        df_WD_2017_train, WD_min_train, WD_max_train
-    )
-    df_WD_2018_train_norm = normalise_linear(
-        df_WD_2018_train, WD_min_train, WD_max_train
-    )
-    df_WD_2020_train_norm = normalise_linear(
-        df_WD_2020_train, WD_min_train, WD_max_train
-    )
-    df_WD_2021_train_norm = normalise_linear(
-        df_WD_2021_train, WD_min_train, WD_max_train
-    )
-    df_WD_2021_val_norm = normalise_linear(df_WD_2021_val, WD_min_train, WD_max_train)
-    df_WD_2021_test_norm = normalise_linear(df_WD_2021_test, WD_min_train, WD_max_train)
-    df_WD_2022_train_norm = normalise_linear(
-        df_WD_2022_train, WD_min_train, WD_max_train
-    )
-    df_WD_val_2022_norm = normalise_linear(df_WD_2022_val, WD_min_train, WD_max_train)
-    df_WD_test_2022_norm = normalise_linear(df_WD_2022_test, WD_min_train, WD_max_train)
-    df_WD_val_2023_norm = normalise_linear(df_WD_2023_val, WD_min_train, WD_max_train)
-    df_WD_test_2023_norm = normalise_linear(df_WD_2023_test, WD_min_train, WD_max_train)
-
-    df_Wvh_2017_train_norm = normalise_linear(
-        df_Wvh_2017_train, Wvh_min_train, Wvh_max_train
-    )
-    df_Wvh_2018_train_norm = normalise_linear(
-        df_Wvh_2018_train, Wvh_min_train, Wvh_max_train
-    )
-    df_Wvh_2020_train_norm = normalise_linear(
-        df_Wvh_2020_train, Wvh_min_train, Wvh_max_train
-    )
-    df_Wvh_2021_train_norm = normalise_linear(
-        df_Wvh_2021_train, Wvh_min_train, Wvh_max_train
-    )
-    df_Wvh_2021_val_norm = normalise_linear(
-        df_Wvh_2021_val, Wvh_min_train, Wvh_max_train
-    )
-    df_Wvh_2021_test_norm = normalise_linear(
-        df_Wvh_2021_test, Wvh_min_train, Wvh_max_train
-    )
-    df_Wvh_2022_train_norm = normalise_linear(
-        df_Wvh_2022_train, Wvh_min_train, Wvh_max_train
-    )
-    df_Wvh_val_2022_norm = normalise_linear(
-        df_Wvh_2022_val, Wvh_min_train, Wvh_max_train
-    )
-    df_Wvh_test_2022_norm = normalise_linear(
-        df_Wvh_2022_test, Wvh_min_train, Wvh_max_train
-    )
-    df_Wvh_val_2023_norm = normalise_linear(
-        df_Wvh_2023_val, Wvh_min_train, Wvh_max_train
-    )
-    df_Wvh_test_2023_norm = normalise_linear(
-        df_Wvh_2023_test, Wvh_min_train, Wvh_max_train
-    )
-
-    df_P_2017_train_norm = normalise_linear(df_P_2017_train, P_min_train, P_max_train)
-    df_P_2018_train_norm = normalise_linear(df_P_2018_train, P_min_train, P_max_train)
-    df_P_2020_train_norm = normalise_linear(df_P_2020_train, P_min_train, P_max_train)
-    df_P_2021_train_norm = normalise_linear(df_P_2021_train, P_min_train, P_max_train)
-    df_P_2021_val_norm = normalise_linear(df_P_2021_val, P_min_train, P_max_train)
-    df_P_2021_test_norm = normalise_linear(df_P_2021_test, P_min_train, P_max_train)
-    df_P_2022_train_norm = normalise_linear(df_P_2022_train, P_min_train, P_max_train)
-    df_P_val_2022_norm = normalise_linear(df_P_2022_val, P_min_train, P_max_train)
-    df_P_test_2022_norm = normalise_linear(df_P_2022_test, P_min_train, P_max_train)
-    df_P_val_2023_norm = normalise_linear(df_P_2023_val, P_min_train, P_max_train)
-    df_P_test_2023_norm = normalise_linear(df_P_2023_test, P_min_train, P_max_train)
-
-    df_SQ_2017_train_norm = normalise_linear(
-        df_SQ_2017_train, SQ_min_train, SQ_max_train
-    )
-    df_SQ_2018_train_norm = normalise_linear(
-        df_SQ_2018_train, SQ_min_train, SQ_max_train
-    )
-    df_SQ_2020_train_norm = normalise_linear(
-        df_SQ_2020_train, SQ_min_train, SQ_max_train
-    )
-    df_SQ_2021_train_norm = normalise_linear(
-        df_SQ_2021_train, SQ_min_train, SQ_max_train
-    )
-    df_SQ_2021_val_norm = normalise_linear(df_SQ_2021_val, SQ_min_train, SQ_max_train)
-    df_SQ_2021_test_norm = normalise_linear(df_SQ_2021_test, SQ_min_train, SQ_max_train)
-    df_SQ_2022_train_norm = normalise_linear(
-        df_SQ_2022_train, SQ_min_train, SQ_max_train
-    )
-    df_SQ_val_2022_norm = normalise_linear(df_SQ_2022_val, SQ_min_train, SQ_max_train)
-    df_SQ_test_2022_norm = normalise_linear(df_SQ_2022_test, SQ_min_train, SQ_max_train)
-    df_SQ_val_2023_norm = normalise_linear(df_SQ_2023_val, SQ_min_train, SQ_max_train)
-    df_SQ_test_2023_norm = normalise_linear(df_SQ_2023_test, SQ_min_train, SQ_max_train)
-
+    # Create individual variables for backward compatibility
+    for split_type in ["train", "val", "test"]:
+        for year in years:
+            if year in normalized_data[split_type]:
+                for var in contaminants + list(meteo_vars.keys()):
+                    if var in normalized_data[split_type][year]:
+                        suffix = "_1D" if var in contaminants else ""
+                        var_name = f"df_{var}_{year}_{split_type}_norm{suffix}"
+                        globals()[var_name] = normalized_data[split_type][year][var]
     if LOG:
         # Assert range only for training frames, validation and test
         # frames can, very theoretically, have unlimited values
@@ -1668,286 +665,98 @@ def execute_pipeline(
         )
         print("(6/8): Normalisation successful")
 
-    # Now, create a big combined normalised dataframe for each year
+    # Define variables
+    keys = ["PM25", "PM10", "O3", "NO2", "temp", "dewP", "WD", "Wvh", "P", "SQ"]
+    splits = ["train", "val", "test"]
 
-    keys = ["PM25", "PM10", "O3", "NO2", "temp", "dewP", "WD", "Wvh", "p", "SQ"]
+    # Initialize dictionaries to store frame lists
+    frames_u = {split: {} for split in splits}
+    frames_y = {split: {} for split in splits}
 
-    # Create input dataframes (u):
-    # As we use the pollutant data twice, in Utrecht and Breukelen,
-    # we add an index to sample only the Tuindorp (= Utrecht) data
-    # for u, and later, we will add the Breukelen data for y
-    frames_train_2017_1D_u = [
-        df_PM25_2017_train_norm_1D.loc[:, [TUINDORP]],
-        df_PM10_2017_train_norm_1D.loc[:, [TUINDORP]],
-        df_O3_2017_train_norm_1D.loc[:, [TUINDORP]],
-        df_NO2_2017_train_norm_1D.loc[:, [TUINDORP]],
-        df_temp_2017_train_norm,
-        df_dewP_2017_train_norm,
-        df_WD_2017_train_norm,
-        df_Wvh_2017_train_norm,
-        df_P_2017_train_norm,
-        df_SQ_2017_train_norm,
-    ]
-    frames_train_2018_1D_u = [
-        df_PM25_2018_train_norm_1D.loc[:, [TUINDORP]],
-        df_PM10_2018_train_norm_1D.loc[:, [TUINDORP]],
-        df_O3_2018_train_norm_1D.loc[:, [TUINDORP]],
-        df_NO2_2018_train_norm_1D.loc[:, [TUINDORP]],
-        df_temp_2018_train_norm,
-        df_dewP_2018_train_norm,
-        df_WD_2018_train_norm,
-        df_Wvh_2018_train_norm,
-        df_P_2018_train_norm,
-        df_SQ_2018_train_norm,
-    ]
-    frames_train_2020_1D_u = [
-        df_PM25_2020_train_norm_1D.loc[:, [TUINDORP]],
-        df_PM10_2020_train_norm_1D.loc[:, [TUINDORP]],
-        df_O3_2020_train_norm_1D.loc[:, [TUINDORP]],
-        df_NO2_2020_train_norm_1D.loc[:, [TUINDORP]],
-        df_temp_2020_train_norm,
-        df_dewP_2020_train_norm,
-        df_WD_2020_train_norm,
-        df_Wvh_2020_train_norm,
-        df_P_2020_train_norm,
-        df_SQ_2020_train_norm,
-    ]
-    frames_train_2021_1D_u = [
-        df_PM25_2021_train_norm_1D.loc[:, [TUINDORP]],
-        df_PM10_2021_train_norm_1D.loc[:, [TUINDORP]],
-        df_O3_2021_train_norm_1D.loc[:, [TUINDORP]],
-        df_NO2_2021_train_norm_1D.loc[:, [TUINDORP]],
-        df_temp_2021_train_norm,
-        df_dewP_2021_train_norm,
-        df_WD_2021_train_norm,
-        df_Wvh_2021_train_norm,
-        df_P_2021_train_norm,
-        df_SQ_2021_train_norm,
-    ]
-    frames_val_2021_1D_u = [
-        df_PM25_2021_val_norm_1D.loc[:, [TUINDORP]],
-        df_PM10_2021_val_norm_1D.loc[:, [TUINDORP]],
-        df_O3_2021_val_norm_1D.loc[:, [TUINDORP]],
-        df_NO2_2021_val_norm_1D.loc[:, [TUINDORP]],
-        df_temp_2021_val_norm,
-        df_dewP_2021_val_norm,
-        df_WD_2021_val_norm,
-        df_Wvh_2021_val_norm,
-        df_P_2021_val_norm,
-        df_SQ_2021_val_norm,
-    ]
-    frames_test_2021_1D_u = [
-        df_PM25_2021_test_norm_1D.loc[:, [TUINDORP]],
-        df_PM10_2021_test_norm_1D.loc[:, [TUINDORP]],
-        df_O3_2021_test_norm_1D.loc[:, [TUINDORP]],
-        df_NO2_2021_test_norm_1D.loc[:, [TUINDORP]],
-        df_temp_2021_test_norm,
-        df_dewP_2021_test_norm,
-        df_WD_2021_test_norm,
-        df_Wvh_2021_test_norm,
-        df_P_2021_test_norm,
-        df_SQ_2021_test_norm,
-    ]
-    frames_train_2022_1D_u = [
-        df_PM25_2022_train_norm_1D.loc[:, [TUINDORP]],
-        df_PM10_2022_train_norm_1D.loc[:, [TUINDORP]],
-        df_O3_2022_train_norm_1D.loc[:, [TUINDORP]],
-        df_NO2_2022_train_norm_1D.loc[:, [TUINDORP]],
-        df_temp_2022_train_norm,
-        df_dewP_2022_train_norm,
-        df_WD_2022_train_norm,
-        df_Wvh_2022_train_norm,
-        df_P_2022_train_norm,
-        df_SQ_2022_train_norm,
-    ]
-    frames_val_2022_1D_u = [
-        df_PM25_val_2022_norm_1D.loc[:, [TUINDORP]],
-        df_PM10_val_2022_norm_1D.loc[:, [TUINDORP]],
-        df_O3_val_2022_norm_1D.loc[:, [TUINDORP]],
-        df_NO2_val_2022_norm_1D.loc[:, [TUINDORP]],
-        df_temp_val_2022_norm,
-        df_dewP_val_2022_norm,
-        df_WD_val_2022_norm,
-        df_Wvh_val_2022_norm,
-        df_P_val_2022_norm,
-        df_SQ_val_2022_norm,
-    ]
-    frames_val_2023_1D_u = [
-        df_PM25_val_2023_norm_1D.loc[:, [TUINDORP]],
-        df_PM10_val_2023_norm_1D.loc[:, [TUINDORP]],
-        df_O3_val_2023_norm_1D.loc[:, [TUINDORP]],
-        df_NO2_val_2023_norm_1D.loc[:, [TUINDORP]],
-        df_temp_val_2023_norm,
-        df_dewP_val_2023_norm,
-        df_WD_val_2023_norm,
-        df_Wvh_val_2023_norm,
-        df_P_val_2023_norm,
-        df_SQ_val_2023_norm,
-    ]
-    frames_test_2022_1D_u = [
-        df_PM25_test_2022_norm_1D.loc[:, [TUINDORP]],
-        df_PM10_test_2022_norm_1D.loc[:, [TUINDORP]],
-        df_O3_test_2022_norm_1D.loc[:, [TUINDORP]],
-        df_NO2_test_2022_norm_1D.loc[:, [TUINDORP]],
-        df_temp_test_2022_norm,
-        df_dewP_test_2022_norm,
-        df_WD_test_2022_norm,
-        df_Wvh_test_2022_norm,
-        df_P_test_2022_norm,
-        df_SQ_test_2022_norm,
-    ]
-    frames_test_2023_1D_u = [
-        df_PM25_test_2023_norm_1D.loc[:, [TUINDORP]],
-        df_PM10_test_2023_norm_1D.loc[:, [TUINDORP]],
-        df_O3_test_2023_norm_1D.loc[:, [TUINDORP]],
-        df_NO2_test_2023_norm_1D.loc[:, [TUINDORP]],
-        df_temp_test_2023_norm,
-        df_dewP_test_2023_norm,
-        df_WD_test_2023_norm,
-        df_Wvh_test_2023_norm,
-        df_P_test_2023_norm,
-        df_SQ_test_2023_norm,
-    ]
+    # Create input dataframes for Utrecht (u) and Breukelen (y)
+    for split in splits:
+        for year in years:
+            # Skip train split for 2023
+            if year == 2023 and split == "train":
+                continue
 
-    # For y, we only use pollutant data from Breukelen
-    frames_train_2017_1D_y = [
-        df_PM25_2017_train_norm_1D.loc[:, [BREUKELEN]],
-        df_PM10_2017_train_norm_1D.loc[:, [BREUKELEN]],
-        df_O3_2017_train_norm_1D.loc[:, [BREUKELEN]],
-        df_NO2_2017_train_norm_1D.loc[:, [BREUKELEN]],
-    ]
-    frames_train_2018_1D_y = [
-        df_PM25_2018_train_norm_1D.loc[:, [BREUKELEN]],
-        df_PM10_2018_train_norm_1D.loc[:, [BREUKELEN]],
-        df_O3_2018_train_norm_1D.loc[:, [BREUKELEN]],
-        df_NO2_2018_train_norm_1D.loc[:, [BREUKELEN]],
-    ]
-    frames_train_2020_1D_y = [
-        df_PM25_2020_train_norm_1D.loc[:, [BREUKELEN]],
-        df_PM10_2020_train_norm_1D.loc[:, [BREUKELEN]],
-        df_O3_2020_train_norm_1D.loc[:, [BREUKELEN]],
-        df_NO2_2020_train_norm_1D.loc[:, [BREUKELEN]],
-    ]
-    frames_train_2021_1D_y = [
-        df_PM25_2021_train_norm_1D.loc[:, [BREUKELEN]],
-        df_PM10_2021_train_norm_1D.loc[:, [BREUKELEN]],
-        df_O3_2021_train_norm_1D.loc[:, [BREUKELEN]],
-        df_NO2_2021_train_norm_1D.loc[:, [BREUKELEN]],
-    ]
-    frames_val_2021_1D_y = [
-        df_PM25_2021_val_norm_1D.loc[:, [BREUKELEN]],
-        df_PM10_2021_val_norm_1D.loc[:, [BREUKELEN]],
-        df_O3_2021_val_norm_1D.loc[:, [BREUKELEN]],
-        df_NO2_2021_val_norm_1D.loc[:, [BREUKELEN]],
-    ]
-    frames_test_2021_1D_y = [
-        df_PM25_2021_test_norm_1D.loc[:, [BREUKELEN]],
-        df_PM10_2021_test_norm_1D.loc[:, [BREUKELEN]],
-        df_O3_2021_test_norm_1D.loc[:, [BREUKELEN]],
-        df_NO2_2021_test_norm_1D.loc[:, [BREUKELEN]],
-    ]
-    frames_train_2022_1D_y = [
-        df_PM25_2022_train_norm_1D.loc[:, [BREUKELEN]],
-        df_PM10_2022_train_norm_1D.loc[:, [BREUKELEN]],
-        df_O3_2022_train_norm_1D.loc[:, [BREUKELEN]],
-        df_NO2_2022_train_norm_1D.loc[:, [BREUKELEN]],
-    ]
-    frames_val_2022_1D_y = [
-        df_PM25_val_2022_norm_1D.loc[:, [BREUKELEN]],
-        df_PM10_val_2022_norm_1D.loc[:, [BREUKELEN]],
-        df_O3_val_2022_norm_1D.loc[:, [BREUKELEN]],
-        df_NO2_val_2022_norm_1D.loc[:, [BREUKELEN]],
-    ]
-    frames_val_2023_1D_y = [
-        df_PM25_val_2023_norm_1D.loc[:, [BREUKELEN]],
-        df_PM10_val_2023_norm_1D.loc[:, [BREUKELEN]],
-        df_O3_val_2023_norm_1D.loc[:, [BREUKELEN]],
-        df_NO2_val_2023_norm_1D.loc[:, [BREUKELEN]],
-    ]
-    frames_test_2022_1D_y = [
-        df_PM25_test_2022_norm_1D.loc[:, [BREUKELEN]],
-        df_PM10_test_2022_norm_1D.loc[:, [BREUKELEN]],
-        df_O3_test_2022_norm_1D.loc[:, [BREUKELEN]],
-        df_NO2_test_2022_norm_1D.loc[:, [BREUKELEN]],
-    ]
-    frames_test_2023_1D_y = [
-        df_PM25_test_2023_norm_1D.loc[:, [BREUKELEN]],
-        df_PM10_test_2023_norm_1D.loc[:, [BREUKELEN]],
-        df_O3_test_2023_norm_1D.loc[:, [BREUKELEN]],
-        df_NO2_test_2023_norm_1D.loc[:, [BREUKELEN]],
-    ]
+            # Create frame list for Utrecht (input data)
+            if split in normalized_data and year in normalized_data[split]:
+                frames_u[split][year] = []
+
+                # Add pollutant data for Tuindorp
+                for cont in ["PM25", "PM10", "O3", "NO2"]:
+                    if cont in normalized_data[split][year]:
+                        frames_u[split][year].append(
+                            normalized_data[split][year][cont].loc[:, [TUINDORP]]
+                        )
+
+                # Add meteorological data
+                for var in ["temp", "dewP", "WD", "Wvh", "P", "SQ"]:
+                    if var in normalized_data[split][year]:
+                        frames_u[split][year].append(normalized_data[split][year][var])
+
+            # Create frame list for Breukelen (output data)
+            if split in normalized_data and year in normalized_data[split]:
+                frames_y[split][year] = []
+
+                # Add only pollutant data for Breukelen
+                for cont in ["PM25", "PM10", "O3", "NO2"]:
+                    if cont in normalized_data[split][year]:
+                        frames_y[split][year].append(
+                            normalized_data[split][year][cont].loc[:, [BREUKELEN]]
+                        )
+
+    # Create individual variables for backward compatibility
+    for split in splits:
+        for year in years:
+            if year == 2023 and split == "train":
+                continue
+            if year in frames_u[split]:
+                globals()[f"frames_{split}_{year}_1D_u"] = frames_u[split][year]
+            if year in frames_y[split]:
+                globals()[f"frames_{split}_{year}_1D_y"] = frames_y[split][year]
 
     input_keys = ["PM25", "PM10", "O3", "NO2", "temp", "dewP", "WD", "Wvh", "p", "SQ"]
     target_keys = ["PM25", "PM10", "O3", "NO2"]
 
-    # Now, we concatenate the dataframes horizontally
-    df_train_2017_horizontal_u = concat_frames_horizontally(
-        frames_train_2017_1D_u, input_keys
-    )
-    df_train_2018_horizontal_u = concat_frames_horizontally(
-        frames_train_2018_1D_u, input_keys
-    )
-    df_train_2020_horizontal_u = concat_frames_horizontally(
-        frames_train_2020_1D_u, input_keys
-    )
-    df_train_2021_horizontal_u = concat_frames_horizontally(
-        frames_train_2021_1D_u, input_keys
-    )
-    df_val_2021_horizontal_u = concat_frames_horizontally(
-        frames_val_2021_1D_u, input_keys
-    )
-    df_test_2021_horizontal_u = concat_frames_horizontally(
-        frames_test_2021_1D_u, input_keys
-    )
-    df_train_2022_horizontal_u = concat_frames_horizontally(
-        frames_train_2022_1D_u, input_keys
-    )
-    df_val_2022_horizontal_u = concat_frames_horizontally(
-        frames_val_2022_1D_u, input_keys
-    )
-    df_val_2023_horizontal_u = concat_frames_horizontally(
-        frames_val_2023_1D_u, input_keys
-    )
-    df_test_2022_horizontal_u = concat_frames_horizontally(
-        frames_test_2022_1D_u, input_keys
-    )
-    df_test_2023_horizontal_u = concat_frames_horizontally(
-        frames_test_2023_1D_u, input_keys
-    )
+    # Define the years and splits to process
+    years = [2017, 2018, 2020, 2021, 2022, 2023]
+    splits = ["train", "val", "test"]
 
-    df_train_2017_horizontal_y = concat_frames_horizontally(
-        frames_train_2017_1D_y, target_keys
-    )
-    df_train_2018_horizontal_y = concat_frames_horizontally(
-        frames_train_2018_1D_y, target_keys
-    )
-    df_train_2020_horizontal_y = concat_frames_horizontally(
-        frames_train_2020_1D_y, target_keys
-    )
-    df_train_2021_horizontal_y = concat_frames_horizontally(
-        frames_train_2021_1D_y, target_keys
-    )
-    df_val_2021_horizontal_y = concat_frames_horizontally(
-        frames_val_2021_1D_y, target_keys
-    )
-    df_test_2021_horizontal_y = concat_frames_horizontally(
-        frames_test_2021_1D_y, target_keys
-    )
-    df_train_2022_horizontal_y = concat_frames_horizontally(
-        frames_train_2022_1D_y, target_keys
-    )
-    df_val_2022_horizontal_y = concat_frames_horizontally(
-        frames_val_2022_1D_y, target_keys
-    )
-    df_val_2023_horizontal_y = concat_frames_horizontally(
-        frames_val_2023_1D_y, target_keys
-    )
-    df_test_2022_horizontal_y = concat_frames_horizontally(
-        frames_test_2022_1D_y, target_keys
-    )
-    df_test_2023_horizontal_y = concat_frames_horizontally(
-        frames_test_2023_1D_y, target_keys
-    )
+    # Create dictionaries to store the horizontal concatenated frames
+    horizontal_u = {}
+    horizontal_y = {}
+
+    # Process each year and split combination
+    for year in years:
+        for split in splits:
+            # Skip train split for 2023
+            if year == 2023 and split == "train":
+                continue
+
+            # Skip val and test splits for 2017, 2018, and 2020
+            if year in [2017, 2018, 2020] and split in ["val", "test"]:
+                continue
+
+            # Create the variable names
+            frames_var_name = f"frames_{split}_{year}_1D"
+
+            # Process input (u) frames
+            if globals().get(f"{frames_var_name}_u") is not None:
+                df_name = f"df_{split}_{year}_horizontal_u"
+                horizontal_u[df_name] = concat_frames_horizontally(
+                    globals()[f"{frames_var_name}_u"], input_keys
+                )
+                globals()[df_name] = horizontal_u[df_name]
+
+            # Process target (y) frames
+            if globals().get(f"{frames_var_name}_y") is not None:
+                df_name = f"df_{split}_{year}_horizontal_y"
+                horizontal_y[df_name] = concat_frames_horizontally(
+                    globals()[f"{frames_var_name}_y"], target_keys
+                )
+                globals()[df_name] = horizontal_y[df_name]
 
     # At last, a final check before exporting
 
@@ -2015,166 +824,27 @@ def execute_pipeline(
 
         print("(7/8): All data concatenations successful")
 
-    # Save the dataframes to data_combined/ folder. The windowing will be performed
-    # by a PyTorch Dataset class in the model scripts.
+    csv_params = {"index": True, "sep": ";", "decimal": ".", "encoding": "utf-8"}
 
-    df_train_2017_horizontal_u.to_csv(
-        "data/data_combined/train_2017_combined_u.csv",
-        index=True,
-        sep=";",
-        decimal=".",
-        encoding="utf-8",
-    )
-    df_train_2018_horizontal_u.to_csv(
-        "data/data_combined/train_2018_combined_u.csv",
-        index=True,
-        sep=";",
-        decimal=".",
-        encoding="utf-8",
-    )
-    df_train_2020_horizontal_u.to_csv(
-        "data/data_combined/train_2020_combined_u.csv",
-        index=True,
-        sep=";",
-        decimal=".",
-        encoding="utf-8",
-    )
-    df_train_2021_horizontal_u.to_csv(
-        "data/data_combined/train_2021_combined_u.csv",
-        index=True,
-        sep=";",
-        decimal=".",
-        encoding="utf-8",
-    )
-    df_val_2021_horizontal_u.to_csv(
-        "data/data_combined/val_2021_combined_u.csv",
-        index=True,
-        sep=";",
-        decimal=".",
-        encoding="utf-8",
-    )
-    df_test_2021_horizontal_u.to_csv(
-        "data/data_combined/test_2021_combined_u.csv",
-        index=True,
-        sep=";",
-        decimal=".",
-        encoding="utf-8",
-    )
-    df_train_2022_horizontal_u.to_csv(
-        "data/data_combined/train_2022_combined_u.csv",
-        index=True,
-        sep=";",
-        decimal=".",
-        encoding="utf-8",
-    )
-    df_val_2022_horizontal_u.to_csv(
-        "data/data_combined/val_2022_combined_u.csv",
-        index=True,
-        sep=";",
-        decimal=".",
-        encoding="utf-8",
-    )
-    df_val_2023_horizontal_u.to_csv(
-        "data/data_combined/val_2023_combined_u.csv",
-        index=True,
-        sep=";",
-        decimal=".",
-        encoding="utf-8",
-    )
-    df_test_2022_horizontal_u.to_csv(
-        "data/data_combined/test_2022_combined_u.csv",
-        index=True,
-        sep=";",
-        decimal=".",
-        encoding="utf-8",
-    )
-    df_test_2023_horizontal_u.to_csv(
-        "data/data_combined/test_2023_combined_u.csv",
-        index=True,
-        sep=";",
-        decimal=".",
-        encoding="utf-8",
-    )
+    # Export the dataframes
 
-    df_train_2017_horizontal_y.to_csv(
-        "data/data_combined/train_2017_combined_y.csv",
-        index=True,
-        sep=";",
-        decimal=".",
-        encoding="utf-8",
-    )
-    df_train_2018_horizontal_y.to_csv(
-        "data/data_combined/train_2018_combined_y.csv",
-        index=True,
-        sep=";",
-        decimal=".",
-        encoding="utf-8",
-    )
-    df_train_2020_horizontal_y.to_csv(
-        "data/data_combined/train_2020_combined_y.csv",
-        index=True,
-        sep=";",
-        decimal=".",
-        encoding="utf-8",
-    )
-    df_train_2021_horizontal_y.to_csv(
-        "data/data_combined/train_2021_combined_y.csv",
-        index=True,
-        sep=";",
-        decimal=".",
-        encoding="utf-8",
-    )
-    df_val_2021_horizontal_y.to_csv(
-        "data/data_combined/val_2021_combined_y.csv",
-        index=True,
-        sep=";",
-        decimal=".",
-        encoding="utf-8",
-    )
-    df_test_2021_horizontal_y.to_csv(
-        "data/data_combined/test_2021_combined_y.csv",
-        index=True,
-        sep=";",
-        decimal=".",
-        encoding="utf-8",
-    )
-    df_train_2022_horizontal_y.to_csv(
-        "data/data_combined/train_2022_combined_y.csv",
-        index=True,
-        sep=";",
-        decimal=".",
-        encoding="utf-8",
-    )
-    df_val_2022_horizontal_y.to_csv(
-        "data/data_combined/val_2022_combined_y.csv",
-        index=True,
-        sep=";",
-        decimal=".",
-        encoding="utf-8",
-    )
-    df_val_2023_horizontal_y.to_csv(
-        "data/data_combined/val_2023_combined_y.csv",
-        index=True,
-        sep=";",
-        decimal=".",
-        encoding="utf-8",
-    )
-    df_test_2022_horizontal_y.to_csv(
-        "data/data_combined/test_2022_combined_y.csv",
-        index=True,
-        sep=";",
-        decimal=".",
-        encoding="utf-8",
-    )
-    df_test_2023_horizontal_y.to_csv(
-        "data/data_combined/test_2023_combined_y.csv",
-        index=True,
-        sep=";",
-        decimal=".",
-        encoding="utf-8",
-    )
+    # Save both input (u) and target (y) dataframes
+    for data_type in ["u", "y"]:
+        for year in years:
+            for split in splits:
+                # Skip train split for 2023
+                if year == 2023 and split == "train":
+                    continue
 
-    if LOG:
-        print("(8/8): Data exported successfully")
-        print("\nData preparation finished")
-        print("-----------------------------------")
+                # Skip val and test splits for 2017, 2018, and 2020
+                if year in [2017, 2018, 2020] and split in ["val", "test"]:
+                    continue
+
+                # Create variable and filename
+                df_name = f"df_{split}_{year}_horizontal_{data_type}"
+                filename = f"data/data_combined/{split}_{year}_combined_{data_type}.csv"
+
+                # Export dataframe if it exists in globals
+                if df_name in globals():
+                    globals()[df_name].to_csv(filename, **csv_params)
+        print("(8/8): All data done exporting")

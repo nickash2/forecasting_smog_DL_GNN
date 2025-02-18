@@ -10,7 +10,7 @@ import pandas as pd
 
 
 def read_contaminant_csv_from_data_raw(
-    component: str, year: str, rows_to_skip: int = 5
+    component: str, year: str, rows_to_skip: int = 9
 ) -> pd.DataFrame:
     """
     Reads the contaminant data from the raw data folder. The data is in CSV format.
@@ -68,11 +68,10 @@ def read_four_contaminants(year: str, contaminants: str) -> pd.DataFrame:
     :param device: the device name
     :return: four contaminant dataframes
     """
-    df1 = read_contaminant_csv_from_data_raw(contaminants[0], year)
-    df2 = read_contaminant_csv_from_data_raw(contaminants[1], year)
-    df3 = read_contaminant_csv_from_data_raw(contaminants[2], year)
-    df4 = read_contaminant_csv_from_data_raw(contaminants[3], year)
-    return df1, df2, df3, df4
+    df_arr = []
+    for contaminant in contaminants:
+        df_arr.append(read_contaminant_csv_from_data_raw(contaminant, year))
+    return df_arr
 
 
 def read_two_meteo_years(yr1: str, yr2: str) -> pd.DataFrame:
