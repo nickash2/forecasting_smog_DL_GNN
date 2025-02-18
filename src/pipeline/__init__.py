@@ -48,5 +48,16 @@ from .plots import plot_distributions_KDE
 from .plots import plot_multiple_distributions
 from .plots import plot_tails
 from .pipeline import execute_pipeline
+from .stage import load_raw_data
+from .stage import process_metadata
+from .stage import process_contaminants
+from .stage import process_meteo
+from .stage import create_subsets
+from .stage import split_dataset
+from .stage import calculate_normalization_params
+from .stage import normalize_dataset
+from .stage import prepare_io_data
+from .stage import export_combined_data
+
 
 print("Pipeline initialized\n")
