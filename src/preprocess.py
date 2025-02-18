@@ -25,11 +25,6 @@ def main():
             years=[2017, 2018, 2020, 2021, 2022, 2023],
         )
 
-    # run(
-    #     ["PM25", "PM10", "O3", "NO2"],  # pass on contaminants;
-    #     # for more variables, see pipeline/pipeline.py
-    # )
-
 
 if __name__ == "__main__":
     main()
