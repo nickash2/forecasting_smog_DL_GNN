@@ -22,6 +22,7 @@ def main():
             locations=locations,
             city_name=city,
             LOG=True,
+            years=[2017, 2018, 2020, 2021, 2022, 2023],
         )
 
     # run(

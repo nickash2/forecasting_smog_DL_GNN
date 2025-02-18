@@ -29,7 +29,7 @@ def get_component(df: pd.DataFrame) -> str:
     :param df: DataFrame
     :return: str
     """
-    return f"{df['component'].iloc[0]}"
+    return f"{df['Component'].iloc[0]}"
 
 
 def get_unit(df: pd.DataFrame) -> str:
@@ -39,7 +39,7 @@ def get_unit(df: pd.DataFrame) -> str:
     :param df: DataFrame
     :return: str
     """
-    return f"{df['eenheid'].iloc[0]}"
+    return f"{df['Eenheid'].iloc[0]}"
 
 
 def rename_pollutant_cols(df: pd.DataFrame) -> pd.DataFrame:
@@ -90,12 +90,12 @@ def change_contaminant_date_format(df: pd.DataFrame) -> pd.DataFrame:
     :return: DataFrame with datetime column
     """
     try:
-        df["begindatumtijd"] = pd.to_datetime(
-            df["begindatumtijd"], format="%Y%m%d %H:%M"
+        df["Begindatumtijd"] = pd.to_datetime(
+            df["Begindatumtijd"], format="%Y%m%d %H:%M"
         )
     except ValueError:
-        df["begindatumtijd"] = pd.to_datetime(df["begindatumtijd"], format="ISO8601")
-    df.rename(columns={"begindatumtijd": "DateTime"}, inplace=True)
+        df["Begindatumtijd"] = pd.to_datetime(df["Begindatumtijd"], format="ISO8601")
+    df.rename(columns={"Begindatumtijd": "DateTime"}, inplace=True)
     return df
 
 
@@ -169,7 +169,7 @@ def fill_NaNs_linear(df: pd.DataFrame) -> pd.DataFrame:
     # Convert to numeric if not already
     df = df.apply(pd.to_numeric, errors="coerce")
 
-    df = df.apply(lambda col: col.map(lambda x: x if x >= 0 else np.nan))
+    # df = df.apply(lambda col: col.map(lambda x: x if x >= 0 else np.nan))
 
     return df.interpolate(method="linear", limit=24 * 7)
 
@@ -291,7 +291,9 @@ def tidy_raw_contaminant_data(
     :return: tidied DataFrame
     """
     df.columns = df.columns.str.strip()  # remove leading and trailing ws in col names
-    df = remove_unuseful_cols(df, ["component", "meetduur", "eenheid", "einddatumtijd"])
+    df = remove_unuseful_cols(
+        df, ["Component", "Bep.periode", "Eenheid", "Einddatumtijd"]
+    )
     # change format to yr-mm-dd hr-mn
     df = change_contaminant_date_format(df)
     # set the index to the dates ('datetime')
