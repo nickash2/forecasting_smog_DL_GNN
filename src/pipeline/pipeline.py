@@ -84,7 +84,7 @@ def execute_pipeline(
 
     # Pipeline Execution
     # Step 1: Load raw data
-    raw_data, meteo_data = load_raw_data(years, contaminants)
+    raw_data, meteo_data = load_raw_data(years, contaminants, city_name)
     if LOG:
         _log_message("Data read successfully", 1, TOTAL_STEPS)
 
@@ -170,10 +170,10 @@ def execute_pipeline(
     # Step 8: Export data
     export_combined_data(
         io_frames,
-        output_dir=f"data/data_combined/",
+        output_dir=f"data/data_combined/{city_name.lower()}",
         contaminants=contaminants,
         meteo_target=meteo_target,
-    )  # {city_name}")
+    )
     if LOG:
         _log_message("Data exported successfully", 8, TOTAL_STEPS)
 
