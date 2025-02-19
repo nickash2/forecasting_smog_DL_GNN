@@ -51,6 +51,7 @@ def execute_pipeline(
     city_name: str = "Utrecht",
     years: list = [2017, 2018],
     LOG: bool = True,
+    meteo_target: list = ["temp", "dewP", "WD", "Wvh", "P", "SQ"],
     SUBSET_MONTHS: bool = True,
     START_MON: str = "08",
     END_MON: str = "12",
@@ -92,6 +93,9 @@ def execute_pipeline(
     tidy_data = process_contaminants(
         raw_data, years, contaminants, SUBSET_MONTHS, START_MON, END_MON
     )
+    _cleanup_objects(raw_data)
+    _cleanup_objects(meteo_data)
+
     if LOG:
         _validate_data_shapes(
             [v for y in years for v in tidy_data[y].values()],
@@ -124,6 +128,7 @@ def execute_pipeline(
             "Subset data",
         )
         _log_message("Subsetting successful", 4, TOTAL_STEPS)
+    _cleanup_objects(tidy_data)
 
     # Step 5: Split data
     split_data = split_dataset(
@@ -152,13 +157,23 @@ def execute_pipeline(
 
     # Step 7: Prepare IO data
     io_frames = prepare_io_data(
-        normalized_data, years, ["train", "val", "test"], sensors
+        normalized_data,
+        years,
+        ["train", "val", "test"],
+        sensors,
+        contaminants,
+        meteo_target,
     )
     if LOG:
         _log_message("IO preparation successful", 7, TOTAL_STEPS)
 
     # Step 8: Export data
-    export_combined_data(io_frames)
+    export_combined_data(
+        io_frames,
+        output_dir=f"data/data_combined/",
+        contaminants=contaminants,
+        meteo_target=meteo_target,
+    )  # {city_name}")
     if LOG:
         _log_message("Data exported successfully", 8, TOTAL_STEPS)
 

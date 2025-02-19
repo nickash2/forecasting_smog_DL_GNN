@@ -77,38 +77,34 @@ def normalise_linear_inv(df_norm: pd.DataFrame, min: float, max: float) -> pd.Da
     return df_norm * (max - min) + min
 
 
-def print_pollutant_extremes(dfs: List[pd.DataFrame], bool_print=True) -> pd.DataFrame:
+def print_pollutant_extremes(
+    extremes: List[float], contaminants: List[str] = None, bool_print=True
+) -> pd.DataFrame:
     """
-    Takes a list with eight dataframes:
-    - NO2 minimum
-    - NO2 maximum
-    - O3 minimum
-    - O3 maximum
-    - PM10 minimum
-    - PM10 maximum
-    - PM25 minimum
-    - PM25 maximum
+    Takes a list of minimum and maximum values for contaminants and creates a DataFrame.
 
-    makes a dataframe of them, prints it and returns it
-
-    :param dfs: list of dataframes
-    :param pollutants: list of pollutants
-    :return: dataframe with minimum and maximum values
+    :param extremes: List of floats containing min/max values in pairs [cont1_min, cont1_max, cont2_min, cont2_max, ...]
+    :param contaminants: List of contaminant names. If None, defaults to ["NO2", "O3", "PM10", "PM25"]
+    :param bool_print: Whether to print the resulting DataFrame
+    :return: DataFrame with minimum and maximum values for each contaminant
     """
-    NO2_min_train, NO2_max_train = calc_combined_min_max_params(dfs[:2])
-    O3_min_train, O3_max_train = calc_combined_min_max_params(dfs[2:4])
-    PM10_min_train, PM10_max_train = calc_combined_min_max_params(dfs[4:6])
-    PM25_min_train, PM25_max_train = calc_combined_min_max_params(dfs[6:])
+    if contaminants is None:
+        contaminants = ["NO2", "O3", "PM10", "PM25"]
 
-    df_minmax = pd.DataFrame(
-        {
-            "NO2": [NO2_min_train, NO2_max_train],
-            "O3": [O3_min_train, O3_max_train],
-            "PM10": [PM10_min_train, PM10_max_train],
-            "PM25": [PM25_min_train, PM25_max_train],
-        },
-        index=["min", "max"],
-    ).T
-    print(df_minmax) if bool_print else None
+    # Validate input length
+    if len(extremes) != len(contaminants) * 2:
+        raise ValueError(
+            f"Expected {len(contaminants) * 2} values in extremes list (min/max for each contaminant)"
+        )
+
+    # Create dictionary for DataFrame
+    data = {}
+    for i, cont in enumerate(contaminants):
+        data[cont] = [extremes[i * 2], extremes[i * 2 + 1]]  # min and max values
+
+    df_minmax = pd.DataFrame(data, index=["min", "max"]).T
+
+    if bool_print:
+        print(df_minmax)
 
     return df_minmax
