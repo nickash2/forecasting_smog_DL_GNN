@@ -84,7 +84,8 @@ def execute_pipeline(
 
     # Pipeline Execution
     # Step 1: Load raw data
-    raw_data, meteo_data = load_raw_data(years, contaminants, city_name)
+    city_station = stations
+    raw_data, meteo_data = load_raw_data(years, contaminants, city_name, city_station)
     if LOG:
         _log_message("Data read successfully", 1, TOTAL_STEPS)
 
