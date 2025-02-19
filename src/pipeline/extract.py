@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import sys
 import pandas as pd
+from .knmy_data_collector import KNMIDataCollector
 
 
 def read_contaminant_csv_from_data_raw(
@@ -45,7 +46,9 @@ def read_contaminant_csv_from_data_raw(
         sys.exit(1)
 
 
-def read_meteo_csv_from_data_raw(year: str, city: str = "Utrecht") -> pd.DataFrame:
+def read_meteo_csv_from_data_raw(
+    year: str, city: str = "Utrecht", city_station: int = 260
+) -> pd.DataFrame:
     """
     Reads the meteorological data from the raw data folder
 
@@ -66,7 +69,22 @@ def read_meteo_csv_from_data_raw(year: str, city: str = "Utrecht") -> pd.DataFra
         return df
     except FileNotFoundError:
         print(f"File not found: {year}_meteo_{city}.csv")
-        sys.exit(1)
+        print(f"Would you like to download the meteo data for {city} of {year}?")
+        request = input("y/n: ")
+
+        if request == "y":
+            data_collector = KNMIDataCollector()
+            data_collector.collect_data({city: [city_station]}, [year])
+            df = pd.read_csv(
+                f"data/data_raw/{year}_meteo_{city}.csv",
+                sep=";",
+                encoding="UTF-8",
+                index_col=0,
+            )
+            return df
+        else:
+            print("Exiting program")
+            sys.exit(1)
 
 
 def read_four_contaminants(year: str, contaminants: str) -> pd.DataFrame:

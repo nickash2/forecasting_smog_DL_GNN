@@ -20,13 +20,13 @@ from pipeline import (
 # --------------------------
 
 
-def load_raw_data(years, contaminants, city):
+def load_raw_data(years, contaminants, city, city_station):
     """Load raw contaminant and meteorological data."""
     raw_data = {}
     meteo_data = {}
     for year in years:
         raw_data[year] = read_four_contaminants(year, contaminants)
-        meteo_data[year] = read_meteo_csv_from_data_raw(year, city)
+        meteo_data[year] = read_meteo_csv_from_data_raw(year, city, city_station)
     return raw_data, meteo_data
 
 
