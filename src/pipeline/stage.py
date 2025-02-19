@@ -169,12 +169,12 @@ def calculate_normalization_params(split_data, train_years, contaminants, meteo_
     # Create dataframe for pollutant extremes
     print("\nPollutant min/max values:")
     pollutant_values = []
-    for cont in ["NO2", "O3", "PM10", "PM25"]:
+    for cont in contaminants:
         pollutant_values.extend(
             [min_max_params[cont]["min"], min_max_params[cont]["max"]]
         )
 
-    df_minmax = print_pollutant_extremes(pollutant_values)
+    df_minmax = print_pollutant_extremes(pollutant_values, contaminants)
     print()
     export_minmax(df_minmax, "contaminant_minmax")
     return min_max_params
@@ -208,7 +208,9 @@ def normalize_dataset(split_data, min_max_params, years, contaminants, meteo_var
     return normalized_data
 
 
-def prepare_io_data(normalized_data, years, splits, sensors):
+def prepare_io_data(
+    normalized_data, years, splits, sensors, contaminants, meteo_target
+):
     """Prepare input-output data structures for model training."""
     frames = {"u": {s: {} for s in splits}, "y": {s: {} for s in splits}}
 
@@ -219,18 +221,18 @@ def prepare_io_data(normalized_data, years, splits, sensors):
 
             # Input data (u)
             frames["u"][split][year] = []
-            for cont in ["PM25", "PM10", "O3", "NO2"]:
+            for cont in contaminants:
                 if cont in normalized_data[split][year]:
                     frames["u"][split][year].append(
                         normalized_data[split][year][cont].loc[:, [sensors[0]]]
                     )
-            for var in ["temp", "dewP", "WD", "Wvh", "P", "SQ"]:
+            for var in meteo_target:
                 if var in normalized_data[split][year]:
                     frames["u"][split][year].append(normalized_data[split][year][var])
 
             # Target data (y)
             frames["y"][split][year] = []
-            for cont in ["PM25", "PM10", "O3", "NO2"]:
+            for cont in contaminants:
                 if cont in normalized_data[split][year]:
                     frames["y"][split][year].append(
                         normalized_data[split][year][cont].loc[:, [sensors[1]]]
@@ -238,7 +240,12 @@ def prepare_io_data(normalized_data, years, splits, sensors):
     return frames
 
 
-def export_combined_data(frames, output_dir="data/data_combined"):
+def export_combined_data(
+    frames,
+    output_dir="data/data_combined",
+    meteo_target: list = None,
+    contaminants: list = None,
+):
     """Combine and export final datasets."""
     csv_params = {"index": True, "sep": ";", "decimal": ".", "encoding": "utf-8"}
 
@@ -250,20 +257,7 @@ def export_combined_data(frames, output_dir="data/data_combined"):
 
                 df = concat_frames_horizontally(
                     frames[data_type][split][year],
-                    [
-                        "PM25",
-                        "PM10",
-                        "O3",
-                        "NO2",
-                        "temp",
-                        "dewP",
-                        "WD",
-                        "Wvh",
-                        "P",
-                        "SQ",
-                    ]
-                    if data_type == "u"
-                    else ["PM25", "PM10", "O3", "NO2"],
+                    contaminants + meteo_target if data_type == "u" else contaminants,
                 )
                 df.to_csv(
                     f"{output_dir}/{split}_{year}_combined_{data_type}.csv",
