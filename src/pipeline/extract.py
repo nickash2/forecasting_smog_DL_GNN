@@ -30,13 +30,19 @@ def read_contaminant_csv_from_data_raw(
     :return: the contaminant data as a pandas DataFrame
     """
     os.chdir(Path.cwd())
+    try:
+        df = pd.read_csv(
+            f"data/data_raw/{year}_{component}.csv",
+            sep=";",
+            encoding="ISO-8859-15",
+            skiprows=rows_to_skip,
+        )
 
-    return pd.read_csv(
-        f"data/data_raw/{year}_{component}.csv",
-        sep=";",
-        encoding="ISO-8859-15",
-        skiprows=rows_to_skip,
-    )
+        return df
+
+    except FileNotFoundError:
+        print(f"File not found: {year}_{component}.csv")
+        sys.exit(1)
 
 
 def read_meteo_csv_from_data_raw(year: str, city: str = "Utrecht") -> pd.DataFrame:
@@ -50,12 +56,17 @@ def read_meteo_csv_from_data_raw(year: str, city: str = "Utrecht") -> pd.DataFra
     """
     os.chdir(Path.cwd())
 
-    return pd.read_csv(
-        f"data/data_raw/{year}_meteo_Utrecht.csv",
-        sep=";",
-        encoding="UTF-8",
-        index_col=0,
-    )
+    try:
+        df = pd.read_csv(
+            f"data/data_raw/{year}_meteo_{city}.csv",
+            sep=";",
+            encoding="UTF-8",
+            index_col=0,
+        )
+        return df
+    except FileNotFoundError:
+        print(f"File not found: {year}_meteo_{city}.csv")
+        sys.exit(1)
 
 
 def read_four_contaminants(year: str, contaminants: str) -> pd.DataFrame:
