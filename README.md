@@ -1,4 +1,4 @@
-# Thesis repository: 'Forecasting Smog Clouds With Graphical Neural Networks'
+# Thesis repository: 'Forecasting Smog Clouds With Graph Neural Networks'
 
 This repository contains scripts belonging to a thesis, '[x](x),' and a [x](x) that followed out of it.
 
