@@ -187,7 +187,11 @@ def main():
 
     elif args.optuna:
         print("Starting optuna search...")
-        model = optuna_search(hp, train_dataset, n_trials=50, hier=False)
+        best_hp, best_val_loss = optuna_search(
+            hp, train_dataset, n_trials=50, hier=False
+        )
+        print("Training with best hyperparameters...")
+        model = train_model(best_hp, train_dataset, val_dataset, model_save_path)
 
     else:
         print("No valid action selected. Use --help for options.")
