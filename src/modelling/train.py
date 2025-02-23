@@ -11,18 +11,20 @@ import pandas as pd
 import torch
 
 
-def init_model(hp: Dict[str, Any]) -> Any:
+def init_model(hp: Dict[str, Any]):
     """
-    Initializes standard model
+    Initializes the model with correct input dimensions
 
     :param hp: dictionary of hyperparameters
-    :return: the initialized model
+    :return: initialized model
     """
     return hp["model_class"](
-        int(hp["input_units"]),
-        int(hp["hidden_layers"]),
-        int(hp["hidden_units"]),
-        int(hp["output_units"]),
+        N_HOURS_U=hp["n_hours_u"],
+        N_HOURS_Y=hp["n_hours_y"],
+        N_INPUT_UNITS=hp["input_units"],  # Pass input_units
+        N_HIDDEN_UNITS=hp["hidden_units"],
+        N_OUTPUT_UNITS=hp["output_units"],
+        N_HIDDEN_LAYERS=hp["hidden_layers"],
     )
 
 
@@ -163,7 +165,7 @@ def training_epoch_shared_layer(
     """
     # Set model to training mode
     model.train()
-    
+
     # freeze the branches; they do not need to be trained in this step
     for param in model.branches.parameters():
         param.requires_grad_(False)
@@ -196,7 +198,7 @@ def training_epoch_branches(
     """
     # Set model to training mode
     model.train()
-    
+
     # unfreeze the branches, freeze the shared layer
     for param in model.branches.parameters():
         param.requires_grad_(True)
@@ -219,7 +221,7 @@ def training_epoch_branches(
             optimizer.zero_grad()  # do backward pass, optimize weights
             branch_batch_loss.backward()
             optimizer.step()
-    
+
     # finally, unfreeze the shared layer
     for param in model.shared_layer.parameters():
         param.requires_grad_(True)
@@ -239,7 +241,7 @@ def validation_epoch(
     val_loss = np.float64(0)
     # Set model to evaluation mode
     model.eval()
-    
+
     with torch.no_grad():  # don't calculate gradients
         # loop over all batches
         for batch_val_u, batch_val_y in val_loader:
@@ -279,13 +281,13 @@ def train_hierarchical(
         branch_losses.append(
             training_epoch_branches(model, branch_optimizers, loss_fn, train_loader)
         )
-        
+
         # calculate training and validation loss
         train_loss = validation_epoch(model, loss_fn, train_loader)
         val_loss = validation_epoch(model, loss_fn, val_loader)
-        
+
         schedulers_epoch(shared_scheduler, branch_schedulers, val_loss)
-        
+
         # save/print losses per batch for each epoch
         train_losses.append(train_loss / len(train_loader))
         val_losses.append(val_loss / len(val_loader))
@@ -293,7 +295,7 @@ def train_hierarchical(
 
         if early_stopper(val_losses[epoch], epoch, model):
             break
-            
+
     return (
         early_stopper.best_model,
         train_losses,
@@ -303,14 +305,14 @@ def train_hierarchical(
     )
 
 
-def init_model(hp):
-    """Initializes the model"""
-    return hp["model_class"](
-        int(hp["input_units"]),
-        int(hp["hidden_layers"]),
-        int(hp["hidden_units"]),
-        int(hp["output_units"]),
-    )
+# def init_model(hp):
+#     """Initializes the model"""
+#     return hp["model_class"](
+#         int(hp["input_units"]),
+#         int(hp["hidden_layers"]),
+#         int(hp["hidden_units"]),
+#         int(hp["output_units"]),
+#     )
 
 
 def print_epoch_loss(epoch, train_losses, val_losses, x=5):

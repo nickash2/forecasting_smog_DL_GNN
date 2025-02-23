@@ -5,10 +5,8 @@
 import torch
 import pandas as pd
 
-def retrieve_min_max(
-        path: str,
-        conts = ['NO2', 'O3', 'PM10', 'PM25']
-    ) -> dict:
+
+def retrieve_min_max(path: str, conts=["NO2", "O3", "PM10", "PM25"]) -> dict:
     """
     Retrieves the min and max values for each contaminant from the given path by:
     - retrieving and reading the .csv file
@@ -19,18 +17,14 @@ def retrieve_min_max(
     :param conts: list, list of contaminant names (order is important!)
     :return: dict, dictionary with contaminant names as keys and min/max values as values
     """
-    df_minmax = pd.read_csv(path, sep = ';', encoding = 'utf-8', index_col = 0)
-    min = {f'{cont}_min': df_minmax.loc[cont, 'min'] for cont in conts}
-    max = {f'{cont}_max': df_minmax.loc[cont, 'max'] for cont in conts}
+    df_minmax = pd.read_csv(path, sep=";", encoding="utf-8", index_col=0)
+    min = {f"{cont}_min": df_minmax.loc[cont, "min"] for cont in conts}
+    max = {f"{cont}_max": df_minmax.loc[cont, "max"] for cont in conts}
     # ** unpacks the dictionaries into a single dictionary
     return {**min, **max}
 
 
-def normalise_linear_inv(
-        tensor: torch.tensor,
-        min: float,
-        max: float
-    ) -> torch.tensor:
+def normalise_linear_inv(tensor: torch.tensor, min: float, max: float) -> torch.tensor:
     """
     Performs inverse linear scaling (minmax) on a tensor,
     so the values get restored to their original range
@@ -44,10 +38,8 @@ def normalise_linear_inv(
 
 
 def denormalise(
-        tensor_3D: torch.tensor,
-        path: str,
-        contaminants: list = ['NO2', 'O3', 'PM10', 'PM25']
-    ) -> torch.tensor:
+    tensor_3D: torch.tensor, path: str, contaminants: list = ["NO2", "O3"]
+) -> torch.tensor:
     """
     Helper function for denormalising the predictions:
     - clones the tensor (because it's passed by reference)
@@ -62,14 +54,14 @@ def denormalise(
     :return: denormalised 3D tensor
     """
     tensor_3D_copy = tensor_3D.clone().detach()
-    dict_minmax = retrieve_min_max(path)
+    dict_minmax = retrieve_min_max(path, conts=contaminants)
 
     for idx, cont in enumerate(contaminants):
-        min_val = dict_minmax[f'{cont}_min']
-        max_val = dict_minmax[f'{cont}_max']
-                                        # take first and only batch, all
-                                        # time steps, current contaminant
-        tensor_3D_copy[:, :, idx] = normalise_linear_inv(tensor_3D[:, :, idx],
-                                                         min_val,
-                                                         max_val)
+        min_val = dict_minmax[f"{cont}_min"]
+        max_val = dict_minmax[f"{cont}_max"]
+        # take first and only batch, all
+        # time steps, current contaminant
+        tensor_3D_copy[:, :, idx] = normalise_linear_inv(
+            tensor_3D[:, :, idx], min_val, max_val
+        )
     return tensor_3D_copy
