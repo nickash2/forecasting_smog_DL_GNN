@@ -7,6 +7,7 @@ from .cross_validation import k_fold_cross_validation_expanding_hierarchical
 from typing import Any, List, Dict, Tuple
 import numpy as np
 import torch
+import json
 
 
 def filter_dict_by_keys(
@@ -115,6 +116,15 @@ def print_end_of_grid_search(best_hp: Dict[str, Any], best_val_loss: float) -> N
     print("With configuration:")
     print_dict_vertically(best_hp)
     print()
+
+
+def save_dict(best_hp_dict: Dict[str, Any], filename: str) -> None:
+    """
+    Saves the best hyperparameters to a json file.
+    """
+
+    with open("best_hp.json", "w") as f:
+        json.dump(filename, f)
 
 
 def grid_search(

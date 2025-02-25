@@ -3,9 +3,8 @@ import optuna
 from .cross_validation import k_fold_cross_validation_expanding_hierarchical
 
 from typing import Any, List, Dict, Tuple
-import numpy as np
 import torch
-from .grid_search import update_dict, print_current_config
+from .grid_search import update_dict, print_current_config, save_dict
 
 
 def objective(
@@ -43,11 +42,21 @@ def optuna_search(
     train_dataset: torch.utils.data.Dataset,
     n_trials: int = 50,
     hier: bool = True,
+    db_name: str = "optuna_db",
+    seed: int = 10,
+    hp_save_dir: str = "best_hp.json",
 ) -> Tuple[Dict[str, Any], float]:
     """
     Uses Optuna to find the best hyperparameters.
     """
-    study = optuna.create_study(direction="minimize")
+    study = optuna.create_study(
+        direction="minimize",
+        storage=f"sqlite:///{db_name}.db",
+        study_name=db_name,
+        load_if_exists=True,
+        pruner=optuna.pruners.HyperbandPruner(),
+        sampler=optuna.samplers.TPESampler(seed=seed),
+    )
     study.optimize(
         lambda trial: objective(trial, hp, train_dataset, hier), n_trials=n_trials
     )
@@ -58,5 +67,7 @@ def optuna_search(
 
     print("Best hyperparameters:", best_hp)
     print("Best validation loss:", best_val_loss)
+
+    save_dict(best_hp, hp_save_dir)
 
     return best_hp, best_val_loss
