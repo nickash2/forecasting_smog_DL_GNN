@@ -148,7 +148,7 @@ def execute_pipeline(
 
     # Step 6: Normalize data
     min_max_params = calculate_normalization_params(
-        split_data, train_years, contaminants, meteo_vars
+        split_data, train_years, contaminants, meteo_vars, city_name.lower
     )
     normalized_data = normalize_dataset(
         split_data, min_max_params, years, contaminants, meteo_vars
