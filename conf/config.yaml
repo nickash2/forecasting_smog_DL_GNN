@@ -1,0 +1,49 @@
+defaults:
+  - cities: utrecht
+  - _self_
+
+hydra:
+  sweeper:
+    params:
+      cities: utrecht,amsterdam,rotterdam
+  job:
+    chdir: True
+  sweep:
+    dir: multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    subdir: ${cities.name}
+
+seed: 32
+model: "GRU"
+train: false
+habrok: false
+
+hp_tuning:
+  grid_search: false
+  optuna: true
+  n_trials: 100
+  db_name: "optuna_${cities.name}"
+  study_name: "optuna_${cities.name}_${now:%H-%M-%S}"
+  hp_save_dir: "results/optuna_search/best_hp_${cities.name}.json"
+
+# hyperparameters:
+#   n_hours_u: 72
+#   n_hours_y: 24
+#   input_units: 8
+#   hidden_layers: 4
+#   hidden_units: 128
+#   output_units: 2
+#   optimizer: "Adam"
+#   lr_shared: 1e-3
+#   scheduler: "ReduceLROnPlateau"
+#   scheduler_kwargs:
+#     mode: "min"
+#     factor: 0.1
+#     patience: 3
+#     cooldown: 8
+#   w_decay: 1e-5
+#   loss_fn: "MSELoss"
+#   epochs: 5000
+#   patience: 15
+#   batch_sz: 16
+#   k_folds: 5
+#   early_stopper: "EarlyStopper"
