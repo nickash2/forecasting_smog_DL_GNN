@@ -144,7 +144,9 @@ def split_dataset(
     return split_data
 
 
-def calculate_normalization_params(split_data, train_years, contaminants, meteo_vars):
+def calculate_normalization_params(
+    split_data, train_years, contaminants, meteo_vars, city_name
+):
     """Calculate normalization parameters from training data and export the minmax values."""
     min_max_params = {}
 
@@ -176,7 +178,7 @@ def calculate_normalization_params(split_data, train_years, contaminants, meteo_
 
     df_minmax = print_pollutant_extremes(pollutant_values, contaminants)
     print()
-    export_minmax(df_minmax, "contaminant_minmax")
+    export_minmax(df_minmax, "contaminant_minmax", city_name)
     return min_max_params
 
 
