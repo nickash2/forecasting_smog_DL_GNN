@@ -1,5 +1,6 @@
-from src.run_m import main
+from src.run_forecast import main
 
 
 if __name__ == "__main__":
+    print("Running forecast prediction...")
     main()

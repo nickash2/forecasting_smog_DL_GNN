@@ -43,6 +43,7 @@ def optuna_search(
     n_trials: int = 50,
     hier: bool = True,
     db_name: str = "optuna_db",
+    study_name: str = "optuna_study",
     seed: int = 10,
     hp_save_dir: str = "best_hp.json",
 ) -> Tuple[Dict[str, Any], float]:
@@ -51,8 +52,8 @@ def optuna_search(
     """
     study = optuna.create_study(
         direction="minimize",
-        storage=f"sqlite:///{db_name}.db",
-        study_name=db_name,
+        storage=f"sqlite:///results/optuna_search/{db_name}.db",
+        study_name=study_name,
         load_if_exists=True,
         pruner=optuna.pruners.HyperbandPruner(),
         sampler=optuna.samplers.TPESampler(seed=seed),
@@ -62,12 +63,10 @@ def optuna_search(
     )
 
     # Get best hyperparameters
-    best_hp = study.best_params
+    best_hp = update_dict(hp, study.best_params)
     best_val_loss = study.best_value
 
     print("Best hyperparameters:", best_hp)
     print("Best validation loss:", best_val_loss)
-
-    save_dict(best_hp, hp_save_dir)
 
     return best_hp, best_val_loss

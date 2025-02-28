@@ -1,0 +1,3 @@
+name: "utrecht"
+city: "Utrecht"
+data_path: "${hydra:runtime.cwd}/data/data_combined/utrecht"

@@ -123,8 +123,8 @@ def save_dict(best_hp_dict: Dict[str, Any], filename: str) -> None:
     Saves the best hyperparameters to a json file.
     """
 
-    with open("best_hp.json", "w") as f:
-        json.dump(filename, f)
+    with open(filename, "w") as f:
+        json.dump(best_hp_dict, f)
 
 
 def grid_search(
