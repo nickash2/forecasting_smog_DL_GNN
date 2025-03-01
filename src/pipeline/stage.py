@@ -49,7 +49,7 @@ def process_contaminants(
         tidy_data[year] = {}
         for i, cont in enumerate(contaminants):
             tidy_data[year][cont] = tidy_raw_contaminant_data(
-                raw_data[year][i], str(year), subset_months, start_mon, end_mon
+                raw_data[year][i], str(year), subset_months, start_mon, end_mon, fill_NaNs=True
             )
     return tidy_data
 

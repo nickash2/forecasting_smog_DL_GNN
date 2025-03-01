@@ -39,6 +39,22 @@ def _cleanup_objects(*objects) -> None:
     for obj in objects:
         del obj
 
+def validate_processed_data(tidy_data, years, contaminants):
+    """Validate processed data for NaNs and other issues"""
+    for year in years:
+        for contaminant in contaminants:
+            if contaminant in tidy_data[year]:
+                df = tidy_data[year][contaminant]
+                nan_count = df.isnull().sum()
+                if nan_count.any():
+                    print(f"\nWarning: NaNs found in {year} {contaminant}:")
+                    print(nan_count[nan_count > 0])
+                    
+                    # Show where the NaNs are
+                    # nan_rows = df[df.isnull().any(axis=1)]
+                    # if not nan_rows.empty:
+                        # print("\nFirst few rows with NaNs:")
+                        # print(nan_rows.head())
 
 # --------------------------
 # Main Pipeline Function
@@ -94,6 +110,8 @@ def execute_pipeline(
     tidy_data = process_contaminants(
         raw_data, years, contaminants, SUBSET_MONTHS, START_MON, END_MON
     )
+    if LOG:
+        validate_processed_data(tidy_data, years, contaminants)
     _cleanup_objects(raw_data)
     _cleanup_objects(meteo_data)
 
@@ -148,7 +166,7 @@ def execute_pipeline(
 
     # Step 6: Normalize data
     min_max_params = calculate_normalization_params(
-        split_data, train_years, contaminants, meteo_vars, city_name.lower
+        split_data, train_years, contaminants, meteo_vars, city_name.lower()
     )
     normalized_data = normalize_dataset(
         split_data, min_max_params, years, contaminants, meteo_vars

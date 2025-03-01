@@ -8,8 +8,8 @@ from pipeline import execute_pipeline as run
 def main():
     cities_dict = {
         # "Utrecht": ["NL10636", "NL10641", 260],
-        "Amsterdam": ["NL49003", "NL49012", 240],  # nieuwe, diemenstraat
-        "Rotterdam": ["NL01494", "NL01494", 344],  # hoogvliet, schiedam-a-arianstrat
+        # "Amsterdam": ["NL49003", "NL49012", 240],  # nieuwe, diemenstraat
+        "Rotterdam": ["NL01485", "NL01494", 344],  # hoogvliet, schiedam-a-arianstrat
     }
 
     # run the pipeline for the cities in the dictionary
