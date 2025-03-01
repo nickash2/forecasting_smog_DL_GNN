@@ -169,7 +169,10 @@ def fill_NaNs_linear(df: pd.DataFrame) -> pd.DataFrame:
     # Convert to numeric if not already
     df = df.apply(pd.to_numeric, errors="coerce")
 
-    # df = df.apply(lambda col: col.map(lambda x: x if x >= 0 else np.nan))
+    # If any NaNs remain, try forward fill followed by backward fill
+    # This will handle larger gaps while maintaining some data continuity
+    if df.isnull().any().any():
+        df = df.fillna(method='ffill').fillna(method='bfill')
 
     return df.interpolate(method="linear", limit=24 * 7)
 
