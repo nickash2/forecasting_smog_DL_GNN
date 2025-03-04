@@ -2,8 +2,8 @@
 
 # __init__py for the modelling package
 
-__version__ = '0.0.0' # MAJOR.MINOR.PATCH versioning
-__author__ = 'valentijn7' # GitHub username
+__version__ = "0.0.0"  # MAJOR.MINOR.PATCH versioning
+__author__ = "valentijn7"  # GitHub username
 
 print("\nRunning __init__.py for data pipeline...")
 
@@ -12,6 +12,9 @@ from .extract import get_dataframes
 from .denormalise import retrieve_min_max
 from .denormalise import normalise_linear_inv
 from .denormalise import denormalise
+from .denormalise import denormalise_dataframes
+from .denormalise import denormalize_then_normalize_with_target
+
 from .train import train
 from .train import train_hierarchical
 from .cross_validation import k_fold_cross_validation_expanding_hierarchical
@@ -24,6 +27,8 @@ from .TimeSeriesDataset import TimeSeriesDataset
 from .PrintManager import PrintManager
 from .test import test_hierarchical
 from .test import test_hierarchical_separately
+from .test import test_separately
+from .test import test
 
 from .plots import get_pred_and_gt
 from .plots import get_index

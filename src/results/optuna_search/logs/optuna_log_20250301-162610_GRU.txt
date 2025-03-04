@@ -1,0 +1,22 @@
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 6
+hidden_units    : 128
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.007194094541441001
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 2.731723105083079e-06
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 22
+batch_sz        : 32
+k_folds         : 5
+
+
+	Fold 1/5

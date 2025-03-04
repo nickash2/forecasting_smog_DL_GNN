@@ -4,6 +4,7 @@
 
 import torch
 import pandas as pd
+from pipeline.normalise import calc_combined_min_max_params
 
 
 def retrieve_min_max(path: str, conts=["NO2", "O3", "PM10", "PM25"]) -> dict:
@@ -65,3 +66,63 @@ def denormalise(
             tensor_3D[:, :, idx], min_val, max_val
         )
     return tensor_3D_copy
+
+
+def denormalise_dataframes(dfs_list, minmax_path, contaminants=["NO2", "O3"]):
+    """
+    Denormalizes a list of DataFrames
+
+    :param dfs_list: List of pandas DataFrames
+    :param minmax_path: Path to min/max values file
+    :param contaminants: List of contaminant columns to denormalize
+    :return: List of denormalized DataFrames
+    """
+    dict_minmax = retrieve_min_max(minmax_path, conts=contaminants)
+    denormalized_list = []
+
+    for df in dfs_list:
+        df_copy = df.copy()
+
+        for cont in contaminants:
+            if cont in df_copy.columns:
+                min_val = dict_minmax[f"{cont}_min"]
+                max_val = dict_minmax[f"{cont}_max"]
+                df_copy[cont] = df_copy[cont] * (max_val - min_val) + min_val
+
+        denormalized_list.append(df_copy)
+
+    return denormalized_list
+
+
+def denormalize_then_normalize_with_target(
+    df,
+    input_minmax_path,
+    target_minmax_path=None,
+    no_target=False,
+    contaminants=["NO2", "O3"],
+):
+    # Get min/max values
+    input_params = retrieve_min_max(input_minmax_path, conts=contaminants)
+    if no_target:
+        target_params = calc_combined_min_max_params(df)
+        print("Total params calculated", target_params)
+    else:
+        target_params = retrieve_min_max(target_minmax_path, conts=contaminants)
+
+    # Create a copy to avoid modifying original
+    df_copy = df.copy()
+
+    # Process each contaminant
+    for cont in contaminants:
+        if cont in df_copy.columns:
+            # Step 1: Denormalize using input parameters
+            r_min = input_params[f"{cont}_min"]
+            r_max = input_params[f"{cont}_max"]
+            denormalized = df_copy[cont] * (r_max - r_min) + r_min
+
+            # Step 2: Normalize using target parameters
+            u_min = target_params[f"{cont}_min"]
+            u_max = target_params[f"{cont}_max"]
+            df_copy[cont] = (denormalized - u_min) / (u_max - u_min)
+
+    return df_copy
