@@ -16,15 +16,22 @@ def main():
     for city, locations in cities_dict.items():
         print(f"Running pipeline for {city}")
 
-        run(
-            ["O3", "NO2"],  # pass on contaminants;
-            # for more variables, see pipeline/pipeline.py
-            locations=locations,
-            city_name=city,
-            LOG=True,
-            years=[2017, 2018, 2020, 2021, 2022, 2023],
-            meteo_target=["temp", "dewP", "WD", "Wvh", "P", "SQ"],
-        )
+        # run(
+        #     ["O3", "NO2"],  # pass on contaminants;
+        #     # for more variables, see pipeline/pipeline.py
+        #     locations=locations,
+        #     city_name=city,
+        #     LOG=True,
+        #     years=[2017, 2018, 2020, 2021, 2022, 2023],
+        #     meteo_target=["temp", "dewP", "WD", "Wvh", "P", "SQ"],
+        # )
+    # Example 2: Process all cities together
+    run(
+        ["O3", "NO2"],
+        years=[2017, 2018, 2020, 2021, 2022, 2023],
+        LOG=True,
+        process_all=True,
+    )
 
 
 if __name__ == "__main__":

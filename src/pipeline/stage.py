@@ -49,7 +49,12 @@ def process_contaminants(
         tidy_data[year] = {}
         for i, cont in enumerate(contaminants):
             tidy_data[year][cont] = tidy_raw_contaminant_data(
-                raw_data[year][i], str(year), subset_months, start_mon, end_mon, fill_NaNs=True
+                raw_data[year][i],
+                str(year),
+                subset_months,
+                start_mon,
+                end_mon,
+                fill_NaNs=True,
             )
     return tidy_data
 
@@ -189,6 +194,7 @@ def normalize_dataset(split_data, min_max_params, years, contaminants, meteo_var
     for split in ["train", "val", "test"]:
         for year in years:
             normalized_data[split][year] = {}
+            print(split_data[split])
             if year not in split_data[split]:
                 continue
             # Normalize contaminants
