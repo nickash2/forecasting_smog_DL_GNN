@@ -14,7 +14,6 @@ from .stage import (
 )
 from .tests import assert_equal_shape
 
-# ...rest of the file remains the same...
 # --------------------------
 # Helper Functions
 # --------------------------
