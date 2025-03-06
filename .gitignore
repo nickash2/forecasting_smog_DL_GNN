@@ -16,3 +16,4 @@ GRU.ipynb
 .venv
 outputs/
 *.db
+*.tfevents.*
