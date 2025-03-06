@@ -4,7 +4,7 @@
 
 import torch
 import pandas as pd
-from pipeline.normalise import calc_combined_min_max_params
+# from pipeline.normalise import calc_combined_min_max_params
 
 
 def retrieve_min_max(path: str, conts=["NO2", "O3", "PM10", "PM25"]) -> dict:

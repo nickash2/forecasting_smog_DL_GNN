@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, ConcatDataset
 import datetime
-from .modelling import (
+from modelling import (
     GRU,
     HGRU,
     get_dataframes,
@@ -13,11 +13,11 @@ from .modelling import (
     EarlyStopper,
     PrintManager,
 )
-from .modelling.train import train
-from .modelling.test import test
-from .modelling.grid_search import grid_search
-from .modelling.optuna import optuna_search
-from .modelling.plots import set_minmax_path, set_contaminants
+from modelling.train import train
+from modelling.test import test
+from modelling.grid_search import grid_search
+from modelling.optuna import optuna_search
+from modelling.plots import set_minmax_path, set_contaminants
 
 # Set default device
 use_cuda = torch.cuda.is_available()
