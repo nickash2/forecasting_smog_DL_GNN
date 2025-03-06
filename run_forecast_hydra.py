@@ -19,7 +19,9 @@ from src.modelling.test import test
 from src.modelling.grid_search import grid_search
 from src.modelling.optuna import optuna_search
 from src.modelling.plots import set_minmax_path, set_contaminants
-import pickle
+from src.modelling.grid_search import update_dict
+import pandas as pd
+import optuna
 
 # Set default device
 use_cuda = torch.cuda.is_available()
@@ -50,8 +52,9 @@ def load_data(city_name, u: int = 72, y: int = 24, step: int = 24):
     return train_dataset, val_dataset, test_dataset
 
 
-def train_model(hp, train_dataset, val_dataset, save_path):
+def train_model(hp, train_dataset, val_dataset, save_path, city_name):
     """Train the model using the given hyperparameters."""
+    current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     train_loader = DataLoader(train_dataset, batch_size=hp["batch_sz"], shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=hp["batch_sz"], shuffle=False)
 
@@ -65,6 +68,13 @@ def train_model(hp, train_dataset, val_dataset, save_path):
     ).to(device)
 
     model, train_losses, val_losses = train(hp, train_loader, val_loader, verbose=True)
+    df_losses = pd.DataFrame({"L_train": train_losses, "L_val": val_losses})
+    df_losses.to_csv(
+        f"{os.path.join(os.getcwd(), 'results/final_losses')}/losses_GRU_at_{city_name}_{current_time}.csv",
+        sep=";",
+        decimal=".",
+        encoding="utf-8",
+    )
 
     torch.save(model.state_dict(), save_path)
     return model
@@ -98,7 +108,7 @@ def main(cfg: DictConfig):
     SRC_DIR = BASE_DIR / "src"
     MODEL_PATH = SRC_DIR / "results" / "models"
     MODEL_PATH.mkdir(parents=True, exist_ok=True)
-    model_save_path = MODEL_PATH / f"model_{cfg.model}_{cfg.cities.name}.pth"
+    model_save_path = MODEL_PATH / f"model_{cfg.model}_{cfg.cities.name}_metric.pth"
     CITY_NAME = cfg.cities.city
     MINMAX_PATH = (
         BASE_DIR.parent
@@ -166,7 +176,20 @@ def main(cfg: DictConfig):
 
     elif cfg.train:
         print("Starting training...")
-        model = train_model(hp, train_dataset, val_dataset, model_save_path)
+        best_study = optuna.load_study(
+            study_name="optuna_utrecht_16-33-31",
+            storage="sqlite:///results/optuna_search/optuna_utrecht.db",
+        )
+        best_hp = update_dict(hp, best_study.best_params)
+        print("Best Hyperparameters:", best_hp)
+
+        model = train_model(
+            best_hp,
+            train_dataset,
+            val_dataset,
+            model_save_path,
+            CITY_NAME.lower(),
+        )
 
     elif cfg.hp_tuning.optuna:
         print("Starting optuna search...")
