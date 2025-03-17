@@ -8,6 +8,7 @@ from pathlib import Path
 import sys
 import pandas as pd
 from .knmy_data_collector import KNMIDataCollector
+import pickle
 
 
 def read_contaminant_csv_from_data_raw(
@@ -114,3 +115,30 @@ def read_two_meteo_years(yr1: str, yr2: str) -> pd.DataFrame:
     :return: two meteorological dataframes
     """
     return read_meteo_csv_from_data_raw(yr1), read_meteo_csv_from_data_raw(yr2)
+
+
+def read_pickle_from_dir(path):
+    """
+    Reads a pickle file from a directory
+
+    :param path: path to the pickle file
+    :return: the pickle file
+    """
+    pickle_files = []
+
+    for file in os.listdir(path):
+        if file.endswith(".pkl"):
+            with open(f"{path}/{file}", "rb") as f:
+                pickle_files.append(pickle.load(f))
+    return pickle_files
+
+
+def read_all_city_train_frames(path):
+    """
+    Reads all training dataframes for all cities
+
+    :param path: path to training dataframes
+    :return: list of dataframes
+    """
+    dfs: list[dict] = read_pickle_from_dir(path)
+    return dfs

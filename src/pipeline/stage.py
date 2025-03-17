@@ -1,4 +1,4 @@
-from pipeline import (
+from src.pipeline import (
     read_meteo_csv_from_data_raw,
     read_four_contaminants,
     get_metadata,
@@ -194,7 +194,6 @@ def normalize_dataset(split_data, min_max_params, years, contaminants, meteo_var
     for split in ["train", "val", "test"]:
         for year in years:
             normalized_data[split][year] = {}
-            print(split_data[split])
             if year not in split_data[split]:
                 continue
             # Normalize contaminants

@@ -14,6 +14,8 @@ from .stage import (
 )
 from .tests import assert_equal_shape
 
+import pickle
+
 # --------------------------
 # Helper Functions
 # --------------------------
@@ -46,15 +48,15 @@ def validate_processed_data(tidy_data, years, contaminants):
             if contaminant in tidy_data[year]:
                 df = tidy_data[year][contaminant]
                 nan_count = df.isnull().sum()
-                if nan_count.any():
-                    print(f"\nWarning: NaNs found in {year} {contaminant}:")
-                    print(nan_count[nan_count > 0])
+                # if nan_count.any():
+                #     # print(f"\nWarning: NaNs found in {year} {contaminant}:")
+                #     print(nan_count[nan_count > 0])
 
-                    # Show where the NaNs are
-                    # nan_rows = df[df.isnull().any(axis=1)]
-                    # if not nan_rows.empty:
-                    # print("\nFirst few rows with NaNs:")
-                    # print(nan_rows.head())
+                #     # Show where the NaNs are
+                # nan_rows = df[df.isnull().any(axis=1)]
+                # if not nan_rows.empty:
+                # print("\nFirst few rows with NaNs:")
+                # print(nan_rows.head())
 
 
 # --------------------------
@@ -101,33 +103,14 @@ def execute_pipeline(
     """
     Main pipeline execution function.
     """
-    TOTAL_STEPS = 8
+    TOTAL_STEPS = 9
     print("-----------------------------------")
     print("Executing the pipeline\n")
 
-    if process_all:
-        city_mappings = {
-            "Utrecht": (["NL10636", "NL10641"], 260),
-            "Amsterdam": (["NL49003", "NL49012"], 240),
-            "Rotterdam": (["NL01485", "NL01494"], 344),
-        }
-        all_sensors = []
-        all_stations = []
-        stations_to_city = {}  # Map stations to their cities
-
-        for city, (sensors, station) in city_mappings.items():
-            all_sensors.extend(sensors)
-            all_stations.append(station)
-            stations_to_city[station] = city  # Store mapping
-
-        sensors = all_sensors
-        stations = all_stations
-        output_dir = "all_cities"  # Use this for final output instead of city_name
-    else:
-        sensors = locations[:2]
-        stations = locations[2]
-        stations_to_city = {stations: city_name}
-        output_dir = city_name.lower()
+    sensors = locations[:2]
+    stations = locations[2]
+    stations_to_city = {stations: city_name}
+    output_dir = city_name.lower()
 
     # Rest of initialization
     meteo_vars = {
@@ -148,18 +131,7 @@ def execute_pipeline(
     raw_data = {}
     meteo_data = {}
 
-    if process_all:
-        # Load data for all stations using correct city names
-        for station in stations:
-            station_city = stations_to_city[station]
-            station_data, station_meteo = load_raw_data(
-                years, contaminants, station_city, station
-            )
-            raw_data.update(station_data)
-            meteo_data.update(station_meteo)
-    else:
-        # Load data for single station
-        raw_data, meteo_data = load_raw_data(years, contaminants, city_name, stations)
+    raw_data, meteo_data = load_raw_data(years, contaminants, city_name, stations)
 
     if LOG:
         _log_message("Data read successfully", 1, TOTAL_STEPS)
@@ -227,11 +199,23 @@ def execute_pipeline(
     min_max_params = calculate_normalization_params(
         split_data, train_years, contaminants, meteo_vars, city_name.lower()
     )
+
+    if process_all:
+        # Save train frames for this city as a pickle file
+        with open(
+            f"data/data_combined/all/split_dataframes_{city_name.lower()}.pkl",
+            "wb",
+        ) as f:
+            pickle.dump(split_data, f)
+        if LOG:
+            _log_message("Train frames saved successfully", 6, TOTAL_STEPS)
+
+    # pre preprocessing step to calculate minmax params of all cities by reading all csvs and finding the norm params
     normalized_data = normalize_dataset(
         split_data, min_max_params, years, contaminants, meteo_vars
     )
     if LOG:
-        _log_message("Normalization successful", 6, TOTAL_STEPS)
+        _log_message("Normalization successful", 7, TOTAL_STEPS)
 
     # Step 7: Prepare IO data
     io_frames = prepare_io_data(
@@ -243,7 +227,7 @@ def execute_pipeline(
         meteo_target,
     )
     if LOG:
-        _log_message("IO preparation successful", 7, TOTAL_STEPS)
+        _log_message("IO preparation successful", 8, TOTAL_STEPS)
 
     # Step 8: Export data
     export_combined_data(
@@ -253,6 +237,6 @@ def execute_pipeline(
         meteo_target=meteo_target,
     )
     if LOG:
-        _log_message("Data exported successfully", 8, TOTAL_STEPS)
+        _log_message("Data exported successfully", 9, TOTAL_STEPS)
 
     print("\nPipeline execution completed successfully")

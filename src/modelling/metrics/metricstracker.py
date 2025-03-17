@@ -46,7 +46,6 @@ class MetricsTracker:
         self.track_energy = track_energy
         self.track_memory = track_memory and torch.cuda.is_available()
         self.track_tensorboard = track_tensorboard
-
         # Storage for different metrics
         self._init_storage()
 
@@ -91,6 +90,7 @@ class MetricsTracker:
 
                     # Energy measurements - only end if this is our window
                     if self.track_energy and window_name in self._active_windows:
+                        print(f"Starting tracking for {window_name}")
                         energy_measurement = self.zeus_monitor.end_window(window_name)
                         measurements["energy"] = energy_measurement
                         self.total_energy += energy_measurement.total_energy
@@ -138,9 +138,9 @@ class MetricsTracker:
 
                 except Exception as e:
                     # Clean up only if this is our window
-                    if self.track_energy and window_name in self._active_windows:
-                        self.zeus_monitor.end_window(window_name)
-                        self._active_windows.remove(window_name)
+                    # if self.track_energy and window_name in self._active_windows:
+                    #     self.zeus_monitor.end_window(window_name)
+                    #     self._active_windows.remove(window_name)
                     raise e
 
             return wrapper
