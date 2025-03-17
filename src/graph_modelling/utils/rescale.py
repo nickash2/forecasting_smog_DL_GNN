@@ -1,16 +1,20 @@
 # src/process_global
 import pandas as pd
 import pickle
-from config import ALL_DIR
 from typing import Dict, List
 
-from src.pipeline.stage import (
+from pipeline.stage import (
     normalize_dataset,
     prepare_io_data,
     export_combined_data,
 )
-from src.pipeline.extract import read_all_city_train_frames
+from pipeline.extract import read_all_city_train_frames
 import pandas as pd
+
+import sys
+
+sys.path.append("../")
+from config import ALL_DIR
 
 
 def find_global_min_max(city_train_frames: List[pd.DataFrame]) -> dict:
@@ -110,6 +114,7 @@ def rescale(sensors: List[str], years: List[int], cities: List[str]):
 
     """
 
+    print("ALL_DIR for rescaling", ALL_DIR)
     # years = [2017, 2018, 2020, 2021, 2022, 2023]
     contaminants = ["NO2", "O3"]
     meteo_vars = {
@@ -140,6 +145,8 @@ def rescale(sensors: List[str], years: List[int], cities: List[str]):
 
     global_min_max = find_global_min_max(city_train_frames)
 
+    print(global_min_max)
+
     print("Found global min/max values (2/5)")
 
     normalized_frames = normalize_city_frames(
@@ -156,4 +163,4 @@ def rescale(sensors: List[str], years: List[int], cities: List[str]):
 
     export_all_data(io_frames, ALL_DIR, contaminants, meteo_target, cities)
 
-    print("Exported all data (5/5)")
+    print("Exported all rescaled data ready for GNN (5/5)")

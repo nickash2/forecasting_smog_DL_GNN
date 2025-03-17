@@ -1,8 +1,11 @@
 import torch.optim as optim
 from torch_geometric.data import DataLoader
 import torch
-import os
-from .modelling.metrics.metricstracker import MetricsTracker
+import sys
+
+sys.path.append("../../")
+
+from modelling.metrics.metricstracker import MetricsTracker
 
 
 def init_optimizer(model, lr):
@@ -24,16 +27,7 @@ def init_metrics_tracker(BASE_DIR):
 def train_epoch(
     epoch: int, train_data, model, criterion, optimizer, val_data, tracker=None
 ):
-    # Apply tracking conditionally if tracker is provided
-    if tracker:
-        with tracker.track_window("epoch"):
-            return _train_epoch_impl(
-                epoch, train_data, model, criterion, optimizer, val_data
-            )
-    else:
-        return _train_epoch_impl(
-            epoch, train_data, model, criterion, optimizer, val_data
-        )
+    return _train_epoch_impl(epoch, train_data, model, criterion, optimizer, val_data)
 
 
 def _train_epoch_impl(epoch: int, train_data, model, criterion, optimizer, val_data):
@@ -70,7 +64,7 @@ def train_gnn(
     tracker = init_metrics_tracker(BASE_DIR) if BASE_DIR else None
 
     for epoch in range(epochs):
-        result = train_epoch(
+        result, tracking_data = train_epoch(
             epoch,
             train_data.to(device),
             model,

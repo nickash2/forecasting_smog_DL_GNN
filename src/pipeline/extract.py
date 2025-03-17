@@ -125,7 +125,6 @@ def read_pickle_from_dir(path):
     :return: the pickle file
     """
     pickle_files = []
-
     for file in os.listdir(path):
         if file.endswith(".pkl"):
             with open(f"{path}/{file}", "rb") as f:

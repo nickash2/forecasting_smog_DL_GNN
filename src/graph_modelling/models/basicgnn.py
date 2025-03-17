@@ -1,9 +1,9 @@
-import torch.nn.Module
+from torch.nn import Module
 import torch.nn.functional as F
 from torch_geometric.nn import GCNConv
 
 
-class BasicGNN(torch.nn.Module):
+class BasicGNN(Module):
     def __init__(self, input_dim, output_dim):
         super(BasicGNN, self).__init__()
         self.conv1 = GCNConv(input_dim, 16)

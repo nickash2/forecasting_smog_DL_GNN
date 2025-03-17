@@ -1,4 +1,4 @@
-from src.pipeline import (
+from pipeline import (
     read_meteo_csv_from_data_raw,
     read_four_contaminants,
     get_metadata,

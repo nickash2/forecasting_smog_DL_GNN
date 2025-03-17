@@ -2,6 +2,7 @@ import torch
 import os
 import pandas as pd
 from pathlib import Path
+import numpy as np
 
 
 def load_train_val_data(cities, is_train=True, ALL_DIR=Path(".")):
@@ -68,8 +69,8 @@ def load_train_val_data(cities, is_train=True, ALL_DIR=Path(".")):
         node_labels.append(pd.concat(city_labels, axis=1).mean(axis=1).values)
 
     # Convert lists to PyTorch tensors
-    x = torch.tensor(node_features, dtype=torch.float)
-    y = torch.tensor(node_labels, dtype=torch.float)
+    x = torch.tensor(np.array(node_features), dtype=torch.float)
+    y = torch.tensor(np.array(node_labels), dtype=torch.float)
 
     print(f"Node feature shape ({'train' if is_train else 'val'}):", x.shape)
     print(f"Node label shape ({'train' if is_train else 'val'}):", y.shape)
@@ -117,6 +118,6 @@ def load_test_data(cities, ALL_DIR=Path(".")):
         y_true.append(pd.concat(city_test_labels, axis=1).mean(axis=1).values)
 
     # Convert to PyTorch tensors
-    x_test = torch.tensor(test_features, dtype=torch.float)
-    y_true = torch.tensor(y_true, dtype=torch.float)
+    x_test = torch.tensor(np.array(test_features), dtype=torch.float)
+    y_true = torch.tensor(np.array(y_true), dtype=torch.float)
     return x_test, y_true
