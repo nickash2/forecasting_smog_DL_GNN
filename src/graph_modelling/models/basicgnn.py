@@ -10,7 +10,7 @@ class BasicGNN(Module):
         self.conv2 = GCNConv(16, output_dim)
 
     def forward(self, data):
-        x, edge_index = data.x, data.edge_index
+        x, edge_index, _ = data.x, data.edge_index, data.batch
         x = F.relu(self.conv1(x, edge_index))
         x = self.conv2(x, edge_index)
         return x

@@ -15,6 +15,7 @@ import sys
 
 sys.path.append("../")
 from config import ALL_DIR
+import json
 
 
 def find_global_min_max(city_train_frames: List[pd.DataFrame]) -> dict:
@@ -104,6 +105,20 @@ def export_all_data(
         )
 
 
+def export_minmax(minmax: dict, output_dir: str):
+    """Export min/max values to a pickle file"""
+    # turn dict into pd dataframe
+    minmax_df = pd.DataFrame(minmax).transpose()
+
+    minmax_df.to_csv(
+        f"{output_dir}/minmax.csv",
+        index=True,
+        sep=";",
+        decimal=".",
+        encoding="utf-8",
+    )
+
+
 def rescale(sensors: List[str], years: List[int], cities: List[str]):
     """
     Rescales the data for the given sensors, from their previous normalization (city-specific)
@@ -146,6 +161,7 @@ def rescale(sensors: List[str], years: List[int], cities: List[str]):
     global_min_max = find_global_min_max(city_train_frames)
 
     print(global_min_max)
+    export_minmax(global_min_max, ALL_DIR)
 
     print("Found global min/max values (2/5)")
 
@@ -156,7 +172,7 @@ def rescale(sensors: List[str], years: List[int], cities: List[str]):
     print("Re-Normalized all city train frames (3/5)")
 
     io_frames = prepare_all_io_data(
-        normalized_frames, years, sensors, contaminants, meteo_vars
+        city_train_frames, years, sensors, contaminants, meteo_vars
     )
 
     print("Prepared all input/output data (4/5)")

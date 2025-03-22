@@ -62,9 +62,14 @@ def denormalise(
         max_val = dict_minmax[f"{cont}_max"]
         # take first and only batch, all
         # time steps, current contaminant
-        tensor_3D_copy[:, :, idx] = normalise_linear_inv(
-            tensor_3D[:, :, idx], min_val, max_val
-        )
+        if len(tensor_3D_copy.shape) != 2:
+            tensor_3D_copy[:, :, idx] = normalise_linear_inv(
+                tensor_3D[:, :, idx], min_val, max_val
+            )
+        else:
+            tensor_3D_copy[:, idx] = normalise_linear_inv(
+                tensor_3D[:, idx], min_val, max_val
+            )
     return tensor_3D_copy
 
 
