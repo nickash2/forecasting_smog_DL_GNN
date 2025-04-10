@@ -522,7 +522,7 @@ print(f"Using Optuna study name: {study_name}")
 print(f"Results will be saved to: {storage_name}")
 
 # Start optimization
-n_trials = 1  # Number of trials Optuna should run
+n_trials = 50  # Number of trials Optuna should run
 study.optimize(objective, n_trials=n_trials, timeout=3600)  # Added timeout (1 hour)
 
 # --- Print Best Results ---
@@ -544,15 +544,13 @@ best_params = study.best_params
 final_lr = best_params["lr"]
 final_hidden_dim = best_params["hidden_dim"]
 final_weight_decay = best_params["weight_decay"]
-# Use a slightly larger number of epochs or rely on early stopping for final training
-final_num_epochs = 150
-final_patience = 15  # Can use the same or slightly different patience
-final_batch_size = 32  # Use the same batch size as in trials or the best one if tuned
 
-# Create final DataLoaders (can combine train+val for final training if desired)
-# Using only train_norm here, as is standard practice before test evaluation.
+final_num_epochs = 500
+final_patience = 10  # Can use the same or slightly different patience
+final_batch_size = best_params["batch_size"]
+
 final_train_loader = DataLoader(
-    train_dataset_norm, batch_size=final_batch_size, shuffle=True
+    train_dataset_norm, batch_size=final_batch_size, shuffle=False
 )
 final_val_loader = DataLoader(
     val_dataset_norm, batch_size=final_batch_size, shuffle=False
@@ -595,4 +593,106 @@ for epoch in range(final_num_epochs):
                 continue  # Skip problematic batches
             loss = final_criterion(out, y_target)
             loss.backward()
-            final_optimizer.ste
+            final_optimizer.step()
+            epoch_train_loss += loss.item()
+            pbar.set_postfix(loss=epoch_train_loss / (pbar.n + 1))
+    avg_train_loss = epoch_train_loss / len(final_train_loader)
+    final_train_losses.append(avg_train_loss)
+
+    # Validation
+    final_model.eval()
+    epoch_val_loss = 0
+    with torch.no_grad():
+        for batch in final_val_loader:
+            batch = batch.to(device)
+            out = final_model(batch)
+            y_target = batch.y.view(-1, output_dim)
+            if out.shape != y_target.shape:
+                continue
+            loss = final_criterion(out, y_target)
+            epoch_val_loss += loss.item()
+    avg_val_loss = epoch_val_loss / len(final_val_loader)
+    final_val_losses.append(avg_val_loss)
+
+    print(
+        f"[Final Model Epoch {epoch + 1}/{final_num_epochs}] Train Loss: {avg_train_loss:.6f} | Val Loss: {avg_val_loss:.6f}"
+    )
+
+    # Early stopping for final model
+    if avg_val_loss < best_final_val_loss:
+        best_final_val_loss = avg_val_loss
+        final_patience_counter = 0
+        # Save the best performing model checkpoint based on validation loss
+        torch.save(
+            final_model.state_dict(),
+            MODEL_PATH / f"best_temporal_gnn_{current_time}.pt",
+        )
+        print(f"Best model saved at epoch {epoch + 1}")
+    else:
+        final_patience_counter += 1
+
+    if final_patience_counter >= final_patience:
+        print(f"Final model training early stopping triggered after epoch {epoch + 1}.")
+        break
+
+# Load the best model checkpoint for evaluation
+print("Loading best model for final evaluation...")
+final_model.load_state_dict(
+    torch.load(MODEL_PATH / f"best_temporal_gnn_{current_time}.pt")
+)
+
+# Plot final training curves
+plt.figure()
+plt.plot(final_train_losses, label="Final Train Loss")
+plt.plot(final_val_losses, label="Final Val Loss")
+plt.xlabel("Epoch")
+plt.ylabel("Loss")
+plt.legend()
+plt.title("Final Model Training Loss")
+plt.savefig(MODEL_PATH / f"final_training_loss_{current_time}.png")  # Save the plot
+# plt.show() # Optional: display plot
+
+
+# --- Final Evaluation on Test Set ---
+print("\n--- Evaluating Best Model on Test Set ---")
+final_model.eval()
+all_preds = []
+all_targets = []
+
+with torch.no_grad():
+    for batch in final_test_loader:
+        batch = batch.to(device)
+        out = final_model(batch)
+        y_target = batch.y.view(-1, output_dim)
+        all_preds.append(out.cpu())
+        all_targets.append(y_target.cpu())
+
+all_preds = torch.cat(all_preds, dim=0)
+all_targets = torch.cat(all_targets, dim=0)
+
+# Unnormalize predictions and targets using y_min, y_max from training set
+y_min_tensor = torch.tensor(y_min, dtype=torch.float)  # shape: (1, output_dim)
+y_max_tensor = torch.tensor(y_max, dtype=torch.float)  # shape: (1, output_dim)
+
+preds_unnorm = all_preds * (y_max_tensor - y_min_tensor) + y_min_tensor
+targets_unnorm = all_targets * (y_max_tensor - y_min_tensor) + y_min_tensor
+
+# --- Compute Final RMSE ---
+global_rmse = torch.sqrt(torch.mean((preds_unnorm - targets_unnorm) ** 2))
+
+# Reshape for pollutant-specific RMSE
+# (N_test_samples * num_nodes, forecast_horizon * target_features) -> (N_test_samples * num_nodes, forecast_horizon, target_features)
+preds_reshaped = preds_unnorm.view(-1, N_HOURS_Y, target_features)
+targets_reshaped = targets_unnorm.view(-1, N_HOURS_Y, target_features)
+
+# Calculate RMSE for each pollutant (assuming order is NO2, O3)
+rmse_no2 = torch.sqrt(
+    torch.mean((preds_reshaped[:, :, 0] - targets_reshaped[:, :, 0]) ** 2)
+)
+rmse_o3 = torch.sqrt(
+    torch.mean((preds_reshaped[:, :, 1] - targets_reshaped[:, :, 1]) ** 2)
+)
+
+print(f"Test Set Global RMSE (unnormalized): {global_rmse.item():.4f}")
+print(f"Test Set RMSE for NO2 (unnormalized): {rmse_no2.item():.4f}")
+print(f"Test Set RMSE for O3 (unnormalized): {rmse_o3.item():.4f}")
