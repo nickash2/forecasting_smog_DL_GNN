@@ -1,43 +1,78 @@
 import torch
-from modelling.denormalise import denormalise
-import torch.nn.functional as F
-from typing import Any, Dict
-import numpy as np
+from torch.utils.data import DataLoader
+from typing import Tuple, List
 
 
-def test_gnn_eparately(
-    model: Any,
-    loss_fn: Any,
-    test_loader: Any,
-    denorm: bool = False,
-    path: str = None,
-    components=["NO2", "O3"],
-) -> Dict[str, float]:
+def predict_and_evaluate(
+    model: torch.nn.Module,
+    test_loader: DataLoader,
+    device: torch.device,
+    output_dim: int,
+    y_min: List[float],
+    y_max: List[float],
+    N_HOURS_Y: int,
+) -> Tuple[float, float, float]:
     """
-    Evaluates on test set and returns test loss
+    Predicts and evaluates the model on the test dataset, computing global RMSE and pollutant-specific RMSE for NO2 and O3.
 
-    :param model: model to evaluate, must be some PyTorch type model
-    :param loss_fn: loss function to use, PyTorch defined, or PyTorch inherited
-    :param test_loader: DataLoader to get batches from
-    :param denorm: whether to denormalise the data before calculating loss
-    :param path: path to the file containing the minmax values for the data
-    :return: dictionary with contaminant names as keys and losses as values
+    Args:
+        model: The trained PyTorch model.
+        test_loader: The DataLoader for the test dataset.
+        device: The device to run the evaluation on (CPU or GPU).
+        output_dim: The dimension of the output layer (forecast horizon * number of target features).
+        y_min: A list of minimum values used for normalization, per feature.
+        y_max: A list of maximum values used for normalization, per feature.
+        N_HOURS_Y: The forecast horizon (number of hours predicted).
+
+    Returns:
+        A tuple containing the global RMSE, RMSE for NO2, and RMSE for O3.  All as floats.
     """
+
     model.eval()
-    test_losses = [np.float64(0) for _ in components]
+    all_preds = []
+    all_targets = []
 
     with torch.no_grad():
-        for batch_test_u, batch_test_y in test_loader:
-            pred = model(batch_test_u)
-            if denorm:
-                pred = denormalise(pred, path)
-                batch_test_y = denormalise(batch_test_y, path)
+        for batch in test_loader:
+            batch.to(device)
+            out = model(batch)  # out shape: (batch_size * 3, output_dim)
+            y_target = batch["y"].view(-1, output_dim)
 
-            for comp in range(len(components)):
-                test_losses[comp] += loss_fn(
-                    pred[:, :, comp], batch_test_y[:, :, comp]
-                ).item()
+            all_preds.append(out)
+            all_targets.append(y_target)
 
-    for comp in range(len(components)):
-        test_losses[comp] /= len(test_loader)
-    return {comp: loss for comp, loss in zip(components, test_losses)}
+    # Concatenate over all batches
+    all_preds = torch.cat(all_preds, dim=0)  # shape: (N, output_dim)
+    all_targets = torch.cat(all_targets, dim=0)  # shape: (N, output_dim)
+
+    # Convert y_min and y_max to torch tensors.
+    y_min_tensor = torch.tensor(y_min, dtype=torch.float).to(device)  # Move to device
+    y_max_tensor = torch.tensor(y_max, dtype=torch.float).to(device)  # Move to device
+
+    # Ensure the min/max tensors can broadcast over predictions and targets.
+    preds_unnorm = all_preds * (y_max_tensor - y_min_tensor) + y_min_tensor
+    targets_unnorm = all_targets * (y_max_tensor - y_min_tensor) + y_min_tensor
+
+    # --- Compute RMSE ---
+    # Global RMSE over all forecast values:
+    global_rmse = torch.sqrt(
+        torch.mean((preds_unnorm - targets_unnorm) ** 2)
+    ).item()  # Extract float
+
+    # Reshape for pollutant-specific RMSE
+    preds_reshaped = preds_unnorm.view(-1, N_HOURS_Y, 2)
+    targets_reshaped = targets_unnorm.view(-1, N_HOURS_Y, 2)
+
+    # RMSE for NO2 and O3
+    rmse_no2 = torch.sqrt(
+        torch.mean((preds_reshaped[:, :, 0] - targets_reshaped[:, :, 0]) ** 2)
+    ).item()  # Extract float
+    rmse_o3 = torch.sqrt(
+        torch.mean((preds_reshaped[:, :, 1] - targets_reshaped[:, :, 1]) ** 2)
+    ).item()  # Extract float
+
+    print(f"Global RMSE (unnormalized): {global_rmse:.4f}")
+    print(f"RMSE for NO2 (unnormalized): {rmse_no2:.4f}")
+    print(f"RMSE for O3 (unnormalized): {rmse_o3:.4f}")
+
+    return global_rmse, rmse_no2, rmse_o3, preds_reshaped, targets_reshaped
