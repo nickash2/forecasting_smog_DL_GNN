@@ -178,6 +178,9 @@ if __name__ == "__main__":
             y=Y_windows_flat[i],  # shape: (3, forecast_horizon*target_features)
         )
         dataset.append(data)
+
+    print(X_sorted.head())
+    print(num_features)
     # %%
     # Split the dataset
     dataset_size = len(dataset)

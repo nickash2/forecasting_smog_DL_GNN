@@ -1,6 +1,6 @@
 import torch
 import optuna
-from torch_geometric.data import DataLoader
+from torch_geometric.loader import DataLoader
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from typing import Callable, Optional
 from torch.nn import Module
@@ -12,6 +12,7 @@ import os
 print(os.getcwd())
 from graph_modelling.models.temporalgnn import TemporalGNN
 from graph_modelling.models.basicgnn import BasicGNN
+from graph_modelling.models.attentiongnn import AttentionGNN
 
 
 def train_epoch_optuna(
@@ -159,6 +160,18 @@ def objective(
             rnn_layers=rnn_layers,
             rnn_dropout=rnn_dropout,
             gcn_layers=num_gcn,
+        )
+
+    elif model_type == "attentiongnn":
+        heads = trial.suggest_int("heads", 1, 8)
+        dropout = trial.suggest_float("dropout", 0.1, 0.5, step=0.1)
+        model = AttentionGNN(
+            input_dim=input_dim,
+            output_dim=output_dim,
+            hidden_dim=hidden_dim,
+            num_layers=num_gcn,
+            heads=heads,
+            dropout=dropout,
         )
     model = model.to(device)
     print(model)

@@ -63,16 +63,6 @@ def predict_and_evaluate(
     preds_reshaped = preds_unnorm.view(-1, N_HOURS_Y, 2)
     targets_reshaped = targets_unnorm.view(-1, N_HOURS_Y, 2)
 
-    # RMSE for NO2 and O3
-    rmse_no2 = torch.sqrt(
-        torch.mean((preds_reshaped[:, :, 0] - targets_reshaped[:, :, 0]) ** 2)
-    ).item()  # Extract float
-    rmse_o3 = torch.sqrt(
-        torch.mean((preds_reshaped[:, :, 1] - targets_reshaped[:, :, 1]) ** 2)
-    ).item()  # Extract float
-
     print(f"Global RMSE (unnormalized): {global_rmse:.4f}")
-    print(f"RMSE for NO2 (unnormalized): {rmse_no2:.4f}")
-    print(f"RMSE for O3 (unnormalized): {rmse_o3:.4f}")
 
-    return global_rmse, rmse_no2, rmse_o3, preds_reshaped, targets_reshaped
+    return global_rmse, preds_reshaped, targets_reshaped

@@ -1,3 +1,4 @@
+# %%
 import torch
 import pandas as pd
 from torch_geometric.data import Data
@@ -16,6 +17,7 @@ from graph_modelling.utils.load_data import (
 from graph_modelling.utils.tune_gnn import objective
 from graph_modelling.models.temporalgnn import TemporalGNN
 from graph_modelling.models.basicgnn import BasicGNN
+from graph_modelling.models.attentiongnn import AttentionGNN
 import pickle
 import optuna
 from torch_geometric.loader import DataLoader
@@ -41,9 +43,6 @@ torch.manual_seed(34)  # set seed for reproducibility
 N_HOURS_U = 72  # number of hours to use for input
 N_HOURS_Y = 24  # number of hours to predict
 N_HOURS_STEP = 24  # "sampling rate" in hours of the data; e.g. 24
-# means sample an I/O-pair every 24 hours
-# the contaminants and meteorological vars
-CONTAMINANTS = ["NO2", "O3"]  # 'PM10', 'PM25']
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
@@ -51,7 +50,7 @@ current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
 
 N_TRIALS = 1
-N_EPOCHS = 5
+N_EPOCHS = 100
 
 
 # Load the datasets
@@ -64,11 +63,13 @@ with open(ALL_DIR / "geometric_pkl" / "test_dataset.pkl", "rb") as f:
 
 print("Loaded all datasets")
 
+input_features = 7
+output_predictions = 1
 
-input_dim = N_HOURS_U * 8
-output_dim = N_HOURS_Y * 2
-valid_types = ["temporalgnn", "basicgnn"]
-
+input_dim = N_HOURS_U * input_features
+output_dim = N_HOURS_Y * output_predictions
+valid_types = ["temporalgnn", "basicgnn", "attentiongnn"]
+# %%
 # Use argparse to get the model type from the command line
 parser = argparse.ArgumentParser(description="Tune and train a GNN model.")
 parser.add_argument(
@@ -90,7 +91,7 @@ criterion = torch.nn.MSELoss()
 
 
 ## 4. Optuna Study
-study_name = f"{model_type}-gnn-tuning-{current_time}"
+study_name = "attentiongnn-gnn-tuning-20250414-220407"  # f"{model_type}-gnn-tuning-{current_time}"
 
 storage_name = "sqlite:///gnn_tuning.db"
 
@@ -103,19 +104,19 @@ study = optuna.create_study(
 )
 
 
-study.optimize(
-    lambda trial: objective(
-        trial,
-        model_type,  # Pass model here
-        train_dataset,  # Pass training data
-        val_dataset,  # Pass validation data
-        input_dim,
-        output_dim,
-        device=device,  # Pass device as keyword argument
-        num_epochs=N_EPOCHS,  # reduced epochs for the demo
-    ),
-    n_trials=N_TRIALS,
-)
+# study.optimize(
+#     lambda trial: objective(
+#         trial,
+#         model_type,  # Pass model here
+#         train_dataset,  # Pass training data
+#         val_dataset,  # Pass validation data
+#         input_dim,
+#         output_dim,
+#         device=device,  # Pass device as keyword argument
+#         num_epochs=N_EPOCHS,  # reduced epochs for the demo
+#     ),
+#     n_trials=N_TRIALS,
+# )
 
 
 # --- Print Best Results ---
@@ -124,14 +125,13 @@ print(f"Number of finished trials: {len(study.trials)}")
 print("Best trial:")
 best_trial = study.best_trial
 
-print("  Value (Min Validation Loss): {best_trial.value:.6f}")
+print(f"  Value (Min Validation Loss): {best_trial.value:.6f}")
 print("  Params: ")
 for key, value in best_trial.params.items():
     print(f"    {key}: {value}")
 
 
 if model_type == "temporalgnn":
-    # Load the best model
     final_model = TemporalGNN(
         input_dim=input_dim,
         output_dim=output_dim,
@@ -142,13 +142,25 @@ if model_type == "temporalgnn":
     ).to(device)
 
 elif model_type == "basicgnn":
-    # Load the best model
     final_model = BasicGNN(
         input_dim=input_dim,
         output_dim=output_dim,
         hidden_dim=best_trial.params["hidden_dim"],
-        num_gcn=best_trial.params["gcn_layers"],
+        num_gcn=best_trial.params["num_gcn"],
     ).to(device)
+
+elif model_type == "attentiongnn":
+    final_model = AttentionGNN(
+        input_dim=input_dim,
+        output_dim=output_dim,
+        hidden_dim=best_trial.params["hidden_dim"],
+        num_layers=best_trial.params["num_gcn"],
+        heads=best_trial.params["heads"],
+        dropout=best_trial.params["dropout"],
+    ).to(device)
+
+
+print(final_model)
 
 
 optimizer = torch.optim.Adam(
@@ -159,13 +171,19 @@ optimizer = torch.optim.Adam(
 criterion = torch.nn.MSELoss()
 
 train_loader = DataLoader(
-    train_dataset, batch_size=best_trial.params["batch_size"], shuffle=False
+    train_dataset,
+    batch_size=best_trial.params["batch_size"],
+    shuffle=False,
 )
 val_loader = DataLoader(
-    val_dataset, batch_size=best_trial.params["batch_size"], shuffle=False
+    val_dataset,
+    batch_size=best_trial.params["batch_size"],
+    shuffle=False,
 )
 test_loader = DataLoader(
-    test_dataset, batch_size=best_trial.params["batch_size"], shuffle=False
+    test_dataset,
+    batch_size=best_trial.params["batch_size"],
+    shuffle=False,
 )
 
 
@@ -187,15 +205,13 @@ plt.xlabel("Epoch")
 plt.ylabel("Loss")
 plt.legend()
 plt.title("Training and Validation Loss Over Epochs")
-plt.savefig(MODEL_PATH / f"final_training_loss_basicgnn_{current_time}.png")
+plt.savefig(MODEL_PATH / f"final_training_loss_{model_type}_{current_time}.png")
 
 
 # Load y_min and y_max
 with open(ALL_DIR / "geometric_pkl" / "y_min_max.pkl", "rb") as f:
     y_min, y_max = pickle.load(f)
-
-
-global_rmse, rmse_no2, rmse_o3, preds, targets = predict_and_evaluate(
+global_rmse, preds, targets = predict_and_evaluate(
     final_model, test_loader, device, output_dim, y_min, y_max, N_HOURS_Y
 )
 
@@ -203,8 +219,6 @@ global_rmse, rmse_no2, rmse_o3, preds, targets = predict_and_evaluate(
 results = {
     "model_type": model_type,
     "global_rmse": global_rmse,
-    "rmse_no2": rmse_no2,
-    "rmse_o3": rmse_o3,
 }
 
 
