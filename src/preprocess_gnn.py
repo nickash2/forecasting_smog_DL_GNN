@@ -1,5 +1,6 @@
 # from src.run_forecast import main
 # from graph_modelling.utils.rescale import rescale
+# %%
 import torch
 import pandas as pd
 from torch_geometric.data import Data
@@ -21,7 +22,7 @@ if __name__ == "__main__":
 
     # Define project structure variables
     HABROK = bool(0)
-    BASE_DIR = Path.cwd()
+    BASE_DIR = Path.cwd().parent
     MODEL_PATH = BASE_DIR / "results" / "models"
     DATA_DIR = BASE_DIR / "data" / "data_combined"
     ALL_DIR = DATA_DIR / "all"
@@ -85,8 +86,8 @@ if __name__ == "__main__":
                 feat_df = feat_df.drop(columns=["DateTime"])
                 label_df = label_df.drop(columns=["DateTime"])
 
-            feature_dfs.append(feat_df)
-            label_dfs.append(label_df)
+            feature_dfs.append(feat_df.drop(columns=["O3"]))
+            label_dfs.append(label_df.drop(columns=["O3"]))
 
         return feature_dfs, label_dfs
 
@@ -106,14 +107,17 @@ if __name__ == "__main__":
                 f = pd.concat([f, element], axis=0)
             for element in y:
                 l = pd.concat([l, element], axis=0)
+
         return f, l
 
+    # %%
     X_train, y_train = load_gnn_data("train", drop_datetime=False)
     X_val, y_val = load_gnn_data("val", drop_datetime=False)
     X_test, y_test = load_gnn_data("test", drop_datetime=False)
     X = pd.concat([X_train, X_val, X_test], axis=0)
     y = pd.concat([y_train, y_val, y_test], axis=0)
 
+    print(y)
     print(X.shape, y.shape)
 
     # Ensure data is sorted by time before reshaping
@@ -121,12 +125,16 @@ if __name__ == "__main__":
     num_timesteps = len(X_sorted) // 3  # Since we have 3 nodes per timestep
     num_features = X_sorted.shape[1] - 2  # Exclude DateTime and city_name
     x = X_sorted.iloc[:, 2:].values.reshape(num_timesteps, 3, num_features)
+
+    # %%
+
     x = torch.tensor(x, dtype=torch.float)
 
     y_sorted = y.sort_values(by=["DateTime", "city_name"])
     y = y_sorted.iloc[:, 2:].values.reshape(
         num_timesteps, 3, -1
     )  # (num_timesteps, 3, target_features)
+    # %%
     y = torch.tensor(y, dtype=torch.float)
 
     edge_index = torch.tensor(
@@ -142,6 +150,7 @@ if __name__ == "__main__":
 
         return torch.stack(X_windows), torch.stack(Y_windows)
 
+    # %%
     # Parameters:
     N_HOURS_U = 72  # Number of past hours to use
     N_HOURS_Y = 24  # Number of future hours to predict
@@ -169,7 +178,7 @@ if __name__ == "__main__":
             y=Y_windows_flat[i],  # shape: (3, forecast_horizon*target_features)
         )
         dataset.append(data)
-
+    # %%
     # Split the dataset
     dataset_size = len(dataset)
     train_size = int(0.7 * dataset_size)
@@ -180,6 +189,7 @@ if __name__ == "__main__":
     val_dataset = dataset[train_size : train_size + val_size]
     test_dataset = dataset[train_size + val_size :]
 
+    # %%
     # Compute min and max using only the training set.
 
     def get_min_max(dataset, attr_name):
