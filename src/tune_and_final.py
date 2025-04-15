@@ -18,6 +18,7 @@ from graph_modelling.utils.tune_gnn import objective
 from graph_modelling.models.temporalgnn import TemporalGNN
 from graph_modelling.models.basicgnn import BasicGNN
 from graph_modelling.models.attentiongnn import AttentionGNN
+from graph_modelling.models.temporalattentiongnn import GATGRUGNN
 import pickle
 import optuna
 from torch_geometric.loader import DataLoader
@@ -68,7 +69,7 @@ output_predictions = 1
 
 input_dim = N_HOURS_U * input_features
 output_dim = N_HOURS_Y * output_predictions
-valid_types = ["temporalgnn", "basicgnn", "attentiongnn"]
+valid_types = ["temporalgnn", "basicgnn", "attentiongnn", "temporalattentiongnn"]
 # %%
 # Use argparse to get the model type from the command line
 parser = argparse.ArgumentParser(description="Tune and train a GNN model.")
@@ -91,7 +92,7 @@ criterion = torch.nn.MSELoss()
 
 
 ## 4. Optuna Study
-study_name = "attentiongnn-gnn-tuning-20250414-220407"  # f"{model_type}-gnn-tuning-{current_time}"
+study_name = "temporalattentiongnn-gnn-tuning-20250415-214107"  # f"{model_type}-gnn-tuning-{current_time}"
 
 storage_name = "sqlite:///gnn_tuning.db"
 
@@ -157,6 +158,20 @@ elif model_type == "attentiongnn":
         num_layers=best_trial.params["num_gcn"],
         heads=best_trial.params["heads"],
         dropout=best_trial.params["dropout"],
+    ).to(device)
+
+elif model_type == "temporalattentiongnn":
+    final_model = GATGRUGNN(
+        input_dim=input_dim,
+        output_dim=output_dim,
+        hidden_dim=best_trial.params["hidden_dim"],
+        gnn_layers=best_trial.params["num_gcn"],
+        rnn_layers=best_trial.params["gru_layers"],
+        attention_dim=best_trial.params["hidden_dim"],
+        dropout=best_trial.params["dropout"],
+        num_nodes=3,
+        rnn_type="GRU",
+        heads=best_trial.params["gat_heads"],
     ).to(device)
 
 

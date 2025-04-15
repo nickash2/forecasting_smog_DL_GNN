@@ -13,6 +13,7 @@ print(os.getcwd())
 from graph_modelling.models.temporalgnn import TemporalGNN
 from graph_modelling.models.basicgnn import BasicGNN
 from graph_modelling.models.attentiongnn import AttentionGNN
+from graph_modelling.models.temporalattentiongnn import GATGRUGNN
 
 
 def train_epoch_optuna(
@@ -172,6 +173,24 @@ def objective(
             num_layers=num_gcn,
             heads=heads,
             dropout=dropout,
+        )
+
+    elif model_type == "temporalattentiongnn":
+        gat_heads = trial.suggest_int("gat_heads", 1, 8)
+        gat_layers = trial.suggest_int("num_gat", 1, 4)
+        gru_layers = trial.suggest_int("gru_layers", 1, 4)
+        dropout = trial.suggest_float("dropout", 0.1, 0.5, step=0.1)
+        model = GATGRUGNN(
+            input_dim=input_dim,
+            output_dim=output_dim,
+            hidden_dim=hidden_dim,
+            gnn_layers=gat_layers,
+            rnn_layers=gru_layers,
+            attention_dim=hidden_dim,
+            dropout=dropout,
+            num_nodes=3,
+            rnn_type="GRU",
+            heads=gat_heads,
         )
     model = model.to(device)
     print(model)
