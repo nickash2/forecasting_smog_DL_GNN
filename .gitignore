@@ -17,3 +17,4 @@ GRU.ipynb
 outputs/
 *.db
 *.tfevents.*
+*.pkl
