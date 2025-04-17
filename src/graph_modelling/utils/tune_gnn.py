@@ -8,12 +8,14 @@ from torch.optim import Optimizer
 from torch.nn import Module, MSELoss
 from torch.utils.data import Dataset
 import os
+import sys
 
 print(os.getcwd())
 from graph_modelling.models.temporalgnn import TemporalGNN
 from graph_modelling.models.basicgnn import BasicGNN
 from graph_modelling.models.attentiongnn import AttentionGNN
 from graph_modelling.models.temporalattentiongnn import GATGRUGNN
+from torch_geometric.data import Batch
 
 
 def train_epoch_optuna(
@@ -42,7 +44,9 @@ def train_epoch_optuna(
     model.train()
     epoch_train_loss = 0
     for batch in train_loader:
-        batch.to(device)
+        batch = batch.to(device)
+        if hasattr(batch, "x_seq"):
+            batch.x_seq = batch.x_seq.to(device)  # <-- Add this
         optimizer.zero_grad()
         out = model(batch)
         y_target = batch["y"].view(-1, output_dim)
@@ -184,27 +188,71 @@ def objective(
         )
 
     elif model_type == "temporalattentiongnn":
-        gat_heads = trial.suggest_int("gat_heads", 1, 8)
-        gat_layers = trial.suggest_int("num_gat", 1, 4)
+        valid_head_options = [
+            1,
+            2,
+            4,
+            7,
+            8,
+        ]
+        gat_heads = trial.suggest_categorical(
+            "gat_heads", [h for h in valid_head_options if hidden_dim % h == 0]
+        )
+        gat_layers = trial.suggest_int("gat_layers", 1, 4)
         gru_layers = trial.suggest_int("gru_layers", 1, 4)
         dropout = trial.suggest_float("dropout", 0.1, 0.5, step=0.1)
+
         model = GATGRUGNN(
-            input_dim=input_dim,
-            output_dim=output_dim,
+            input_features=input_dim,
+            seq_len=N_HOURS_U,
+            forecast_horizon=N_HOURS_Y,
             hidden_dim=hidden_dim,
-            gnn_layers=gat_layers,
+            gat_heads=gat_heads,
+            gat_layers=gat_layers,
             rnn_layers=gru_layers,
-            attention_dim=hidden_dim,
             dropout=dropout,
-            num_nodes=3,
-            rnn_type="GRU",
-            heads=gat_heads,
-        )
-    model = model.to(device)
+        ).to(device)
+
     print(model)
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    def custom_collate(data_list):
+        # First create the batch as usual
+        batch = Batch.from_data_list(data_list)
+
+        # For x_seq, we need to maintain the 4D structure
+        batch_size = len(data_list)
+        num_nodes = data_list[0].x_seq.size(0)  # Typically 3
+        seq_len = data_list[0].x_seq.size(1)  # 72
+        n_features = data_list[0].x_seq.size(2)  # 7
+
+        # Stack the x_seq tensors properly to get (batch_size, num_nodes, seq_len, features)
+        x_seq_stacked = torch.stack([d.x_seq for d in data_list], dim=0)
+
+        # Make sure it has the right shape
+        assert x_seq_stacked.shape == (batch_size, num_nodes, seq_len, n_features), (
+            f"Expected shape ({batch_size}, {num_nodes}, {seq_len}, {n_features}), got {x_seq_stacked.shape}"
+        )
+
+        # Assign to the batch
+        batch.x_seq = x_seq_stacked
+
+        return batch
+
+    print("Creating DataLoaders...")
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        collate_fn=custom_collate,
+        num_workers=0,
+    )
+    val_loader = DataLoader(
+        val_dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        collate_fn=custom_collate,
+        num_workers=0,
+    )
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
     criterion = MSELoss()

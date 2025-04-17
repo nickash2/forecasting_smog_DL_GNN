@@ -27,6 +27,7 @@ from graph_modelling.utils.test_gnn import predict_and_evaluate
 from graph_modelling.utils.train_gnn import train
 import numpy as np
 import argparse
+from torch_geometric.data import Batch
 
 HABROK = bool(0)  # set to True if using HABROK; it will print
 # all stdout to a .txt file to log progress
@@ -50,7 +51,7 @@ print(device)
 current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
 
-N_TRIALS = 1
+N_TRIALS = 70
 N_EPOCHS = 75
 
 
@@ -90,7 +91,7 @@ criterion = torch.nn.MSELoss()
 
 
 ## 4. Optuna Study
-study_name = f"{model_type}-gnn-tuning-{current_time}"
+study_name = "temporalattentiongnn-gnn-tuning-20250417-173604"  # f"{model_type}-gnn-tuning-{current_time}"
 
 storage_name = "sqlite:///gnn_tuning.db"
 
@@ -163,32 +164,42 @@ elif model_type == "attentiongnn":
     ).to(device)
 
 elif model_type == "temporalattentiongnn":
-    final_model = GATGRUGNN(
-        input_dim=input_dim,
-        output_dim=output_dim,
+    model = GATGRUGNN(
+        input_features=input_dim,
+        seq_len=N_HOURS_U,
+        forecast_horizon=N_HOURS_Y,
         hidden_dim=best_trial.params["hidden_dim"],
-        gnn_layers=best_trial.params["num_gcn"],
+        gat_heads=best_trial.params["gat_heads"],
+        gat_layers=best_trial.params["num_gat"],
         rnn_layers=best_trial.params["gru_layers"],
-        attention_dim=best_trial.params["hidden_dim"],
         dropout=best_trial.params["dropout"],
-        num_nodes=3,
-        rnn_type="GRU",
-        heads=best_trial.params["gat_heads"],
     ).to(device)
-
 
 print(final_model)
 
 
-def custom_collate(batch):
-    # Collate the edge_index and other standard fields
-    batch_collated = DataLoader.collate(batch)
-    # For the sequence attribute, stack them manually.
-    x_seq_list = [data.x_seq for data in batch]
-    batch_collated.x_seq = torch.stack(
-        x_seq_list, dim=0
-    )  # (batch_size, num_nodes, window_size, num_features)
-    return batch_collated
+def custom_collate(data_list):
+    # First create the batch as usual
+    batch = Batch.from_data_list(data_list)
+
+    # For x_seq, we need to maintain the 4D structure
+    batch_size = len(data_list)
+    num_nodes = data_list[0].x_seq.size(0)  # Typically 3
+    seq_len = data_list[0].x_seq.size(1)  # 72
+    n_features = data_list[0].x_seq.size(2)  # 7
+
+    # Stack the x_seq tensors properly to get (batch_size, num_nodes, seq_len, features)
+    x_seq_stacked = torch.stack([d.x_seq for d in data_list], dim=0)
+
+    # Make sure it has the right shape
+    assert x_seq_stacked.shape == (batch_size, num_nodes, seq_len, n_features), (
+        f"Expected shape ({batch_size}, {num_nodes}, {seq_len}, {n_features}), got {x_seq_stacked.shape}"
+    )
+
+    # Assign to the batch
+    batch.x_seq = x_seq_stacked
+
+    return batch
 
 
 optimizer = torch.optim.Adam(
@@ -208,11 +219,13 @@ val_loader = DataLoader(
     val_dataset,
     batch_size=best_trial.params["batch_size"],
     shuffle=False,
+    collate_fn=custom_collate,
 )
 test_loader = DataLoader(
     test_dataset,
     batch_size=best_trial.params["batch_size"],
     shuffle=False,
+    collate_fn=custom_collate,
 )
 
 
