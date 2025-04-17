@@ -122,6 +122,8 @@ def objective(
     num_epochs: int = 500,
     patience: int = 10,
     use_lr_scheduler: bool = True,
+    N_HOURS_U=72,
+    N_HOURS_Y=24,
 ):
     """Objective function for Optuna optimization.
 
@@ -148,7 +150,13 @@ def objective(
     num_gcn = trial.suggest_int("num_gcn", 1, 4)
 
     if model_type == "basicgnn":
-        model = BasicGNN(input_dim, output_dim, hidden_dim, num_gcn=num_gcn)
+        model = BasicGNN(
+            seq_len=N_HOURS_U,
+            num_features=input_dim,
+            forecast_horizon=N_HOURS_Y,
+            hidden_dim=hidden_dim,
+            num_gcn=num_gcn,
+        )
 
     elif model_type == "temporalgnn":
         # TemporalGNN-specific parameters
@@ -254,7 +262,9 @@ def objective(
             patience_counter = 0
         else:
             patience_counter += 1
-
+            print(
+                f"Validation loss did not improve. Patience counter: {patience_counter}/{patience}"
+            )
         if patience_counter >= patience:
             print(
                 f"Trial {trial.number} early stopping triggered at epoch {epoch + 1}."

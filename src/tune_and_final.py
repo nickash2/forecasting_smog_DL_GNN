@@ -90,7 +90,7 @@ criterion = torch.nn.MSELoss()
 
 
 ## 4. Optuna Study
-study_name = "temporalgnn-gnn-tuning-20250412-171030"  # f"{model_type}-gnn-tuning-{current_time}"
+study_name = f"{model_type}-gnn-tuning-{current_time}"
 
 storage_name = "sqlite:///gnn_tuning.db"
 
@@ -103,19 +103,21 @@ study = optuna.create_study(
 )
 
 
-# study.optimize(
-#     lambda trial: objective(
-#         trial,
-#         model_type,  # Pass model here
-#         train_dataset,  # Pass training data
-#         val_dataset,  # Pass validation data
-#         input_dim,
-#         output_dim,
-#         device=device,  # Pass device as keyword argument
-#         num_epochs=N_EPOCHS,  # reduced epochs for the demo
-#     ),
-#     n_trials=N_TRIALS,
-# )
+study.optimize(
+    lambda trial: objective(
+        trial,
+        model_type,  # Pass model here
+        train_dataset,  # Pass training data
+        val_dataset,  # Pass validation data
+        input_dim,
+        output_dim,
+        device=device,  # Pass device as keyword argument
+        num_epochs=N_EPOCHS,  # reduced epochs for the demo
+        N_HOURS_U=N_HOURS_U,
+        N_HOURS_Y=N_HOURS_Y,
+    ),
+    n_trials=N_TRIALS,
+)
 
 
 # --- Print Best Results ---
@@ -142,11 +144,13 @@ if model_type == "temporalgnn":
 
 elif model_type == "basicgnn":
     final_model = BasicGNN(
-        input_dim=input_dim,
-        output_dim=output_dim,
+        seq_len=N_HOURS_U,
+        num_features=input_dim,
+        forecast_horizon=N_HOURS_Y,
         hidden_dim=best_trial.params["hidden_dim"],
         num_gcn=best_trial.params["num_gcn"],
     ).to(device)
+
 
 elif model_type == "attentiongnn":
     final_model = AttentionGNN(
