@@ -51,7 +51,7 @@ current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
 
 N_TRIALS = 1
-N_EPOCHS = 100
+N_EPOCHS = 75
 
 
 # Load the datasets
@@ -64,11 +64,9 @@ with open(ALL_DIR / "geometric_pkl" / "test_dataset.pkl", "rb") as f:
 
 print("Loaded all datasets")
 
-input_features = 7
-output_predictions = 1
 
-input_dim = N_HOURS_U * input_features
-output_dim = N_HOURS_Y * output_predictions
+input_dim = 7  # N_HOURS_U * input_features
+output_dim = 24  # N_HOURS_Y * output_predictions
 valid_types = ["temporalgnn", "basicgnn", "attentiongnn", "temporalattentiongnn"]
 # %%
 # Use argparse to get the model type from the command line
@@ -92,7 +90,7 @@ criterion = torch.nn.MSELoss()
 
 
 ## 4. Optuna Study
-study_name = "temporalattentiongnn-gnn-tuning-20250415-214107"  # f"{model_type}-gnn-tuning-{current_time}"
+study_name = "temporalgnn-gnn-tuning-20250412-171030"  # f"{model_type}-gnn-tuning-{current_time}"
 
 storage_name = "sqlite:///gnn_tuning.db"
 
@@ -178,6 +176,17 @@ elif model_type == "temporalattentiongnn":
 print(final_model)
 
 
+def custom_collate(batch):
+    # Collate the edge_index and other standard fields
+    batch_collated = DataLoader.collate(batch)
+    # For the sequence attribute, stack them manually.
+    x_seq_list = [data.x_seq for data in batch]
+    batch_collated.x_seq = torch.stack(
+        x_seq_list, dim=0
+    )  # (batch_size, num_nodes, window_size, num_features)
+    return batch_collated
+
+
 optimizer = torch.optim.Adam(
     final_model.parameters(),
     lr=best_trial.params["lr"],
@@ -189,6 +198,7 @@ train_loader = DataLoader(
     train_dataset,
     batch_size=best_trial.params["batch_size"],
     shuffle=False,
+    collate_fn=custom_collate,
 )
 val_loader = DataLoader(
     val_dataset,
@@ -222,11 +232,18 @@ plt.legend()
 plt.title("Training and Validation Loss Over Epochs")
 plt.savefig(MODEL_PATH / f"final_training_loss_{model_type}_{current_time}.png")
 
+# Save the model
+torch.save(
+    final_model.state_dict(),
+    MODEL_PATH / f"final_model_{model_type}_{current_time}.pt",
+)
+
 
 # Load y_min and y_max
 with open(ALL_DIR / "geometric_pkl" / "y_min_max.pkl", "rb") as f:
     y_min, y_max = pickle.load(f)
-global_rmse, preds, targets = predict_and_evaluate(
+
+global_rmse, rmse_per_node, mean_no2_rmse = predict_and_evaluate(
     final_model, test_loader, device, output_dim, y_min, y_max, N_HOURS_Y
 )
 
@@ -234,6 +251,8 @@ global_rmse, preds, targets = predict_and_evaluate(
 results = {
     "model_type": model_type,
     "global_rmse": global_rmse,
+    "mean_no2_rmse": mean_no2_rmse,
+    "rmse_per_node": rmse_per_node,
 }
 
 
@@ -242,11 +261,4 @@ results_df = pd.DataFrame([results])
 results_df.to_csv(
     MODEL_PATH / f"results_{model_type}_{current_time}.csv",
     index=False,
-)
-
-
-# Save the model
-torch.save(
-    final_model.state_dict(),
-    MODEL_PATH / f"final_model_{model_type}_{current_time}.pt",
 )

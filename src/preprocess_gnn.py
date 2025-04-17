@@ -172,10 +172,12 @@ if __name__ == "__main__":
 
     dataset = []
     for i in range(num_samples):
+        # Permute to have shape: (num_nodes, window_size, num_features)
+        x_seq = X_windows[i].permute(1, 0, 2).contiguous()
         data = Data(
-            x=X_windows_flat[i],  # shape: (3, window_size*num_features)
-            edge_index=edge_index,  # same for every graph
-            y=Y_windows_flat[i],  # shape: (3, forecast_horizon*target_features)
+            x_seq=x_seq,  # storing the time series separately
+            edge_index=edge_index,
+            y=Y_windows[i],
         )
         dataset.append(data)
 
@@ -203,7 +205,7 @@ if __name__ == "__main__":
         arr_max = arr.max(axis=0, keepdims=True)
         return arr_min, arr_max
 
-    x_min, x_max = get_min_max(train_dataset, "x")
+    x_min, x_max = get_min_max(train_dataset, "x_seq")
     y_min, y_max = get_min_max(train_dataset, "y")
 
     # Save the y_min and y_max
@@ -213,7 +215,7 @@ if __name__ == "__main__":
     def normalize_dataset(dataset, x_min, x_max, y_min, y_max):
         """Normalizes x and y attributes of a dataset."""
         for data in dataset:
-            x_arr = data.x.numpy()
+            x_arr = data.x_seq.numpy()
             x_norm = minmax_normalize_arr(x_arr, x_min, x_max)
             data.x = torch.tensor(x_norm, dtype=torch.float)
             y_arr = data.y.numpy()
