@@ -1,0 +1,1 @@
+[I 2025-02-23 14:24:53,087] Trial 25 finished with value: 0.00038134971004587394 and parameters: {'hidden_layers': 5, 'hidden_units': 64, 'batch_sz': 16, 'lr_shared': 0.009656216115483054, 'w_decay': 3.880721876683823e-08, 'patience': 28}. Best is trial 25 with value: 0.00038134971004587394.

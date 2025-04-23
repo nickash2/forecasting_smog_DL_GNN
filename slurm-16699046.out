@@ -1,0 +1,74 @@
+The following modules were not unloaded:
+  (Use "module --force purge" to unload all):
+
+  1) 2023.01   2) StdEnv
+
+Running __init__.py for data pipeline...
+Modelling package initialized
+
+/opt/rocm/lib/libamd_smi.so: cannot open shared object file: No such file or directory
+Unable to find amdsmi library try installing amd-smi-lib from your package manager
+/home4/s5185491/second-copy/src
+[2025-04-18 15:00:26,150][HYDRA] Submitit 'slurm' sweep output dir : multirun/2025-04-18/15-00-25
+[2025-04-18 15:00:26,152][HYDRA] 	#0 : models=basicgnn training.epochs=200 hp_tuning.n_trials=70
+[2025-04-18 15:00:26,156][HYDRA] 	#1 : models=temporalgnn training.epochs=200 hp_tuning.n_trials=70
+[2025-04-18 15:00:26,161][HYDRA] 	#2 : models=attentiongnn training.epochs=200 hp_tuning.n_trials=70
+[2025-04-18 15:00:26,165][HYDRA] 	#3 : models=temporalattentiongnn training.epochs=200 hp_tuning.n_trials=70
+Error executing job with overrides: ['models=attentiongnn', 'training.epochs=200', 'hp_tuning.n_trials=70']
+Traceback (most recent call last):
+  File "/home4/s5185491/forecasting_smog_DL_GNN/.venv/lib/python3.10/site-packages/hydra/_internal/utils.py", line 220, in run_and_report
+    return func()
+  File "/home4/s5185491/forecasting_smog_DL_GNN/.venv/lib/python3.10/site-packages/hydra/_internal/utils.py", line 466, in <lambda>
+    lambda: hydra.multirun(
+  File "/home4/s5185491/forecasting_smog_DL_GNN/.venv/lib/python3.10/site-packages/hydra/_internal/hydra.py", line 162, in multirun
+    ret = sweeper.sweep(arguments=task_overrides)
+  File "/home4/s5185491/forecasting_smog_DL_GNN/.venv/lib/python3.10/site-packages/hydra/_internal/core_plugins/basic_sweeper.py", line 181, in sweep
+    _ = r.return_value
+  File "/home4/s5185491/forecasting_smog_DL_GNN/.venv/lib/python3.10/site-packages/hydra/core/utils.py", line 260, in return_value
+    raise self._return_value
+submitit.core.utils.UncompletedJobError: Job not requeued because: timed-out too many times.
+
+###############################################################################
+Hábrók Cluster
+Job 16699046 for user s5185491
+Finished at: Sat Apr 19 15:58:36 CEST 2025
+
+Job details:
+============
+
+Job ID                         : 16699046
+Name                           : gnn_hydra_tuning_parallel
+User                           : s5185491
+Partition                      : regularmedium
+Nodes                          : node17
+Number of Nodes                : 1
+Cores                          : 8
+Number of Tasks                : 1
+State                          : COMPLETED  
+Submit                         : 2025-04-18T15:00:10
+Start                          : 2025-04-18T15:00:11
+End                            : 2025-04-19T15:58:32
+Reserved walltime              : 2-00:00:00
+Used walltime                  : 1-00:58:21
+Used CPU time                  :   00:00:42 (Efficiency:  0.01%)
+% User (Computation)           : 53.22%
+% System (I/O)                 : 46.78%
+Total memory reserved          : 2G
+Maximum memory used            : 273.13M
+Hints and tips      :
+ 1) The program efficiency is very low. Your program does not seem to run in
+    parallel. Please check the program documentation to see how to make the
+    program run in parallel.
+    If you can't find information about this, the program will not run in
+    parallel! Stop requesting multiple CPU cores if that is the case.
+ *) For more information on these issues see:
+    https://wiki.hpc.rug.nl/habrok/additional_information/job_hints
+
+Acknowledgements:
+=================
+
+Please see this page for information about acknowledging Hábrók in your publications:
+
+https://wiki.hpc.rug.nl/habrok/introduction/scientific_output
+
+################################################################################

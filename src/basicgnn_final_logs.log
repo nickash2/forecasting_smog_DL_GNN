@@ -1,0 +1,912 @@
+
+Running __init__.py for data pipeline...
+Modelling package initialized
+
+/opt/rocm/lib/libamd_smi.so: cannot open shared object file: No such file or directory
+Unable to find amdsmi library try installing amd-smi-lib from your package manager
+/home/nick/bachelor-project/second-copy
+BASE_DIR:  /home/nick/bachelor-project/second-copy
+MODEL_PATH:  /home/nick/bachelor-project/second-copy/results/gnn_results/models
+ALL_DIR:  /home/nick/bachelor-project/second-copy/data/data_combined/all
+cuda
+Loaded all datasets
+Feature dimensions check:
+  x_seq shape: torch.Size([3, 72, 9])
+  Number of features: 9
+  y shape: torch.Size([24, 3, 1])
+Using model type: basicgnn
+
+--- Optuna Study Complete ---
+Number of finished trials: 70
+Best trial:
+  Value (Min Validation Loss): 0.011714
+  Params: 
+    lr: 0.000271991370047317
+    weight_decay: 1.3194500760850434e-06
+    batch_size: 64
+    hidden_dim: 64
+    num_gcn: 4
+    plateau_factor: 0.6
+    plateau_patience: 7
+    plateau_min_lr: 2.421096839202312e-07
+BasicGNN(
+  (dropout): Dropout(p=0.4, inplace=False)
+  (input_norm): LayerNorm((648,), eps=1e-05, elementwise_affine=True)
+  (convs): ModuleList(
+    (0): GCNConv(648, 64)
+    (1-2): 2 x GCNConv(64, 64)
+  )
+  (batch_norms): ModuleList(
+    (0-2): 3 x BatchNorm1d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  )
+  (pre_head): Linear(in_features=64, out_features=64, bias=True)
+  (head): Linear(in_features=64, out_features=24, bias=True)
+)
+
+=== Model Training Setup ===
+Model type: basicgnn
+Input dim: 9, Output dim: 24
+Hidden dim: 64, GCN layers: 3
+Learning rate: 1e-05
+Weight decay: 0.01
+Batch size: 32
+Using LR scheduler: ReduceLROnPlateau (factor=0.7, patience=15)
+Training samples: 673
+Validation samples: 102
+Test samples: 102
+
+=== Data Diagnostics ===
+Sample batch shapes:
+  x_seq: torch.Size([96, 72, 9])
+  y: torch.Size([768, 3, 1])
+  Model output shape: torch.Size([96, 24])
+  Model output stats: min=0.4502, max=0.5409, mean=0.5010
+  Target stats: min=0.0102, max=0.7700, mean=0.1698
+  Val output stats: min=0.4440, max=0.5582, mean=0.5010
+  Val target stats: min=0.0051, max=0.6277, mean=0.1637
+  Initial train loss: 0.121475
+  Initial val loss: 0.123909
+
+=== Starting Training ===
+Training input range: [0.0000, 1.0000]
+Validation input range: [-0.0548, 1.0000]
+Training target range: [0.0210, 0.5781]
+Validation target range: [0.0051, 0.6277]
+[Epoch 1/500] Training Loss: 0.108442 | Validation Loss: 0.122068 | LR: 0.00001000
+[Epoch 2/500] Training Loss: 0.108037 | Validation Loss: 0.121762 | LR: 0.00001000
+[Epoch 3/500] Training Loss: 0.107539 | Validation Loss: 0.121454 | LR: 0.00001000
+[Epoch 4/500] Training Loss: 0.107066 | Validation Loss: 0.121125 | LR: 0.00001000
+[Epoch 5/500] Training Loss: 0.106704 | Validation Loss: 0.120806 | LR: 0.00001000
+[Epoch 6/500] Training Loss: 0.106343 | Validation Loss: 0.120438 | LR: 0.00001000
+[Epoch 7/500] Training Loss: 0.105802 | Validation Loss: 0.120078 | LR: 0.00001000
+[Epoch 8/500] Training Loss: 0.105543 | Validation Loss: 0.119701 | LR: 0.00001000
+[Epoch 9/500] Training Loss: 0.104862 | Validation Loss: 0.119369 | LR: 0.00001000
+[Epoch 10/500] Training Loss: 0.104601 | Validation Loss: 0.118993 | LR: 0.00001000
+[Epoch 11/500] Training Loss: 0.104069 | Validation Loss: 0.118631 | LR: 0.00001000
+[Epoch 12/500] Training Loss: 0.103441 | Validation Loss: 0.118193 | LR: 0.00001000
+[Epoch 13/500] Training Loss: 0.103154 | Validation Loss: 0.117819 | LR: 0.00001000
+[Epoch 14/500] Training Loss: 0.102568 | Validation Loss: 0.117384 | LR: 0.00001000
+[Epoch 15/500] Training Loss: 0.102042 | Validation Loss: 0.116913 | LR: 0.00001000
+[Epoch 16/500] Training Loss: 0.101537 | Validation Loss: 0.116337 | LR: 0.00001000
+[Epoch 17/500] Training Loss: 0.101127 | Validation Loss: 0.116028 | LR: 0.00001000
+[Epoch 18/500] Training Loss: 0.100490 | Validation Loss: 0.115399 | LR: 0.00001000
+[Epoch 19/500] Training Loss: 0.099838 | Validation Loss: 0.114975 | LR: 0.00001000
+[Epoch 20/500] Training Loss: 0.099248 | Validation Loss: 0.114359 | LR: 0.00001000
+[Epoch 21/500] Training Loss: 0.098650 | Validation Loss: 0.113934 | LR: 0.00001000
+[Epoch 22/500] Training Loss: 0.097982 | Validation Loss: 0.113268 | LR: 0.00001000
+[Epoch 23/500] Training Loss: 0.097368 | Validation Loss: 0.112670 | LR: 0.00001000
+[Epoch 24/500] Training Loss: 0.096839 | Validation Loss: 0.111991 | LR: 0.00001000
+[Epoch 25/500] Training Loss: 0.095986 | Validation Loss: 0.111358 | LR: 0.00001000
+[Epoch 26/500] Training Loss: 0.095064 | Validation Loss: 0.110807 | LR: 0.00001000
+[Epoch 27/500] Training Loss: 0.094340 | Validation Loss: 0.109993 | LR: 0.00001000
+[Epoch 28/500] Training Loss: 0.093613 | Validation Loss: 0.109305 | LR: 0.00001000
+[Epoch 29/500] Training Loss: 0.092500 | Validation Loss: 0.108411 | LR: 0.00001000
+[Epoch 30/500] Training Loss: 0.092133 | Validation Loss: 0.107908 | LR: 0.00001000
+[Epoch 31/500] Training Loss: 0.091400 | Validation Loss: 0.107249 | LR: 0.00001000
+[Epoch 32/500] Training Loss: 0.090291 | Validation Loss: 0.105924 | LR: 0.00001000
+[Epoch 33/500] Training Loss: 0.089273 | Validation Loss: 0.105278 | LR: 0.00001000
+[Epoch 34/500] Training Loss: 0.088443 | Validation Loss: 0.104318 | LR: 0.00001000
+[Epoch 35/500] Training Loss: 0.087562 | Validation Loss: 0.103466 | LR: 0.00001000
+[Epoch 36/500] Training Loss: 0.086684 | Validation Loss: 0.102449 | LR: 0.00001000
+[Epoch 37/500] Training Loss: 0.085529 | Validation Loss: 0.101710 | LR: 0.00001000
+[Epoch 38/500] Training Loss: 0.084841 | Validation Loss: 0.100755 | LR: 0.00001000
+[Epoch 39/500] Training Loss: 0.083874 | Validation Loss: 0.099497 | LR: 0.00001000
+[Epoch 40/500] Training Loss: 0.083140 | Validation Loss: 0.098200 | LR: 0.00001000
+[Epoch 41/500] Training Loss: 0.081435 | Validation Loss: 0.097378 | LR: 0.00001000
+[Epoch 42/500] Training Loss: 0.080704 | Validation Loss: 0.096391 | LR: 0.00001000
+[Epoch 43/500] Training Loss: 0.079595 | Validation Loss: 0.095353 | LR: 0.00001000
+[Epoch 44/500] Training Loss: 0.078490 | Validation Loss: 0.094510 | LR: 0.00001000
+[Epoch 45/500] Training Loss: 0.077337 | Validation Loss: 0.093369 | LR: 0.00001000
+[Epoch 46/500] Training Loss: 0.076373 | Validation Loss: 0.091981 | LR: 0.00001000
+[Epoch 47/500] Training Loss: 0.075359 | Validation Loss: 0.091305 | LR: 0.00001000
+[Epoch 48/500] Training Loss: 0.073977 | Validation Loss: 0.090162 | LR: 0.00001000
+[Epoch 49/500] Training Loss: 0.072820 | Validation Loss: 0.088567 | LR: 0.00001000
+[Epoch 50/500] Training Loss: 0.071809 | Validation Loss: 0.088206 | LR: 0.00001000
+[Epoch 51/500] Training Loss: 0.070720 | Validation Loss: 0.087029 | LR: 0.00001000
+[Epoch 52/500] Training Loss: 0.069339 | Validation Loss: 0.085511 | LR: 0.00001000
+[Epoch 53/500] Training Loss: 0.068181 | Validation Loss: 0.084405 | LR: 0.00001000
+[Epoch 54/500] Training Loss: 0.067163 | Validation Loss: 0.082379 | LR: 0.00001000
+[Epoch 55/500] Training Loss: 0.066023 | Validation Loss: 0.082344 | LR: 0.00001000
+[Epoch 56/500] Training Loss: 0.064930 | Validation Loss: 0.080056 | LR: 0.00001000
+[Epoch 57/500] Training Loss: 0.063333 | Validation Loss: 0.079106 | LR: 0.00001000
+[Epoch 58/500] Training Loss: 0.062407 | Validation Loss: 0.077621 | LR: 0.00001000
+[Epoch 59/500] Training Loss: 0.061471 | Validation Loss: 0.077150 | LR: 0.00001000
+[Epoch 60/500] Training Loss: 0.059998 | Validation Loss: 0.075404 | LR: 0.00001000
+[Epoch 61/500] Training Loss: 0.059232 | Validation Loss: 0.074886 | LR: 0.00001000
+[Epoch 62/500] Training Loss: 0.058396 | Validation Loss: 0.072966 | LR: 0.00001000
+[Epoch 63/500] Training Loss: 0.056795 | Validation Loss: 0.071928 | LR: 0.00001000
+[Epoch 64/500] Training Loss: 0.055290 | Validation Loss: 0.071295 | LR: 0.00001000
+[Epoch 65/500] Training Loss: 0.054664 | Validation Loss: 0.069786 | LR: 0.00001000
+[Epoch 66/500] Training Loss: 0.053568 | Validation Loss: 0.068510 | LR: 0.00001000
+[Epoch 67/500] Training Loss: 0.052567 | Validation Loss: 0.066513 | LR: 0.00001000
+[Epoch 68/500] Training Loss: 0.050964 | Validation Loss: 0.065201 | LR: 0.00001000
+[Epoch 69/500] Training Loss: 0.050538 | Validation Loss: 0.065119 | LR: 0.00001000
+[Epoch 70/500] Training Loss: 0.049226 | Validation Loss: 0.063687 | LR: 0.00001000
+[Epoch 71/500] Training Loss: 0.047918 | Validation Loss: 0.063011 | LR: 0.00001000
+[Epoch 72/500] Training Loss: 0.047133 | Validation Loss: 0.061191 | LR: 0.00001000
+[Epoch 73/500] Training Loss: 0.045878 | Validation Loss: 0.059875 | LR: 0.00001000
+[Epoch 74/500] Training Loss: 0.044478 | Validation Loss: 0.058599 | LR: 0.00001000
+[Epoch 75/500] Training Loss: 0.043704 | Validation Loss: 0.057456 | LR: 0.00001000
+[Epoch 76/500] Training Loss: 0.043243 | Validation Loss: 0.056586 | LR: 0.00001000
+[Epoch 77/500] Training Loss: 0.042171 | Validation Loss: 0.055506 | LR: 0.00001000
+[Epoch 78/500] Training Loss: 0.041385 | Validation Loss: 0.054422 | LR: 0.00001000
+[Epoch 79/500] Training Loss: 0.040313 | Validation Loss: 0.053508 | LR: 0.00001000
+[Epoch 80/500] Training Loss: 0.039797 | Validation Loss: 0.052059 | LR: 0.00001000
+[Epoch 81/500] Training Loss: 0.037907 | Validation Loss: 0.051332 | LR: 0.00001000
+[Epoch 82/500] Training Loss: 0.037306 | Validation Loss: 0.051216 | LR: 0.00001000
+[Epoch 83/500] Training Loss: 0.036871 | Validation Loss: 0.049590 | LR: 0.00001000
+[Epoch 84/500] Training Loss: 0.035633 | Validation Loss: 0.048563 | LR: 0.00001000
+[Epoch 85/500] Training Loss: 0.035244 | Validation Loss: 0.047468 | LR: 0.00001000
+[Epoch 86/500] Training Loss: 0.033754 | Validation Loss: 0.046188 | LR: 0.00001000
+[Epoch 87/500] Training Loss: 0.033188 | Validation Loss: 0.045878 | LR: 0.00001000
+[Epoch 88/500] Training Loss: 0.031749 | Validation Loss: 0.045196 | LR: 0.00001000
+[Epoch 89/500] Training Loss: 0.032186 | Validation Loss: 0.044600 | LR: 0.00001000
+[Epoch 90/500] Training Loss: 0.031182 | Validation Loss: 0.043624 | LR: 0.00001000
+[Epoch 91/500] Training Loss: 0.030701 | Validation Loss: 0.042452 | LR: 0.00001000
+[Epoch 92/500] Training Loss: 0.029537 | Validation Loss: 0.041762 | LR: 0.00001000
+[Epoch 93/500] Training Loss: 0.028793 | Validation Loss: 0.039850 | LR: 0.00001000
+[Epoch 94/500] Training Loss: 0.028258 | Validation Loss: 0.039828 | LR: 0.00001000
+[Epoch 95/500] Training Loss: 0.027891 | Validation Loss: 0.039384 | LR: 0.00001000
+[Epoch 96/500] Training Loss: 0.027041 | Validation Loss: 0.038556 | LR: 0.00001000
+[Epoch 97/500] Training Loss: 0.026150 | Validation Loss: 0.038189 | LR: 0.00001000
+[Epoch 98/500] Training Loss: 0.026304 | Validation Loss: 0.036236 | LR: 0.00001000
+[Epoch 99/500] Training Loss: 0.025292 | Validation Loss: 0.036364 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 100/500] Training Loss: 0.024817 | Validation Loss: 0.035305 | LR: 0.00001000
+[Epoch 101/500] Training Loss: 0.024280 | Validation Loss: 0.034708 | LR: 0.00001000
+[Epoch 102/500] Training Loss: 0.023660 | Validation Loss: 0.033776 | LR: 0.00001000
+[Epoch 103/500] Training Loss: 0.023358 | Validation Loss: 0.033710 | LR: 0.00001000
+[Epoch 104/500] Training Loss: 0.022991 | Validation Loss: 0.032362 | LR: 0.00001000
+[Epoch 105/500] Training Loss: 0.022945 | Validation Loss: 0.032851 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 106/500] Training Loss: 0.021831 | Validation Loss: 0.031827 | LR: 0.00001000
+[Epoch 107/500] Training Loss: 0.021754 | Validation Loss: 0.030406 | LR: 0.00001000
+[Epoch 108/500] Training Loss: 0.020820 | Validation Loss: 0.029946 | LR: 0.00001000
+[Epoch 109/500] Training Loss: 0.020920 | Validation Loss: 0.029832 | LR: 0.00001000
+[Epoch 110/500] Training Loss: 0.020616 | Validation Loss: 0.028669 | LR: 0.00001000
+[Epoch 111/500] Training Loss: 0.020019 | Validation Loss: 0.028151 | LR: 0.00001000
+[Epoch 112/500] Training Loss: 0.020035 | Validation Loss: 0.027534 | LR: 0.00001000
+[Epoch 113/500] Training Loss: 0.019671 | Validation Loss: 0.027378 | LR: 0.00001000
+[Epoch 114/500] Training Loss: 0.018794 | Validation Loss: 0.027160 | LR: 0.00001000
+[Epoch 115/500] Training Loss: 0.018376 | Validation Loss: 0.026657 | LR: 0.00001000
+[Epoch 116/500] Training Loss: 0.018500 | Validation Loss: 0.025994 | LR: 0.00001000
+[Epoch 117/500] Training Loss: 0.018364 | Validation Loss: 0.025153 | LR: 0.00001000
+[Epoch 118/500] Training Loss: 0.017551 | Validation Loss: 0.026000 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 119/500] Training Loss: 0.017391 | Validation Loss: 0.025116 | LR: 0.00001000
+[Epoch 120/500] Training Loss: 0.017303 | Validation Loss: 0.024259 | LR: 0.00001000
+[Epoch 121/500] Training Loss: 0.017029 | Validation Loss: 0.023580 | LR: 0.00001000
+[Epoch 122/500] Training Loss: 0.016584 | Validation Loss: 0.022652 | LR: 0.00001000
+[Epoch 123/500] Training Loss: 0.016570 | Validation Loss: 0.022943 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 124/500] Training Loss: 0.015952 | Validation Loss: 0.022292 | LR: 0.00001000
+[Epoch 125/500] Training Loss: 0.016145 | Validation Loss: 0.022663 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 126/500] Training Loss: 0.015617 | Validation Loss: 0.022100 | LR: 0.00001000
+[Epoch 127/500] Training Loss: 0.015780 | Validation Loss: 0.022193 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 128/500] Training Loss: 0.015412 | Validation Loss: 0.020871 | LR: 0.00001000
+[Epoch 129/500] Training Loss: 0.015382 | Validation Loss: 0.020600 | LR: 0.00001000
+[Epoch 130/500] Training Loss: 0.015606 | Validation Loss: 0.020151 | LR: 0.00001000
+[Epoch 131/500] Training Loss: 0.015213 | Validation Loss: 0.019831 | LR: 0.00001000
+[Epoch 132/500] Training Loss: 0.014500 | Validation Loss: 0.020290 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 133/500] Training Loss: 0.014686 | Validation Loss: 0.019244 | LR: 0.00001000
+[Epoch 134/500] Training Loss: 0.014385 | Validation Loss: 0.019079 | LR: 0.00001000
+[Epoch 135/500] Training Loss: 0.014222 | Validation Loss: 0.018815 | LR: 0.00001000
+[Epoch 136/500] Training Loss: 0.014102 | Validation Loss: 0.018052 | LR: 0.00001000
+[Epoch 137/500] Training Loss: 0.013733 | Validation Loss: 0.018227 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 138/500] Training Loss: 0.013918 | Validation Loss: 0.017733 | LR: 0.00001000
+[Epoch 139/500] Training Loss: 0.013549 | Validation Loss: 0.018461 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 140/500] Training Loss: 0.014031 | Validation Loss: 0.018391 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 2/150
+[Epoch 141/500] Training Loss: 0.013574 | Validation Loss: 0.017754 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 3/150
+[Epoch 142/500] Training Loss: 0.013883 | Validation Loss: 0.017093 | LR: 0.00001000
+[Epoch 143/500] Training Loss: 0.013626 | Validation Loss: 0.017398 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 144/500] Training Loss: 0.012938 | Validation Loss: 0.016889 | LR: 0.00001000
+[Epoch 145/500] Training Loss: 0.013222 | Validation Loss: 0.016901 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 146/500] Training Loss: 0.012843 | Validation Loss: 0.016326 | LR: 0.00001000
+[Epoch 147/500] Training Loss: 0.013234 | Validation Loss: 0.016492 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 148/500] Training Loss: 0.013526 | Validation Loss: 0.016735 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 2/150
+[Epoch 149/500] Training Loss: 0.012750 | Validation Loss: 0.015551 | LR: 0.00001000
+[Epoch 150/500] Training Loss: 0.012880 | Validation Loss: 0.015679 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 151/500] Training Loss: 0.012671 | Validation Loss: 0.015839 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 2/150
+[Epoch 152/500] Training Loss: 0.012796 | Validation Loss: 0.015898 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 3/150
+[Epoch 153/500] Training Loss: 0.012724 | Validation Loss: 0.014655 | LR: 0.00001000
+[Epoch 154/500] Training Loss: 0.012528 | Validation Loss: 0.015527 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 155/500] Training Loss: 0.012437 | Validation Loss: 0.015180 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 2/150
+[Epoch 156/500] Training Loss: 0.012484 | Validation Loss: 0.014799 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 3/150
+[Epoch 157/500] Training Loss: 0.012183 | Validation Loss: 0.015026 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 4/150
+[Epoch 158/500] Training Loss: 0.012396 | Validation Loss: 0.014486 | LR: 0.00001000
+[Epoch 159/500] Training Loss: 0.012538 | Validation Loss: 0.014574 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 160/500] Training Loss: 0.012151 | Validation Loss: 0.014209 | LR: 0.00001000
+[Epoch 161/500] Training Loss: 0.012632 | Validation Loss: 0.013870 | LR: 0.00001000
+[Epoch 162/500] Training Loss: 0.012213 | Validation Loss: 0.014464 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 163/500] Training Loss: 0.012234 | Validation Loss: 0.014639 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 2/150
+[Epoch 164/500] Training Loss: 0.012027 | Validation Loss: 0.013899 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 3/150
+[Epoch 165/500] Training Loss: 0.012288 | Validation Loss: 0.014228 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 4/150
+[Epoch 166/500] Training Loss: 0.012072 | Validation Loss: 0.013340 | LR: 0.00001000
+[Epoch 167/500] Training Loss: 0.012237 | Validation Loss: 0.013803 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 168/500] Training Loss: 0.012252 | Validation Loss: 0.014101 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 2/150
+[Epoch 169/500] Training Loss: 0.011724 | Validation Loss: 0.013836 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 3/150
+[Epoch 170/500] Training Loss: 0.011668 | Validation Loss: 0.013837 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 4/150
+[Epoch 171/500] Training Loss: 0.011576 | Validation Loss: 0.013700 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 5/150
+[Epoch 172/500] Training Loss: 0.011860 | Validation Loss: 0.013288 | LR: 0.00001000
+[Epoch 173/500] Training Loss: 0.011588 | Validation Loss: 0.013171 | LR: 0.00001000
+[Epoch 174/500] Training Loss: 0.011924 | Validation Loss: 0.013375 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 175/500] Training Loss: 0.011935 | Validation Loss: 0.013273 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 2/150
+[Epoch 176/500] Training Loss: 0.011913 | Validation Loss: 0.013107 | LR: 0.00001000
+[Epoch 177/500] Training Loss: 0.011506 | Validation Loss: 0.013545 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 178/500] Training Loss: 0.012389 | Validation Loss: 0.012979 | LR: 0.00001000
+[Epoch 179/500] Training Loss: 0.011483 | Validation Loss: 0.013242 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 180/500] Training Loss: 0.011925 | Validation Loss: 0.012413 | LR: 0.00001000
+[Epoch 181/500] Training Loss: 0.011837 | Validation Loss: 0.012884 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 182/500] Training Loss: 0.011383 | Validation Loss: 0.012748 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 2/150
+[Epoch 183/500] Training Loss: 0.011217 | Validation Loss: 0.012543 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 3/150
+[Epoch 184/500] Training Loss: 0.011377 | Validation Loss: 0.013008 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 4/150
+[Epoch 185/500] Training Loss: 0.012000 | Validation Loss: 0.012868 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 5/150
+[Epoch 186/500] Training Loss: 0.011660 | Validation Loss: 0.012785 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 6/150
+[Epoch 187/500] Training Loss: 0.011388 | Validation Loss: 0.012472 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 7/150
+[Epoch 188/500] Training Loss: 0.011501 | Validation Loss: 0.012570 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 8/150
+[Epoch 189/500] Training Loss: 0.011605 | Validation Loss: 0.012407 | LR: 0.00001000
+[Epoch 190/500] Training Loss: 0.011255 | Validation Loss: 0.012908 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 191/500] Training Loss: 0.011355 | Validation Loss: 0.012401 | LR: 0.00001000
+[Epoch 192/500] Training Loss: 0.011493 | Validation Loss: 0.012435 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 193/500] Training Loss: 0.011152 | Validation Loss: 0.012286 | LR: 0.00001000
+[Epoch 194/500] Training Loss: 0.011262 | Validation Loss: 0.012343 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 195/500] Training Loss: 0.011571 | Validation Loss: 0.012082 | LR: 0.00001000
+[Epoch 196/500] Training Loss: 0.011238 | Validation Loss: 0.012069 | LR: 0.00001000
+[Epoch 197/500] Training Loss: 0.011295 | Validation Loss: 0.011939 | LR: 0.00001000
+[Epoch 198/500] Training Loss: 0.011376 | Validation Loss: 0.012415 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 199/500] Training Loss: 0.011209 | Validation Loss: 0.011893 | LR: 0.00001000
+[Epoch 200/500] Training Loss: 0.011465 | Validation Loss: 0.011909 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 201/500] Training Loss: 0.011574 | Validation Loss: 0.011899 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 2/150
+[Epoch 202/500] Training Loss: 0.011135 | Validation Loss: 0.011979 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 3/150
+[Epoch 203/500] Training Loss: 0.011148 | Validation Loss: 0.011924 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 4/150
+[Epoch 204/500] Training Loss: 0.011025 | Validation Loss: 0.012007 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 5/150
+[Epoch 205/500] Training Loss: 0.011269 | Validation Loss: 0.012068 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 6/150
+[Epoch 206/500] Training Loss: 0.011153 | Validation Loss: 0.012069 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 7/150
+[Epoch 207/500] Training Loss: 0.011248 | Validation Loss: 0.012388 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 8/150
+[Epoch 208/500] Training Loss: 0.011375 | Validation Loss: 0.011887 | LR: 0.00001000
+[Epoch 209/500] Training Loss: 0.011150 | Validation Loss: 0.011749 | LR: 0.00001000
+[Epoch 210/500] Training Loss: 0.011109 | Validation Loss: 0.011835 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 211/500] Training Loss: 0.011314 | Validation Loss: 0.011659 | LR: 0.00001000
+[Epoch 212/500] Training Loss: 0.011436 | Validation Loss: 0.011859 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 213/500] Training Loss: 0.011128 | Validation Loss: 0.012147 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 2/150
+[Epoch 214/500] Training Loss: 0.011559 | Validation Loss: 0.011687 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 3/150
+[Epoch 215/500] Training Loss: 0.011042 | Validation Loss: 0.011472 | LR: 0.00001000
+[Epoch 216/500] Training Loss: 0.010979 | Validation Loss: 0.011193 | LR: 0.00001000
+[Epoch 217/500] Training Loss: 0.010717 | Validation Loss: 0.011476 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 218/500] Training Loss: 0.011013 | Validation Loss: 0.011586 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 2/150
+[Epoch 219/500] Training Loss: 0.010895 | Validation Loss: 0.011704 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 3/150
+[Epoch 220/500] Training Loss: 0.011205 | Validation Loss: 0.011436 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 4/150
+[Epoch 221/500] Training Loss: 0.011193 | Validation Loss: 0.011893 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 5/150
+[Epoch 222/500] Training Loss: 0.011195 | Validation Loss: 0.011825 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 6/150
+[Epoch 223/500] Training Loss: 0.011688 | Validation Loss: 0.011449 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 7/150
+[Epoch 224/500] Training Loss: 0.010804 | Validation Loss: 0.011553 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 8/150
+[Epoch 225/500] Training Loss: 0.011195 | Validation Loss: 0.011252 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 9/150
+[Epoch 226/500] Training Loss: 0.011029 | Validation Loss: 0.011724 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 10/150
+[Epoch 227/500] Training Loss: 0.010992 | Validation Loss: 0.011693 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 11/150
+[Epoch 228/500] Training Loss: 0.010782 | Validation Loss: 0.011491 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 12/150
+[Epoch 229/500] Training Loss: 0.011085 | Validation Loss: 0.011183 | LR: 0.00001000
+[Epoch 230/500] Training Loss: 0.011220 | Validation Loss: 0.011199 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 231/500] Training Loss: 0.011263 | Validation Loss: 0.011325 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 2/150
+[Epoch 232/500] Training Loss: 0.011234 | Validation Loss: 0.011410 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 3/150
+[Epoch 233/500] Training Loss: 0.010855 | Validation Loss: 0.010988 | LR: 0.00001000
+[Epoch 234/500] Training Loss: 0.011320 | Validation Loss: 0.011047 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 235/500] Training Loss: 0.011170 | Validation Loss: 0.011336 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 2/150
+[Epoch 236/500] Training Loss: 0.011158 | Validation Loss: 0.011069 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 3/150
+[Epoch 237/500] Training Loss: 0.011103 | Validation Loss: 0.011102 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 4/150
+[Epoch 238/500] Training Loss: 0.010880 | Validation Loss: 0.011249 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 5/150
+[Epoch 239/500] Training Loss: 0.010869 | Validation Loss: 0.011340 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 6/150
+[Epoch 240/500] Training Loss: 0.010948 | Validation Loss: 0.011374 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 7/150
+[Epoch 241/500] Training Loss: 0.010684 | Validation Loss: 0.011330 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 8/150
+[Epoch 242/500] Training Loss: 0.011175 | Validation Loss: 0.011100 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 9/150
+[Epoch 243/500] Training Loss: 0.011029 | Validation Loss: 0.011133 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 10/150
+[Epoch 244/500] Training Loss: 0.010785 | Validation Loss: 0.011649 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 11/150
+[Epoch 245/500] Training Loss: 0.011252 | Validation Loss: 0.011441 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 12/150
+[Epoch 246/500] Training Loss: 0.011097 | Validation Loss: 0.011466 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 13/150
+[Epoch 247/500] Training Loss: 0.010873 | Validation Loss: 0.011282 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 14/150
+[Epoch 248/500] Training Loss: 0.010810 | Validation Loss: 0.011332 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 15/150
+[Epoch 249/500] Training Loss: 0.010981 | Validation Loss: 0.011357 | LR: 0.00001000
+Validation loss did not improve. Patience counter: 16/150
+[Epoch 250/500] Training Loss: 0.011001 | Validation Loss: 0.011029 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 17/150
+[Epoch 251/500] Training Loss: 0.010955 | Validation Loss: 0.011223 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 18/150
+[Epoch 252/500] Training Loss: 0.010780 | Validation Loss: 0.011199 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 19/150
+[Epoch 253/500] Training Loss: 0.011027 | Validation Loss: 0.011033 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 20/150
+[Epoch 254/500] Training Loss: 0.011023 | Validation Loss: 0.011165 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 21/150
+[Epoch 255/500] Training Loss: 0.010959 | Validation Loss: 0.011371 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 22/150
+[Epoch 256/500] Training Loss: 0.010827 | Validation Loss: 0.011221 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 23/150
+[Epoch 257/500] Training Loss: 0.010761 | Validation Loss: 0.011238 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 24/150
+[Epoch 258/500] Training Loss: 0.010852 | Validation Loss: 0.011215 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 25/150
+[Epoch 259/500] Training Loss: 0.011075 | Validation Loss: 0.011476 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 26/150
+[Epoch 260/500] Training Loss: 0.010605 | Validation Loss: 0.011372 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 27/150
+[Epoch 261/500] Training Loss: 0.010531 | Validation Loss: 0.011346 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 28/150
+[Epoch 262/500] Training Loss: 0.010710 | Validation Loss: 0.011422 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 29/150
+[Epoch 263/500] Training Loss: 0.011086 | Validation Loss: 0.010964 | LR: 0.00000700
+[Epoch 264/500] Training Loss: 0.010616 | Validation Loss: 0.011168 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 265/500] Training Loss: 0.011004 | Validation Loss: 0.010978 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 2/150
+[Epoch 266/500] Training Loss: 0.010863 | Validation Loss: 0.011292 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 3/150
+[Epoch 267/500] Training Loss: 0.010820 | Validation Loss: 0.011431 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 4/150
+[Epoch 268/500] Training Loss: 0.010659 | Validation Loss: 0.011383 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 5/150
+[Epoch 269/500] Training Loss: 0.010931 | Validation Loss: 0.011016 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 6/150
+[Epoch 270/500] Training Loss: 0.010748 | Validation Loss: 0.011582 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 7/150
+[Epoch 271/500] Training Loss: 0.010892 | Validation Loss: 0.011079 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 8/150
+[Epoch 272/500] Training Loss: 0.010797 | Validation Loss: 0.010791 | LR: 0.00000700
+[Epoch 273/500] Training Loss: 0.010630 | Validation Loss: 0.011455 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 274/500] Training Loss: 0.010262 | Validation Loss: 0.011289 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 2/150
+[Epoch 275/500] Training Loss: 0.010817 | Validation Loss: 0.011178 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 3/150
+[Epoch 276/500] Training Loss: 0.011000 | Validation Loss: 0.011094 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 4/150
+[Epoch 277/500] Training Loss: 0.011014 | Validation Loss: 0.011375 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 5/150
+[Epoch 278/500] Training Loss: 0.010785 | Validation Loss: 0.011264 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 6/150
+[Epoch 279/500] Training Loss: 0.010615 | Validation Loss: 0.011485 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 7/150
+[Epoch 280/500] Training Loss: 0.010623 | Validation Loss: 0.011163 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 8/150
+[Epoch 281/500] Training Loss: 0.010660 | Validation Loss: 0.010930 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 9/150
+[Epoch 282/500] Training Loss: 0.010893 | Validation Loss: 0.011359 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 10/150
+[Epoch 283/500] Training Loss: 0.010575 | Validation Loss: 0.010664 | LR: 0.00000700
+[Epoch 284/500] Training Loss: 0.010709 | Validation Loss: 0.011160 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 285/500] Training Loss: 0.010456 | Validation Loss: 0.011027 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 2/150
+[Epoch 286/500] Training Loss: 0.010569 | Validation Loss: 0.011283 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 3/150
+[Epoch 287/500] Training Loss: 0.011004 | Validation Loss: 0.011225 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 4/150
+[Epoch 288/500] Training Loss: 0.010892 | Validation Loss: 0.011078 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 5/150
+[Epoch 289/500] Training Loss: 0.010729 | Validation Loss: 0.011396 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 6/150
+[Epoch 290/500] Training Loss: 0.010883 | Validation Loss: 0.011418 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 7/150
+[Epoch 291/500] Training Loss: 0.010863 | Validation Loss: 0.011480 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 8/150
+[Epoch 292/500] Training Loss: 0.010904 | Validation Loss: 0.011013 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 9/150
+[Epoch 293/500] Training Loss: 0.010697 | Validation Loss: 0.011199 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 10/150
+[Epoch 294/500] Training Loss: 0.010579 | Validation Loss: 0.011047 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 11/150
+[Epoch 295/500] Training Loss: 0.010798 | Validation Loss: 0.011134 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 12/150
+[Epoch 296/500] Training Loss: 0.010582 | Validation Loss: 0.011006 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 13/150
+[Epoch 297/500] Training Loss: 0.010938 | Validation Loss: 0.011365 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 14/150
+[Epoch 298/500] Training Loss: 0.010674 | Validation Loss: 0.011292 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 15/150
+[Epoch 299/500] Training Loss: 0.010669 | Validation Loss: 0.011625 | LR: 0.00000700
+Validation loss did not improve. Patience counter: 16/150
+[Epoch 300/500] Training Loss: 0.010625 | Validation Loss: 0.011047 | LR: 0.00000490
+Validation loss did not improve. Patience counter: 17/150
+[Epoch 301/500] Training Loss: 0.010892 | Validation Loss: 0.011179 | LR: 0.00000490
+Validation loss did not improve. Patience counter: 18/150
+[Epoch 302/500] Training Loss: 0.010786 | Validation Loss: 0.011291 | LR: 0.00000490
+Validation loss did not improve. Patience counter: 19/150
+[Epoch 303/500] Training Loss: 0.010343 | Validation Loss: 0.010977 | LR: 0.00000490
+Validation loss did not improve. Patience counter: 20/150
+[Epoch 304/500] Training Loss: 0.010566 | Validation Loss: 0.011319 | LR: 0.00000490
+Validation loss did not improve. Patience counter: 21/150
+[Epoch 305/500] Training Loss: 0.010675 | Validation Loss: 0.011132 | LR: 0.00000490
+Validation loss did not improve. Patience counter: 22/150
+[Epoch 306/500] Training Loss: 0.010360 | Validation Loss: 0.011421 | LR: 0.00000490
+Validation loss did not improve. Patience counter: 23/150
+[Epoch 307/500] Training Loss: 0.010639 | Validation Loss: 0.011427 | LR: 0.00000490
+Validation loss did not improve. Patience counter: 24/150
+[Epoch 308/500] Training Loss: 0.010675 | Validation Loss: 0.011066 | LR: 0.00000490
+Validation loss did not improve. Patience counter: 25/150
+[Epoch 309/500] Training Loss: 0.010432 | Validation Loss: 0.010911 | LR: 0.00000490
+Validation loss did not improve. Patience counter: 26/150
+[Epoch 310/500] Training Loss: 0.010561 | Validation Loss: 0.010669 | LR: 0.00000490
+Validation loss did not improve. Patience counter: 27/150
+[Epoch 311/500] Training Loss: 0.010729 | Validation Loss: 0.010923 | LR: 0.00000490
+Validation loss did not improve. Patience counter: 28/150
+[Epoch 312/500] Training Loss: 0.010568 | Validation Loss: 0.011347 | LR: 0.00000490
+Validation loss did not improve. Patience counter: 29/150
+[Epoch 313/500] Training Loss: 0.010320 | Validation Loss: 0.011177 | LR: 0.00000490
+Validation loss did not improve. Patience counter: 30/150
+[Epoch 314/500] Training Loss: 0.010346 | Validation Loss: 0.011205 | LR: 0.00000490
+Validation loss did not improve. Patience counter: 31/150
+[Epoch 315/500] Training Loss: 0.010703 | Validation Loss: 0.011142 | LR: 0.00000490
+Validation loss did not improve. Patience counter: 32/150
+[Epoch 316/500] Training Loss: 0.010752 | Validation Loss: 0.011398 | LR: 0.00000343
+Validation loss did not improve. Patience counter: 33/150
+[Epoch 317/500] Training Loss: 0.010395 | Validation Loss: 0.010997 | LR: 0.00000343
+Validation loss did not improve. Patience counter: 34/150
+[Epoch 318/500] Training Loss: 0.010705 | Validation Loss: 0.011396 | LR: 0.00000343
+Validation loss did not improve. Patience counter: 35/150
+[Epoch 319/500] Training Loss: 0.010643 | Validation Loss: 0.010717 | LR: 0.00000343
+Validation loss did not improve. Patience counter: 36/150
+[Epoch 320/500] Training Loss: 0.010692 | Validation Loss: 0.011099 | LR: 0.00000343
+Validation loss did not improve. Patience counter: 37/150
+[Epoch 321/500] Training Loss: 0.010709 | Validation Loss: 0.011139 | LR: 0.00000343
+Validation loss did not improve. Patience counter: 38/150
+[Epoch 322/500] Training Loss: 0.010771 | Validation Loss: 0.011439 | LR: 0.00000343
+Validation loss did not improve. Patience counter: 39/150
+[Epoch 323/500] Training Loss: 0.010556 | Validation Loss: 0.011259 | LR: 0.00000343
+Validation loss did not improve. Patience counter: 40/150
+[Epoch 324/500] Training Loss: 0.010697 | Validation Loss: 0.011167 | LR: 0.00000343
+Validation loss did not improve. Patience counter: 41/150
+[Epoch 325/500] Training Loss: 0.010899 | Validation Loss: 0.011131 | LR: 0.00000343
+Validation loss did not improve. Patience counter: 42/150
+[Epoch 326/500] Training Loss: 0.010338 | Validation Loss: 0.010865 | LR: 0.00000343
+Validation loss did not improve. Patience counter: 43/150
+[Epoch 327/500] Training Loss: 0.010803 | Validation Loss: 0.010946 | LR: 0.00000343
+Validation loss did not improve. Patience counter: 44/150
+[Epoch 328/500] Training Loss: 0.010846 | Validation Loss: 0.011383 | LR: 0.00000343
+Validation loss did not improve. Patience counter: 45/150
+[Epoch 329/500] Training Loss: 0.010705 | Validation Loss: 0.011106 | LR: 0.00000343
+Validation loss did not improve. Patience counter: 46/150
+[Epoch 330/500] Training Loss: 0.010596 | Validation Loss: 0.010826 | LR: 0.00000343
+Validation loss did not improve. Patience counter: 47/150
+[Epoch 331/500] Training Loss: 0.010382 | Validation Loss: 0.010754 | LR: 0.00000343
+Validation loss did not improve. Patience counter: 48/150
+[Epoch 332/500] Training Loss: 0.010638 | Validation Loss: 0.010876 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 49/150
+[Epoch 333/500] Training Loss: 0.010343 | Validation Loss: 0.011090 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 50/150
+[Epoch 334/500] Training Loss: 0.010644 | Validation Loss: 0.011212 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 51/150
+[Epoch 335/500] Training Loss: 0.010321 | Validation Loss: 0.010729 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 52/150
+[Epoch 336/500] Training Loss: 0.010590 | Validation Loss: 0.010875 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 53/150
+[Epoch 337/500] Training Loss: 0.010619 | Validation Loss: 0.010804 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 54/150
+[Epoch 338/500] Training Loss: 0.010435 | Validation Loss: 0.010731 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 55/150
+[Epoch 339/500] Training Loss: 0.010673 | Validation Loss: 0.011146 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 56/150
+[Epoch 340/500] Training Loss: 0.010535 | Validation Loss: 0.010907 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 57/150
+[Epoch 341/500] Training Loss: 0.010601 | Validation Loss: 0.010660 | LR: 0.00000240
+[Epoch 342/500] Training Loss: 0.010749 | Validation Loss: 0.011015 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 343/500] Training Loss: 0.010581 | Validation Loss: 0.011035 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 2/150
+[Epoch 344/500] Training Loss: 0.010738 | Validation Loss: 0.010837 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 3/150
+[Epoch 345/500] Training Loss: 0.010517 | Validation Loss: 0.010965 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 4/150
+[Epoch 346/500] Training Loss: 0.010517 | Validation Loss: 0.010945 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 5/150
+[Epoch 347/500] Training Loss: 0.010610 | Validation Loss: 0.010932 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 6/150
+[Epoch 348/500] Training Loss: 0.010609 | Validation Loss: 0.011140 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 7/150
+[Epoch 349/500] Training Loss: 0.010591 | Validation Loss: 0.010922 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 8/150
+[Epoch 350/500] Training Loss: 0.010784 | Validation Loss: 0.010779 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 9/150
+[Epoch 351/500] Training Loss: 0.010509 | Validation Loss: 0.010973 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 10/150
+[Epoch 352/500] Training Loss: 0.010403 | Validation Loss: 0.010920 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 11/150
+[Epoch 353/500] Training Loss: 0.010720 | Validation Loss: 0.011204 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 12/150
+[Epoch 354/500] Training Loss: 0.010488 | Validation Loss: 0.010871 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 13/150
+[Epoch 355/500] Training Loss: 0.010844 | Validation Loss: 0.010829 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 14/150
+[Epoch 356/500] Training Loss: 0.010736 | Validation Loss: 0.011097 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 15/150
+[Epoch 357/500] Training Loss: 0.010470 | Validation Loss: 0.010861 | LR: 0.00000240
+Validation loss did not improve. Patience counter: 16/150
+[Epoch 358/500] Training Loss: 0.010411 | Validation Loss: 0.010763 | LR: 0.00000168
+Validation loss did not improve. Patience counter: 17/150
+[Epoch 359/500] Training Loss: 0.010432 | Validation Loss: 0.010944 | LR: 0.00000168
+Validation loss did not improve. Patience counter: 18/150
+[Epoch 360/500] Training Loss: 0.010736 | Validation Loss: 0.011205 | LR: 0.00000168
+Validation loss did not improve. Patience counter: 19/150
+[Epoch 361/500] Training Loss: 0.010438 | Validation Loss: 0.011051 | LR: 0.00000168
+Validation loss did not improve. Patience counter: 20/150
+[Epoch 362/500] Training Loss: 0.010286 | Validation Loss: 0.010967 | LR: 0.00000168
+Validation loss did not improve. Patience counter: 21/150
+[Epoch 363/500] Training Loss: 0.010622 | Validation Loss: 0.010895 | LR: 0.00000168
+Validation loss did not improve. Patience counter: 22/150
+[Epoch 364/500] Training Loss: 0.010629 | Validation Loss: 0.011104 | LR: 0.00000168
+Validation loss did not improve. Patience counter: 23/150
+[Epoch 365/500] Training Loss: 0.010345 | Validation Loss: 0.011122 | LR: 0.00000168
+Validation loss did not improve. Patience counter: 24/150
+[Epoch 366/500] Training Loss: 0.010613 | Validation Loss: 0.011198 | LR: 0.00000168
+Validation loss did not improve. Patience counter: 25/150
+[Epoch 367/500] Training Loss: 0.010642 | Validation Loss: 0.010950 | LR: 0.00000168
+Validation loss did not improve. Patience counter: 26/150
+[Epoch 368/500] Training Loss: 0.010622 | Validation Loss: 0.011224 | LR: 0.00000168
+Validation loss did not improve. Patience counter: 27/150
+[Epoch 369/500] Training Loss: 0.010587 | Validation Loss: 0.010819 | LR: 0.00000168
+Validation loss did not improve. Patience counter: 28/150
+[Epoch 370/500] Training Loss: 0.010473 | Validation Loss: 0.010963 | LR: 0.00000168
+Validation loss did not improve. Patience counter: 29/150
+[Epoch 371/500] Training Loss: 0.010336 | Validation Loss: 0.011286 | LR: 0.00000168
+Validation loss did not improve. Patience counter: 30/150
+[Epoch 372/500] Training Loss: 0.010601 | Validation Loss: 0.011089 | LR: 0.00000168
+Validation loss did not improve. Patience counter: 31/150
+[Epoch 373/500] Training Loss: 0.010457 | Validation Loss: 0.010908 | LR: 0.00000168
+Validation loss did not improve. Patience counter: 32/150
+[Epoch 374/500] Training Loss: 0.010896 | Validation Loss: 0.010924 | LR: 0.00000118
+Validation loss did not improve. Patience counter: 33/150
+[Epoch 375/500] Training Loss: 0.010470 | Validation Loss: 0.011052 | LR: 0.00000118
+Validation loss did not improve. Patience counter: 34/150
+[Epoch 376/500] Training Loss: 0.010757 | Validation Loss: 0.010970 | LR: 0.00000118
+Validation loss did not improve. Patience counter: 35/150
+[Epoch 377/500] Training Loss: 0.010572 | Validation Loss: 0.010872 | LR: 0.00000118
+Validation loss did not improve. Patience counter: 36/150
+[Epoch 378/500] Training Loss: 0.010436 | Validation Loss: 0.010893 | LR: 0.00000118
+Validation loss did not improve. Patience counter: 37/150
+[Epoch 379/500] Training Loss: 0.010450 | Validation Loss: 0.010753 | LR: 0.00000118
+Validation loss did not improve. Patience counter: 38/150
+[Epoch 380/500] Training Loss: 0.010629 | Validation Loss: 0.010943 | LR: 0.00000118
+Validation loss did not improve. Patience counter: 39/150
+[Epoch 381/500] Training Loss: 0.010547 | Validation Loss: 0.011070 | LR: 0.00000118
+Validation loss did not improve. Patience counter: 40/150
+[Epoch 382/500] Training Loss: 0.010379 | Validation Loss: 0.011039 | LR: 0.00000118
+Validation loss did not improve. Patience counter: 41/150
+[Epoch 383/500] Training Loss: 0.010302 | Validation Loss: 0.010996 | LR: 0.00000118
+Validation loss did not improve. Patience counter: 42/150
+[Epoch 384/500] Training Loss: 0.010425 | Validation Loss: 0.010887 | LR: 0.00000118
+Validation loss did not improve. Patience counter: 43/150
+[Epoch 385/500] Training Loss: 0.010781 | Validation Loss: 0.010766 | LR: 0.00000118
+Validation loss did not improve. Patience counter: 44/150
+[Epoch 386/500] Training Loss: 0.010349 | Validation Loss: 0.011086 | LR: 0.00000118
+Validation loss did not improve. Patience counter: 45/150
+[Epoch 387/500] Training Loss: 0.010732 | Validation Loss: 0.010835 | LR: 0.00000118
+Validation loss did not improve. Patience counter: 46/150
+[Epoch 388/500] Training Loss: 0.010733 | Validation Loss: 0.011158 | LR: 0.00000118
+Validation loss did not improve. Patience counter: 47/150
+[Epoch 389/500] Training Loss: 0.010553 | Validation Loss: 0.011039 | LR: 0.00000118
+Validation loss did not improve. Patience counter: 48/150
+[Epoch 390/500] Training Loss: 0.010398 | Validation Loss: 0.011172 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 49/150
+[Epoch 391/500] Training Loss: 0.010382 | Validation Loss: 0.010856 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 50/150
+[Epoch 392/500] Training Loss: 0.010617 | Validation Loss: 0.011177 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 51/150
+[Epoch 393/500] Training Loss: 0.010337 | Validation Loss: 0.010761 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 52/150
+[Epoch 394/500] Training Loss: 0.011107 | Validation Loss: 0.011079 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 53/150
+[Epoch 395/500] Training Loss: 0.010459 | Validation Loss: 0.011228 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 54/150
+[Epoch 396/500] Training Loss: 0.010713 | Validation Loss: 0.011223 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 55/150
+[Epoch 397/500] Training Loss: 0.010388 | Validation Loss: 0.010918 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 56/150
+[Epoch 398/500] Training Loss: 0.010551 | Validation Loss: 0.011130 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 57/150
+[Epoch 399/500] Training Loss: 0.010583 | Validation Loss: 0.011023 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 58/150
+[Epoch 400/500] Training Loss: 0.010590 | Validation Loss: 0.010997 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 59/150
+[Epoch 401/500] Training Loss: 0.010448 | Validation Loss: 0.010961 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 60/150
+[Epoch 402/500] Training Loss: 0.010719 | Validation Loss: 0.010668 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 61/150
+[Epoch 403/500] Training Loss: 0.010458 | Validation Loss: 0.010764 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 62/150
+[Epoch 404/500] Training Loss: 0.010613 | Validation Loss: 0.011090 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 63/150
+[Epoch 405/500] Training Loss: 0.010443 | Validation Loss: 0.010922 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 64/150
+[Epoch 406/500] Training Loss: 0.010614 | Validation Loss: 0.011250 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 65/150
+[Epoch 407/500] Training Loss: 0.010553 | Validation Loss: 0.011158 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 66/150
+[Epoch 408/500] Training Loss: 0.010273 | Validation Loss: 0.010976 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 67/150
+[Epoch 409/500] Training Loss: 0.010180 | Validation Loss: 0.011170 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 68/150
+[Epoch 410/500] Training Loss: 0.010471 | Validation Loss: 0.010630 | LR: 0.00000100
+[Epoch 411/500] Training Loss: 0.010353 | Validation Loss: 0.010641 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 412/500] Training Loss: 0.010372 | Validation Loss: 0.011074 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 2/150
+[Epoch 413/500] Training Loss: 0.010597 | Validation Loss: 0.010523 | LR: 0.00000100
+[Epoch 414/500] Training Loss: 0.010408 | Validation Loss: 0.011120 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 1/150
+[Epoch 415/500] Training Loss: 0.010500 | Validation Loss: 0.011146 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 2/150
+[Epoch 416/500] Training Loss: 0.010695 | Validation Loss: 0.011080 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 3/150
+[Epoch 417/500] Training Loss: 0.010600 | Validation Loss: 0.010632 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 4/150
+[Epoch 418/500] Training Loss: 0.010905 | Validation Loss: 0.011177 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 5/150
+[Epoch 419/500] Training Loss: 0.010529 | Validation Loss: 0.011076 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 6/150
+[Epoch 420/500] Training Loss: 0.010516 | Validation Loss: 0.011070 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 7/150
+[Epoch 421/500] Training Loss: 0.010491 | Validation Loss: 0.011273 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 8/150
+[Epoch 422/500] Training Loss: 0.010659 | Validation Loss: 0.010972 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 9/150
+[Epoch 423/500] Training Loss: 0.010486 | Validation Loss: 0.010945 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 10/150
+[Epoch 424/500] Training Loss: 0.010427 | Validation Loss: 0.010834 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 11/150
+[Epoch 425/500] Training Loss: 0.010492 | Validation Loss: 0.010841 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 12/150
+[Epoch 426/500] Training Loss: 0.010561 | Validation Loss: 0.010733 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 13/150
+[Epoch 427/500] Training Loss: 0.010556 | Validation Loss: 0.010855 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 14/150
+[Epoch 428/500] Training Loss: 0.010064 | Validation Loss: 0.010675 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 15/150
+[Epoch 429/500] Training Loss: 0.010576 | Validation Loss: 0.011064 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 16/150
+[Epoch 430/500] Training Loss: 0.010481 | Validation Loss: 0.010738 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 17/150
+[Epoch 431/500] Training Loss: 0.010391 | Validation Loss: 0.011158 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 18/150
+[Epoch 432/500] Training Loss: 0.010657 | Validation Loss: 0.010884 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 19/150
+[Epoch 433/500] Training Loss: 0.010776 | Validation Loss: 0.010988 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 20/150
+[Epoch 434/500] Training Loss: 0.010585 | Validation Loss: 0.010871 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 21/150
+[Epoch 435/500] Training Loss: 0.010976 | Validation Loss: 0.010948 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 22/150
+[Epoch 436/500] Training Loss: 0.010501 | Validation Loss: 0.010949 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 23/150
+[Epoch 437/500] Training Loss: 0.010531 | Validation Loss: 0.010958 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 24/150
+[Epoch 438/500] Training Loss: 0.010602 | Validation Loss: 0.010700 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 25/150
+[Epoch 439/500] Training Loss: 0.010415 | Validation Loss: 0.010882 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 26/150
+[Epoch 440/500] Training Loss: 0.010707 | Validation Loss: 0.011033 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 27/150
+[Epoch 441/500] Training Loss: 0.010841 | Validation Loss: 0.010757 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 28/150
+[Epoch 442/500] Training Loss: 0.010433 | Validation Loss: 0.010838 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 29/150
+[Epoch 443/500] Training Loss: 0.010650 | Validation Loss: 0.011172 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 30/150
+[Epoch 444/500] Training Loss: 0.010779 | Validation Loss: 0.010896 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 31/150
+[Epoch 445/500] Training Loss: 0.010363 | Validation Loss: 0.010813 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 32/150
+[Epoch 446/500] Training Loss: 0.010408 | Validation Loss: 0.010807 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 33/150
+[Epoch 447/500] Training Loss: 0.010385 | Validation Loss: 0.010819 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 34/150
+[Epoch 448/500] Training Loss: 0.010856 | Validation Loss: 0.011075 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 35/150
+[Epoch 449/500] Training Loss: 0.010438 | Validation Loss: 0.011002 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 36/150
+[Epoch 450/500] Training Loss: 0.010829 | Validation Loss: 0.011016 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 37/150
+[Epoch 451/500] Training Loss: 0.010527 | Validation Loss: 0.010954 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 38/150
+[Epoch 452/500] Training Loss: 0.010559 | Validation Loss: 0.011043 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 39/150
+[Epoch 453/500] Training Loss: 0.010555 | Validation Loss: 0.011206 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 40/150
+[Epoch 454/500] Training Loss: 0.010489 | Validation Loss: 0.011122 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 41/150
+[Epoch 455/500] Training Loss: 0.010835 | Validation Loss: 0.011241 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 42/150
+[Epoch 456/500] Training Loss: 0.010420 | Validation Loss: 0.011366 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 43/150
+[Epoch 457/500] Training Loss: 0.010474 | Validation Loss: 0.011248 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 44/150
+[Epoch 458/500] Training Loss: 0.010498 | Validation Loss: 0.010968 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 45/150
+[Epoch 459/500] Training Loss: 0.010599 | Validation Loss: 0.011023 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 46/150
+[Epoch 460/500] Training Loss: 0.010520 | Validation Loss: 0.010980 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 47/150
+[Epoch 461/500] Training Loss: 0.010574 | Validation Loss: 0.010956 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 48/150
+[Epoch 462/500] Training Loss: 0.010351 | Validation Loss: 0.010869 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 49/150
+[Epoch 463/500] Training Loss: 0.010474 | Validation Loss: 0.011117 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 50/150
+[Epoch 464/500] Training Loss: 0.010776 | Validation Loss: 0.011274 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 51/150
+[Epoch 465/500] Training Loss: 0.010476 | Validation Loss: 0.010815 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 52/150
+[Epoch 466/500] Training Loss: 0.010459 | Validation Loss: 0.010874 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 53/150
+[Epoch 467/500] Training Loss: 0.010528 | Validation Loss: 0.010922 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 54/150
+[Epoch 468/500] Training Loss: 0.010620 | Validation Loss: 0.010997 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 55/150
+[Epoch 469/500] Training Loss: 0.010417 | Validation Loss: 0.010980 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 56/150
+[Epoch 470/500] Training Loss: 0.010514 | Validation Loss: 0.011140 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 57/150
+[Epoch 471/500] Training Loss: 0.010583 | Validation Loss: 0.011177 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 58/150
+[Epoch 472/500] Training Loss: 0.010599 | Validation Loss: 0.011004 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 59/150
+[Epoch 473/500] Training Loss: 0.010614 | Validation Loss: 0.010999 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 60/150
+[Epoch 474/500] Training Loss: 0.010533 | Validation Loss: 0.010825 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 61/150
+[Epoch 475/500] Training Loss: 0.010358 | Validation Loss: 0.011140 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 62/150
+[Epoch 476/500] Training Loss: 0.010543 | Validation Loss: 0.011200 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 63/150
+[Epoch 477/500] Training Loss: 0.010432 | Validation Loss: 0.010933 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 64/150
+[Epoch 478/500] Training Loss: 0.010701 | Validation Loss: 0.011040 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 65/150
+[Epoch 479/500] Training Loss: 0.010235 | Validation Loss: 0.011097 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 66/150
+[Epoch 480/500] Training Loss: 0.010767 | Validation Loss: 0.010652 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 67/150
+[Epoch 481/500] Training Loss: 0.010491 | Validation Loss: 0.010789 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 68/150
+[Epoch 482/500] Training Loss: 0.010291 | Validation Loss: 0.011189 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 69/150
+[Epoch 483/500] Training Loss: 0.010765 | Validation Loss: 0.010922 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 70/150
+[Epoch 484/500] Training Loss: 0.010610 | Validation Loss: 0.010917 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 71/150
+[Epoch 485/500] Training Loss: 0.010550 | Validation Loss: 0.010897 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 72/150
+[Epoch 486/500] Training Loss: 0.010556 | Validation Loss: 0.010830 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 73/150
+[Epoch 487/500] Training Loss: 0.010670 | Validation Loss: 0.011200 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 74/150
+[Epoch 488/500] Training Loss: 0.010400 | Validation Loss: 0.011048 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 75/150
+[Epoch 489/500] Training Loss: 0.010648 | Validation Loss: 0.010854 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 76/150
+[Epoch 490/500] Training Loss: 0.010358 | Validation Loss: 0.010837 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 77/150
+[Epoch 491/500] Training Loss: 0.010932 | Validation Loss: 0.010878 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 78/150
+[Epoch 492/500] Training Loss: 0.010543 | Validation Loss: 0.011081 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 79/150
+[Epoch 493/500] Training Loss: 0.010782 | Validation Loss: 0.010670 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 80/150
+[Epoch 494/500] Training Loss: 0.010226 | Validation Loss: 0.010708 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 81/150
+[Epoch 495/500] Training Loss: 0.010331 | Validation Loss: 0.010938 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 82/150
+[Epoch 496/500] Training Loss: 0.010458 | Validation Loss: 0.011107 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 83/150
+[Epoch 497/500] Training Loss: 0.010472 | Validation Loss: 0.010968 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 84/150
+[Epoch 498/500] Training Loss: 0.010399 | Validation Loss: 0.011126 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 85/150
+[Epoch 499/500] Training Loss: 0.010108 | Validation Loss: 0.010957 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 86/150
+[Epoch 500/500] Training Loss: 0.010302 | Validation Loss: 0.010925 | LR: 0.00000100
+Validation loss did not improve. Patience counter: 87/150
+Global RMSE: 15.8550
+RMSE per city: Amsterdam=16.2852, Rotterdam=14.9615, Utrecht=16.2814

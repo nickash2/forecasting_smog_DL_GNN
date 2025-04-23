@@ -1,0 +1,2860 @@
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 6
+hidden_units    : 128
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.007194094541441001
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 2.731723105083079e-06
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 22
+batch_sz        : 32
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 7.1941e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 7.1941e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 21 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 7.1941e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 7.1941e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 21 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 7.1941e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 7.1941e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 21 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 7.1941e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 7.1941e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 21 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 7.1941e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 7.1941e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 21 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 2
+hidden_units    : 64
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.00012585356404335105
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 1.7667185122397169e-06
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 26
+batch_sz        : 32
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.2585e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.2585e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 25 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.2585e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.2585e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 25 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.2585e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.2585e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 25 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.2585e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.2585e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 25 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.2585e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.2585e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 25 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 6
+hidden_units    : 64
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.002622655022886898
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 4.390321341492203e-08
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 27
+batch_sz        : 32
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.6227e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 2.6227e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 26 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.6227e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 2.6227e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 26 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.6227e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 2.6227e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 26 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.6227e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 2.6227e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 26 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.6227e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 2.6227e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 26 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 2
+hidden_units    : 32
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.0036708403685720837
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 6.036796529397564e-06
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 16
+batch_sz        : 64
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.6708e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 3.6708e-05.
+EarlyStopper: stopping at epoch 15 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.6708e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 3.6708e-05.
+EarlyStopper: stopping at epoch 15 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.6708e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 3.6708e-05.
+EarlyStopper: stopping at epoch 15 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.6708e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 3.6708e-05.
+EarlyStopper: stopping at epoch 15 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.6708e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 3.6708e-05.
+EarlyStopper: stopping at epoch 15 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 4
+hidden_units    : 32
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.0028563448143027245
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 2.8400362376385822e-05
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 10
+batch_sz        : 16
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.8563e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 9 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.8563e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 9 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.8563e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 9 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.8563e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 9 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.8563e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 9 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 3
+hidden_units    : 32
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.00044590431323154054
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 8.414035159965753e-05
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 22
+batch_sz        : 64
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 4.4590e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 4.4590e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 21 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 4.4590e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 4.4590e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 21 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 4.4590e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 4.4590e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 21 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 4.4590e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 4.4590e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 21 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 4.4590e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 4.4590e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 21 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 2
+hidden_units    : 32
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.0002488305190859649
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 3.13621701509778e-06
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 23
+batch_sz        : 32
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.4883e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 2.4883e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.4883e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 2.4883e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.4883e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 2.4883e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.4883e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 2.4883e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.4883e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 2.4883e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 3
+hidden_units    : 64
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.0012757488347627612
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 5.30569702558947e-07
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 26
+batch_sz        : 16
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.2757e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.2757e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 25 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.2757e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.2757e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 25 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.2757e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.2757e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 25 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.2757e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.2757e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 25 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.2757e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.2757e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 25 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 5
+hidden_units    : 32
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.00030969089415100936
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 1.4813380065359772e-08
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 14
+batch_sz        : 16
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.0969e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 13 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.0969e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 13 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.0969e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 13 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.0969e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 13 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.0969e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 13 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 5
+hidden_units    : 128
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.005745115971827479
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 2.22616303415697e-06
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 23
+batch_sz        : 16
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 5.7451e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 5.7451e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 5.7451e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 5.7451e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 5.7451e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 5.7451e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 5.7451e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 5.7451e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 5.7451e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 5.7451e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 3
+hidden_units    : 32
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.00822478981638797
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 2.3823933060321697e-08
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 12
+batch_sz        : 16
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 8.2248e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 11 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 8.2248e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 11 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 8.2248e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 11 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 8.2248e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 11 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 8.2248e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 11 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 4
+hidden_units    : 128
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.00036892076269216817
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 6.505037671977908e-06
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 15
+batch_sz        : 16
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.6892e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.6892e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.6892e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.6892e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.6892e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 5
+hidden_units    : 128
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.00976958483016176
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 4.348484046377159e-08
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 18
+batch_sz        : 32
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 9.7696e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 9.7696e-05.
+EarlyStopper: stopping at epoch 17 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 9.7696e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 9.7696e-05.
+EarlyStopper: stopping at epoch 17 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 9.7696e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 9.7696e-05.
+EarlyStopper: stopping at epoch 17 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 9.7696e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 9.7696e-05.
+EarlyStopper: stopping at epoch 17 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 9.7696e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 9.7696e-05.
+EarlyStopper: stopping at epoch 17 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 4
+hidden_units    : 64
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.00025820907836288743
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 2.7854698462344565e-06
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 18
+batch_sz        : 32
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.5821e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 2.5821e-06.
+EarlyStopper: stopping at epoch 17 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.5821e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 2.5821e-06.
+EarlyStopper: stopping at epoch 17 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.5821e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 2.5821e-06.
+EarlyStopper: stopping at epoch 17 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.5821e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 2.5821e-06.
+EarlyStopper: stopping at epoch 17 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.5821e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 2.5821e-06.
+EarlyStopper: stopping at epoch 17 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 4
+hidden_units    : 128
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.006120352017169988
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 1.1076121715733852e-08
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 26
+batch_sz        : 32
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 6.1204e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 6.1204e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 25 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 6.1204e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 6.1204e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 25 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 6.1204e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 6.1204e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 25 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 6.1204e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 6.1204e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 25 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 6.1204e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 6.1204e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 25 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 5
+hidden_units    : 64
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.004132614455045492
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 2.539699208176172e-06
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 18
+batch_sz        : 64
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 4.1326e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 4.1326e-05.
+EarlyStopper: stopping at epoch 17 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 4.1326e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 4.1326e-05.
+EarlyStopper: stopping at epoch 17 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 4.1326e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 4.1326e-05.
+EarlyStopper: stopping at epoch 17 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 4.1326e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 4.1326e-05.
+EarlyStopper: stopping at epoch 17 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 4.1326e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 4.1326e-05.
+EarlyStopper: stopping at epoch 17 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 3
+hidden_units    : 128
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.0008952306473787584
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 1.1575831447389853e-05
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 21
+batch_sz        : 64
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 8.9523e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 8.9523e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 20 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 8.9523e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 8.9523e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 20 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 8.9523e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 8.9523e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 20 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 8.9523e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 8.9523e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 20 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 8.9523e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 8.9523e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 20 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 3
+hidden_units    : 32
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.0013628403724739806
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 7.38342570118912e-06
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 13
+batch_sz        : 64
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.3628e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 12 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.3628e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 12 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.3628e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 12 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.3628e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 12 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.3628e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 12 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 4
+hidden_units    : 128
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.005186321309993211
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 8.068900085350978e-06
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 17
+batch_sz        : 64
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 5.1863e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 5.1863e-05.
+EarlyStopper: stopping at epoch 16 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 5.1863e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 5.1863e-05.
+EarlyStopper: stopping at epoch 16 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 5.1863e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 5.1863e-05.
+EarlyStopper: stopping at epoch 16 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 5.1863e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 5.1863e-05.
+EarlyStopper: stopping at epoch 16 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 5.1863e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 5.1863e-05.
+EarlyStopper: stopping at epoch 16 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 4
+hidden_units    : 32
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.00024915535479283214
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 4.667304024219987e-05
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 11
+batch_sz        : 32
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.4916e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 10 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.4916e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 10 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.4916e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 10 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.4916e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 10 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.4916e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 10 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 4
+hidden_units    : 128
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.0015753432669056008
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 2.422545914532314e-05
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 28
+batch_sz        : 64
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.5753e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.5753e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+Epoch 00028: reducing learning rate of group 0 to 1.5753e-06.
+EarlyStopper: stopping at epoch 27 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.5753e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.5753e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+Epoch 00028: reducing learning rate of group 0 to 1.5753e-06.
+EarlyStopper: stopping at epoch 27 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.5753e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.5753e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+Epoch 00028: reducing learning rate of group 0 to 1.5753e-06.
+EarlyStopper: stopping at epoch 27 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.5753e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.5753e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+Epoch 00028: reducing learning rate of group 0 to 1.5753e-06.
+EarlyStopper: stopping at epoch 27 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.5753e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.5753e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+Epoch 00028: reducing learning rate of group 0 to 1.5753e-06.
+EarlyStopper: stopping at epoch 27 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 6
+hidden_units    : 128
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.00030793862230242753
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 2.207427163482937e-06
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 15
+batch_sz        : 32
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.0794e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.0794e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.0794e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.0794e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.0794e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 3
+hidden_units    : 32
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.007836841199528407
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 7.470652049493514e-05
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 23
+batch_sz        : 32
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 7.8368e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 7.8368e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 7.8368e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 7.8368e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 7.8368e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 7.8368e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 7.8368e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 7.8368e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 7.8368e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 7.8368e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 4
+hidden_units    : 128
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.005100857994118355
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 9.201292452225625e-08
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 15
+batch_sz        : 16
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 5.1009e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 5.1009e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 5.1009e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 5.1009e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 5.1009e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 6
+hidden_units    : 32
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.004115287371609958
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 1.0780779975001364e-07
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 30
+batch_sz        : 64
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 4.1153e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 4.1153e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+Epoch 00028: reducing learning rate of group 0 to 4.1153e-06.
+Epoch: 30 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 29 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 4.1153e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 4.1153e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+Epoch 00028: reducing learning rate of group 0 to 4.1153e-06.
+Epoch: 30 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 29 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 4.1153e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 4.1153e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+Epoch 00028: reducing learning rate of group 0 to 4.1153e-06.
+Epoch: 30 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 29 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 4.1153e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 4.1153e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+Epoch 00028: reducing learning rate of group 0 to 4.1153e-06.
+Epoch: 30 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 29 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 4.1153e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 4.1153e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+Epoch 00028: reducing learning rate of group 0 to 4.1153e-06.
+Epoch: 30 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 29 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 4
+hidden_units    : 128
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.00010385410578001498
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 9.260614904401802e-07
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 15
+batch_sz        : 64
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.0385e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.0385e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.0385e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.0385e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.0385e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 6
+hidden_units    : 128
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.00782605191207049
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 8.975230667734604e-06
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 15
+batch_sz        : 64
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 7.8261e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 7.8261e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 7.8261e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 7.8261e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 7.8261e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 2
+hidden_units    : 128
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.0003591157307323163
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 1.5596107275449282e-08
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 17
+batch_sz        : 32
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.5912e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 3.5912e-06.
+EarlyStopper: stopping at epoch 16 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.5912e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 3.5912e-06.
+EarlyStopper: stopping at epoch 16 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.5912e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 3.5912e-06.
+EarlyStopper: stopping at epoch 16 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.5912e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 3.5912e-06.
+EarlyStopper: stopping at epoch 16 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.5912e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 3.5912e-06.
+EarlyStopper: stopping at epoch 16 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 5
+hidden_units    : 128
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.00023199004889338972
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 3.6923929767567747e-06
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 24
+batch_sz        : 16
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.3199e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 2.3199e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 23 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.3199e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 2.3199e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 23 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.3199e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 2.3199e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 23 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.3199e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 2.3199e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 23 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.3199e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 2.3199e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 23 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 4
+hidden_units    : 32
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.0036658591774530844
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 4.315078678389578e-08
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 23
+batch_sz        : 64
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.6659e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 3.6659e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.6659e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 3.6659e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.6659e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 3.6659e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.6659e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 3.6659e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.6659e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 3.6659e-05.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 2
+hidden_units    : 128
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.000194152225789231
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 2.607330286372183e-05
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 23
+batch_sz        : 32
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.9415e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.9415e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.9415e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.9415e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.9415e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.9415e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.9415e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.9415e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.9415e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.9415e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 22 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 3
+hidden_units    : 32
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.0009275207338551181
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 3.6163222572681334e-08
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 19
+batch_sz        : 64
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 9.2752e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 9.2752e-06.
+EarlyStopper: stopping at epoch 18 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 9.2752e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 9.2752e-06.
+EarlyStopper: stopping at epoch 18 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 9.2752e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 9.2752e-06.
+EarlyStopper: stopping at epoch 18 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 9.2752e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 9.2752e-06.
+EarlyStopper: stopping at epoch 18 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 9.2752e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 9.2752e-06.
+EarlyStopper: stopping at epoch 18 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 3
+hidden_units    : 128
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.0005269233164344228
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 1.4313749430717778e-07
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 27
+batch_sz        : 32
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 5.2692e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 5.2692e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 26 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 5.2692e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 5.2692e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 26 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 5.2692e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 5.2692e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 26 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 5.2692e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 5.2692e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 26 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 5.2692e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 5.2692e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 26 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 5
+hidden_units    : 64
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.0007250990810185135
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 5.719306277052483e-05
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 26
+batch_sz        : 64
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 7.2510e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 7.2510e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 25 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 7.2510e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 7.2510e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 25 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 7.2510e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 7.2510e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 25 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 7.2510e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 7.2510e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 25 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 7.2510e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 7.2510e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 25 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 6
+hidden_units    : 128
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.0009619497085715419
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 3.200741366969758e-07
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 15
+batch_sz        : 16
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 9.6195e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 9.6195e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 9.6195e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 9.6195e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 9.6195e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 14 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 2
+hidden_units    : 128
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.0003472463341302792
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 3.520218996501909e-05
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 29
+batch_sz        : 16
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.4725e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 3.4725e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+Epoch 00028: reducing learning rate of group 0 to 3.4725e-07.
+EarlyStopper: stopping at epoch 28 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.4725e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 3.4725e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+Epoch 00028: reducing learning rate of group 0 to 3.4725e-07.
+EarlyStopper: stopping at epoch 28 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.4725e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 3.4725e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+Epoch 00028: reducing learning rate of group 0 to 3.4725e-07.
+EarlyStopper: stopping at epoch 28 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.4725e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 3.4725e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+Epoch 00028: reducing learning rate of group 0 to 3.4725e-07.
+EarlyStopper: stopping at epoch 28 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 3.4725e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 3.4725e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+Epoch: 25 	Ltrain: nan 	Lval: nan
+Epoch 00028: reducing learning rate of group 0 to 3.4725e-07.
+EarlyStopper: stopping at epoch 28 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 6
+hidden_units    : 32
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.0022846206080733645
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 1.6674618310293495e-05
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 10
+batch_sz        : 64
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.2846e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 9 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.2846e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 9 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.2846e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 9 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.2846e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 9 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 2.2846e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 9 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 4
+hidden_units    : 32
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.00010150059204355225
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 7.74828022566658e-07
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 18
+batch_sz        : 64
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.0150e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.0150e-06.
+EarlyStopper: stopping at epoch 17 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.0150e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.0150e-06.
+EarlyStopper: stopping at epoch 17 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.0150e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.0150e-06.
+EarlyStopper: stopping at epoch 17 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.0150e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.0150e-06.
+EarlyStopper: stopping at epoch 17 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.0150e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 1.0150e-06.
+EarlyStopper: stopping at epoch 17 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 2
+hidden_units    : 64
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.0019405027288148414
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 5.360321009517201e-07
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 10
+batch_sz        : 64
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.9405e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 9 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.9405e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 9 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.9405e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 9 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.9405e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 9 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 1.9405e-04.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 9 with best_val_loss = inf
+
+CURRENT CONFIGURATION:
+n_hours_u       : 72
+n_hours_y       : 24
+model_class     : <class 'src.modelling.GRU.GRU'>
+input_units     : 8
+hidden_layers   : 6
+hidden_units    : 128
+output_units    : 2
+Optimizer       : <class 'torch.optim.adam.Adam'>
+lr_shared       : 0.0006474360250967894
+scheduler       : <class 'torch.optim.lr_scheduler.ReduceLROnPlateau'>
+scheduler_kwargs: {'mode': 'min', 'factor': 0.1, 'patience': 3, 'cooldown': 8, 'verbose': True}
+w_decay         : 8.686854925214494e-05
+loss_fn         : MSELoss()
+epochs          : 5000
+early_stopper   : <class 'src.modelling.EarlyStopper.EarlyStopper'>
+patience        : 22
+batch_sz        : 64
+k_folds         : 5
+
+
+	Fold 1/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 6.4744e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 6.4744e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 21 with best_val_loss = inf
+
+
+	Fold 2/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 6.4744e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 6.4744e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 21 with best_val_loss = inf
+
+
+	Fold 3/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 6.4744e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 6.4744e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 21 with best_val_loss = inf
+
+
+	Fold 4/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 6.4744e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 6.4744e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 21 with best_val_loss = inf
+
+
+	Fold 5/5
+Epoch: 1 	Ltrain: nan 	Lval: nan
+Epoch 00004: reducing learning rate of group 0 to 6.4744e-05.
+Epoch: 5 	Ltrain: nan 	Lval: nan
+Epoch: 10 	Ltrain: nan 	Lval: nan
+Epoch: 15 	Ltrain: nan 	Lval: nan
+Epoch 00016: reducing learning rate of group 0 to 6.4744e-06.
+Epoch: 20 	Ltrain: nan 	Lval: nan
+EarlyStopper: stopping at epoch 21 with best_val_loss = inf
+

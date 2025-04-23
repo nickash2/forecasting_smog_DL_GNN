@@ -1,0 +1,46 @@
+
+Running __init__.py for data pipeline...
+Modelling package initialized
+
+/opt/rocm/lib/libamd_smi.so: cannot open shared object file: No such file or directory
+Unable to find amdsmi library try installing amd-smi-lib from your package manager
+/home/nick/bachelor-project/second-copy
+BASE_DIR:  /home/nick/bachelor-project/second-copy
+MODEL_PATH:  /home/nick/bachelor-project/second-copy/results/gnn_results/models
+ALL_DIR:  /home/nick/bachelor-project/second-copy/data/data_combined/all
+cuda
+Loaded all datasets
+Using model type: attentiongnn
+
+--- Optuna Study Complete ---
+Number of finished trials: 12
+Best trial:
+  Value (Min Validation Loss): 0.011685
+  Params: 
+    lr: 0.0003220055045501099
+    weight_decay: 4.450492781962982e-05
+    batch_size: 32
+    hidden_dim: 80
+    num_gcn: 3
+    heads: 7
+    dropout: 0.1
+    plateau_factor: 0.1
+    plateau_patience: 8
+    plateau_min_lr: 3.930662653131538e-07
+AttentionGNN(
+  (convs): ModuleList(
+    (0): GATConv(7, 80, heads=7)
+    (1): GATConv(560, 80, heads=7)
+    (2): GATConv(560, 24, heads=1)
+  )
+  (temporal_aggregation): Linear(in_features=24, out_features=24, bias=True)
+)
+[Epoch 1/100] Training Loss: 0.026969 | Validation Loss: 0.025613
+[Epoch 2/100] Training Loss: 0.024898 | Validation Loss: 0.019282
+[Epoch 3/100] Training Loss: 0.023822 | Validation Loss: 0.016450
+[Epoch 4/100] Training Loss: 0.023298 | Validation Loss: 0.015134
+[Epoch 5/100] Training Loss: 0.022825 | Validation Loss: 0.014325
+[Epoch 6/100] Training Loss: 0.022580 | Validation Loss: 0.013866
+[Epoch 7/100] Training Loss: 0.022424 | Validation Loss: 0.013600
+[Epoch 8/100] Training Loss: 0.022279 | Validation Loss: 0.013395
+[Epoch 9/100] Training Loss: 0.022083 | Validation Loss: 0.013167

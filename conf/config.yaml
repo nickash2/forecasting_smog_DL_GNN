@@ -1,0 +1,38 @@
+defaults:
+  - models: temporalattentiongnn
+  - _self_
+  - override hydra/launcher: submitit_slurm
+
+hydra:
+  sweeper:
+    params:
+      models: basicgnn,temporalgnn,attentiongnn,temporalattentiongnn
+  output_subdir: null
+  run:
+    dir: .
+  sweep:
+    dir: multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    subdir: ${models.name}
+  launcher:
+    partition: gpu        # change to your GPU partition
+    gpus_per_node: 1      # GPUs per job
+    cpus_per_task: 4      # CPUs per job
+    nodes: 1              # nodes per job
+    timeout_min: 1440 #5      # timeout in minutes
+
+seed: 32
+train: true
+habrok: false
+
+training:
+  epochs: 500
+  patience: 10
+
+hp_tuning:
+  n_trials: 100
+  db_name: "gnn_hydra_tuning"
+  study_name: "${models.name}_tuning_${now:%H-%M-%S}"
+  hp_save_dir: "results/gnn_tuning/best_hp_${models.name}.json"
+
+n_hours_u: 72
+n_hours_y: 24

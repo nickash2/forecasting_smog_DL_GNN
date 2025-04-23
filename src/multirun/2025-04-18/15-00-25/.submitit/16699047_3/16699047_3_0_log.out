@@ -1,0 +1,1622 @@
+submitit INFO (2025-04-18 16:00:43,026) - Starting with JobEnvironment(job_id=16699047_3, hostname=v100v2gpu9, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2025-04-18 16:00:43,026) - Loading pickle: /home4/s5185491/second-copy/src/multirun/2025-04-18/15-00-25/.submitit/16699047_3/16699047_3_submitted.pkl
+
+Running __init__.py for data pipeline...
+Modelling package initialized
+
+/opt/rocm/lib/libamd_smi.so: cannot open shared object file: No such file or directory
+Unable to find amdsmi library try installing amd-smi-lib from your package manager
+/home4/s5185491/second-copy/src
+models:
+  name: temporalattentiongnn
+  type: temporalattentiongnn
+seed: 32
+train: true
+habrok: false
+training:
+  epochs: 200
+  patience: 10
+hp_tuning:
+  n_trials: 70
+  db_name: gnn_hydra_tuning
+  study_name: ${models.name}_tuning_${now:%H-%M-%S}
+  hp_save_dir: results/gnn_tuning/best_hp_${models.name}.json
+n_hours_u: 72
+n_hours_y: 24
+
+BASE_DIR:  /home4/s5185491/second-copy
+MODEL_PATH:  /home4/s5185491/second-copy/results/gnn_results/models
+ALL_DIR:  /home4/s5185491/second-copy/data/data_combined/all
+cuda
+Loaded all datasets
+Using model type: temporalattentiongnn
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 32, heads=4)
+  )
+  (rnn): GRU(128, 128, batch_first=True, dropout=0.5)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=128, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=128, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.1, patience=9, min_lr=4.200328870585807e-07
+Trial 0 - Epoch 1/200 | Train Loss: 0.022853 | Val Loss: 0.015231 LR: 0.00021277
+Trial 0 - Epoch 2/200 | Train Loss: 0.019084 | Val Loss: 0.014574 LR: 0.00021277
+Trial 0 - Epoch 3/200 | Train Loss: 0.018520 | Val Loss: 0.014176 LR: 0.00021277
+Trial 0 - Epoch 4/200 | Train Loss: 0.018150 | Val Loss: 0.013904 LR: 0.00021277
+Trial 0 - Epoch 5/200 | Train Loss: 0.017909 | Val Loss: 0.013708 LR: 0.00021277
+Trial 0 - Epoch 6/200 | Train Loss: 0.017721 | Val Loss: 0.013569 LR: 0.00021277
+Trial 0 - Epoch 7/200 | Train Loss: 0.017587 | Val Loss: 0.013460 LR: 0.00021277
+Trial 0 - Epoch 8/200 | Train Loss: 0.017480 | Val Loss: 0.013380 LR: 0.00021277
+Trial 0 - Epoch 9/200 | Train Loss: 0.017397 | Val Loss: 0.013317 LR: 0.00021277
+Trial 0 - Epoch 10/200 | Train Loss: 0.017328 | Val Loss: 0.013267 LR: 0.00021277
+Trial 0 - Epoch 11/200 | Train Loss: 0.017279 | Val Loss: 0.013227 LR: 0.00021277
+Trial 0 - Epoch 12/200 | Train Loss: 0.017239 | Val Loss: 0.013193 LR: 0.00021277
+Trial 0 - Epoch 13/200 | Train Loss: 0.017202 | Val Loss: 0.013166 LR: 0.00021277
+Trial 0 - Epoch 14/200 | Train Loss: 0.017171 | Val Loss: 0.013149 LR: 0.00021277
+Trial 0 - Epoch 15/200 | Train Loss: 0.017143 | Val Loss: 0.013133 LR: 0.00021277
+Trial 0 - Epoch 16/200 | Train Loss: 0.017123 | Val Loss: 0.013120 LR: 0.00021277
+Trial 0 - Epoch 17/200 | Train Loss: 0.017102 | Val Loss: 0.013113 LR: 0.00021277
+Trial 0 - Epoch 18/200 | Train Loss: 0.017082 | Val Loss: 0.013101 LR: 0.00021277
+Trial 0 - Epoch 19/200 | Train Loss: 0.017073 | Val Loss: 0.013091 LR: 0.00021277
+Trial 0 - Epoch 20/200 | Train Loss: 0.017061 | Val Loss: 0.013082 LR: 0.00021277
+Trial 0 - Epoch 21/200 | Train Loss: 0.017052 | Val Loss: 0.013079 LR: 0.00021277
+Trial 0 - Epoch 22/200 | Train Loss: 0.017042 | Val Loss: 0.013076 LR: 0.00021277
+Trial 0 - Epoch 23/200 | Train Loss: 0.017027 | Val Loss: 0.013069 LR: 0.00021277
+Trial 0 - Epoch 24/200 | Train Loss: 0.017022 | Val Loss: 0.013061 LR: 0.00021277
+Trial 0 - Epoch 25/200 | Train Loss: 0.017017 | Val Loss: 0.013057 LR: 0.00021277
+Trial 0 - Epoch 26/200 | Train Loss: 0.017009 | Val Loss: 0.013053 LR: 0.00021277
+Trial 0 - Epoch 27/200 | Train Loss: 0.017002 | Val Loss: 0.013047 LR: 0.00021277
+Trial 0 - Epoch 28/200 | Train Loss: 0.016999 | Val Loss: 0.013042 LR: 0.00021277
+Trial 0 - Epoch 29/200 | Train Loss: 0.016997 | Val Loss: 0.013040 LR: 0.00021277
+Trial 0 - Epoch 30/200 | Train Loss: 0.016988 | Val Loss: 0.013037 LR: 0.00021277
+Trial 0 - Epoch 31/200 | Train Loss: 0.016984 | Val Loss: 0.013033 LR: 0.00021277
+Trial 0 - Epoch 32/200 | Train Loss: 0.016982 | Val Loss: 0.013027 LR: 0.00021277
+Trial 0 - Epoch 33/200 | Train Loss: 0.016981 | Val Loss: 0.013024 LR: 0.00021277
+Trial 0 - Epoch 34/200 | Train Loss: 0.016977 | Val Loss: 0.013022 LR: 0.00021277
+Trial 0 - Epoch 35/200 | Train Loss: 0.016970 | Val Loss: 0.013020 LR: 0.00021277
+Trial 0 - Epoch 36/200 | Train Loss: 0.016969 | Val Loss: 0.013017 LR: 0.00021277
+Trial 0 - Epoch 37/200 | Train Loss: 0.016968 | Val Loss: 0.013015 LR: 0.00021277
+Trial 0 - Epoch 38/200 | Train Loss: 0.016963 | Val Loss: 0.013012 LR: 0.00021277
+Trial 0 - Epoch 39/200 | Train Loss: 0.016961 | Val Loss: 0.013010 LR: 0.00021277
+Trial 0 - Epoch 40/200 | Train Loss: 0.016964 | Val Loss: 0.013007 LR: 0.00021277
+Trial 0 - Epoch 41/200 | Train Loss: 0.016961 | Val Loss: 0.013006 LR: 0.00021277
+Trial 0 - Epoch 42/200 | Train Loss: 0.016958 | Val Loss: 0.013003 LR: 0.00021277
+Trial 0 - Epoch 43/200 | Train Loss: 0.016960 | Val Loss: 0.013002 LR: 0.00021277
+Trial 0 - Epoch 44/200 | Train Loss: 0.016960 | Val Loss: 0.013001 LR: 0.00021277
+Trial 0 - Epoch 45/200 | Train Loss: 0.016956 | Val Loss: 0.013000 LR: 0.00021277
+Trial 0 - Epoch 46/200 | Train Loss: 0.016952 | Val Loss: 0.012997 LR: 0.00021277
+Trial 0 - Epoch 47/200 | Train Loss: 0.016956 | Val Loss: 0.012995 LR: 0.00021277
+Trial 0 - Epoch 48/200 | Train Loss: 0.016956 | Val Loss: 0.012996 LR: 0.00021277
+Validation loss did not improve. Patience counter: 1/10
+Trial 0 - Epoch 49/200 | Train Loss: 0.016951 | Val Loss: 0.012992 LR: 0.00021277
+Trial 0 - Epoch 50/200 | Train Loss: 0.016957 | Val Loss: 0.012989 LR: 0.00021277
+Trial 0 - Epoch 51/200 | Train Loss: 0.016957 | Val Loss: 0.012989 LR: 0.00021277
+Trial 0 - Epoch 52/200 | Train Loss: 0.016954 | Val Loss: 0.012989 LR: 0.00021277
+Trial 0 - Epoch 53/200 | Train Loss: 0.016950 | Val Loss: 0.012987 LR: 0.00021277
+Trial 0 - Epoch 54/200 | Train Loss: 0.016954 | Val Loss: 0.012986 LR: 0.00021277
+Trial 0 - Epoch 55/200 | Train Loss: 0.016956 | Val Loss: 0.012987 LR: 0.00021277
+Validation loss did not improve. Patience counter: 1/10
+Trial 0 - Epoch 56/200 | Train Loss: 0.016952 | Val Loss: 0.012985 LR: 0.00021277
+Trial 0 - Epoch 57/200 | Train Loss: 0.016951 | Val Loss: 0.012980 LR: 0.00021277
+Trial 0 - Epoch 58/200 | Train Loss: 0.016955 | Val Loss: 0.012979 LR: 0.00021277
+Trial 0 - Epoch 59/200 | Train Loss: 0.016957 | Val Loss: 0.012978 LR: 0.00021277
+Trial 0 - Epoch 60/200 | Train Loss: 0.016954 | Val Loss: 0.012978 LR: 0.00021277
+Trial 0 - Epoch 61/200 | Train Loss: 0.016951 | Val Loss: 0.012975 LR: 0.00021277
+Trial 0 - Epoch 62/200 | Train Loss: 0.016958 | Val Loss: 0.012973 LR: 0.00021277
+Trial 0 - Epoch 63/200 | Train Loss: 0.016957 | Val Loss: 0.012975 LR: 0.00021277
+Validation loss did not improve. Patience counter: 1/10
+Trial 0 - Epoch 64/200 | Train Loss: 0.016942 | Val Loss: 0.012972 LR: 0.00021277
+Trial 0 - Epoch 65/200 | Train Loss: 0.016952 | Val Loss: 0.012971 LR: 0.00021277
+Trial 0 - Epoch 66/200 | Train Loss: 0.016953 | Val Loss: 0.012970 LR: 0.00021277
+Trial 0 - Epoch 67/200 | Train Loss: 0.016957 | Val Loss: 0.012968 LR: 0.00021277
+Trial 0 - Epoch 68/200 | Train Loss: 0.016953 | Val Loss: 0.012964 LR: 0.00021277
+Trial 0 - Epoch 69/200 | Train Loss: 0.016964 | Val Loss: 0.012964 LR: 0.00021277
+Validation loss did not improve. Patience counter: 1/10
+Trial 0 - Epoch 70/200 | Train Loss: 0.016959 | Val Loss: 0.012964 LR: 0.00021277
+Validation loss did not improve. Patience counter: 2/10
+Trial 0 - Epoch 71/200 | Train Loss: 0.016951 | Val Loss: 0.012962 LR: 0.00021277
+Trial 0 - Epoch 72/200 | Train Loss: 0.016954 | Val Loss: 0.012962 LR: 0.00021277
+Trial 0 - Epoch 73/200 | Train Loss: 0.016949 | Val Loss: 0.012960 LR: 0.00021277
+Trial 0 - Epoch 74/200 | Train Loss: 0.016956 | Val Loss: 0.012961 LR: 0.00021277
+Validation loss did not improve. Patience counter: 1/10
+Trial 0 - Epoch 75/200 | Train Loss: 0.016950 | Val Loss: 0.012959 LR: 0.00021277
+Trial 0 - Epoch 76/200 | Train Loss: 0.016966 | Val Loss: 0.012956 LR: 0.00021277
+Trial 0 - Epoch 77/200 | Train Loss: 0.016959 | Val Loss: 0.012955 LR: 0.00021277
+Trial 0 - Epoch 78/200 | Train Loss: 0.016954 | Val Loss: 0.012955 LR: 0.00021277
+Trial 0 - Epoch 79/200 | Train Loss: 0.016964 | Val Loss: 0.012955 LR: 0.00021277
+Validation loss did not improve. Patience counter: 1/10
+Trial 0 - Epoch 80/200 | Train Loss: 0.016961 | Val Loss: 0.012954 LR: 0.00021277
+Trial 0 - Epoch 81/200 | Train Loss: 0.016950 | Val Loss: 0.012953 LR: 0.00021277
+Trial 0 - Epoch 82/200 | Train Loss: 0.016949 | Val Loss: 0.012952 LR: 0.00021277
+Trial 0 - Epoch 83/200 | Train Loss: 0.016967 | Val Loss: 0.012950 LR: 0.00021277
+Trial 0 - Epoch 84/200 | Train Loss: 0.016965 | Val Loss: 0.012949 LR: 0.00021277
+Trial 0 - Epoch 85/200 | Train Loss: 0.016959 | Val Loss: 0.012950 LR: 0.00021277
+Validation loss did not improve. Patience counter: 1/10
+Trial 0 - Epoch 86/200 | Train Loss: 0.016958 | Val Loss: 0.012947 LR: 0.00021277
+Trial 0 - Epoch 87/200 | Train Loss: 0.016963 | Val Loss: 0.012947 LR: 0.00021277
+Trial 0 - Epoch 88/200 | Train Loss: 0.016952 | Val Loss: 0.012947 LR: 0.00021277
+Trial 0 - Epoch 89/200 | Train Loss: 0.016960 | Val Loss: 0.012946 LR: 0.00021277
+Trial 0 - Epoch 90/200 | Train Loss: 0.016954 | Val Loss: 0.012945 LR: 0.00021277
+Trial 0 - Epoch 91/200 | Train Loss: 0.016962 | Val Loss: 0.012945 LR: 0.00021277
+Trial 0 - Epoch 92/200 | Train Loss: 0.016959 | Val Loss: 0.012944 LR: 0.00021277
+Trial 0 - Epoch 93/200 | Train Loss: 0.016964 | Val Loss: 0.012945 LR: 0.00021277
+Validation loss did not improve. Patience counter: 1/10
+Trial 0 - Epoch 94/200 | Train Loss: 0.016958 | Val Loss: 0.012944 LR: 0.00021277
+Validation loss did not improve. Patience counter: 2/10
+Trial 0 - Epoch 95/200 | Train Loss: 0.016957 | Val Loss: 0.012945 LR: 0.00021277
+Validation loss did not improve. Patience counter: 3/10
+Trial 0 - Epoch 96/200 | Train Loss: 0.016967 | Val Loss: 0.012942 LR: 0.00021277
+Trial 0 - Epoch 97/200 | Train Loss: 0.016963 | Val Loss: 0.012943 LR: 0.00021277
+Validation loss did not improve. Patience counter: 1/10
+Trial 0 - Epoch 98/200 | Train Loss: 0.016968 | Val Loss: 0.012940 LR: 0.00021277
+Trial 0 - Epoch 99/200 | Train Loss: 0.016946 | Val Loss: 0.012942 LR: 0.00021277
+Validation loss did not improve. Patience counter: 1/10
+Trial 0 - Epoch 100/200 | Train Loss: 0.016967 | Val Loss: 0.012942 LR: 0.00021277
+Validation loss did not improve. Patience counter: 2/10
+Trial 0 - Epoch 101/200 | Train Loss: 0.016962 | Val Loss: 0.012940 LR: 0.00021277
+Validation loss did not improve. Patience counter: 3/10
+Trial 0 - Epoch 102/200 | Train Loss: 0.016959 | Val Loss: 0.012943 LR: 0.00021277
+Validation loss did not improve. Patience counter: 4/10
+Trial 0 - Epoch 103/200 | Train Loss: 0.016972 | Val Loss: 0.012941 LR: 0.00021277
+Validation loss did not improve. Patience counter: 5/10
+Trial 0 - Epoch 104/200 | Train Loss: 0.016965 | Val Loss: 0.012940 LR: 0.00021277
+Trial 0 - Epoch 105/200 | Train Loss: 0.016970 | Val Loss: 0.012939 LR: 0.00021277
+Trial 0 - Epoch 106/200 | Train Loss: 0.016963 | Val Loss: 0.012938 LR: 0.00021277
+Trial 0 - Epoch 107/200 | Train Loss: 0.016960 | Val Loss: 0.012939 LR: 0.00021277
+Validation loss did not improve. Patience counter: 1/10
+Trial 0 - Epoch 108/200 | Train Loss: 0.016968 | Val Loss: 0.012938 LR: 0.00002128
+Validation loss did not improve. Patience counter: 2/10
+Trial 0 - Epoch 109/200 | Train Loss: 0.017460 | Val Loss: 0.012944 LR: 0.00002128
+Validation loss did not improve. Patience counter: 3/10
+Trial 0 - Epoch 110/200 | Train Loss: 0.017280 | Val Loss: 0.012981 LR: 0.00002128
+Validation loss did not improve. Patience counter: 4/10
+Trial 0 - Epoch 111/200 | Train Loss: 0.017211 | Val Loss: 0.013003 LR: 0.00002128
+Validation loss did not improve. Patience counter: 5/10
+Trial 0 - Epoch 112/200 | Train Loss: 0.017178 | Val Loss: 0.013014 LR: 0.00002128
+Validation loss did not improve. Patience counter: 6/10
+Trial 0 - Epoch 113/200 | Train Loss: 0.017159 | Val Loss: 0.013017 LR: 0.00002128
+Validation loss did not improve. Patience counter: 7/10
+Trial 0 - Epoch 114/200 | Train Loss: 0.017148 | Val Loss: 0.013017 LR: 0.00002128
+Validation loss did not improve. Patience counter: 8/10
+Trial 0 - Epoch 115/200 | Train Loss: 0.017138 | Val Loss: 0.013015 LR: 0.00002128
+Validation loss did not improve. Patience counter: 9/10
+Trial 0 - Epoch 116/200 | Train Loss: 0.017131 | Val Loss: 0.013012 LR: 0.00002128
+Validation loss did not improve. Patience counter: 10/10
+Trial 0 early stopping triggered at epoch 116.
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 32, heads=1)
+    (1-2): 2 x GATConv(32, 32, heads=1)
+  )
+  (rnn): GRU(32, 32, num_layers=3, batch_first=True, dropout=0.2)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=32, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=32, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.1, patience=10, min_lr=9.460275451257308e-08
+Trial 1 - Epoch 1/200 | Train Loss: 0.026157 | Val Loss: 0.014130 LR: 0.00007503
+Trial 1 - Epoch 2/200 | Train Loss: 0.017427 | Val Loss: 0.014039 LR: 0.00007503
+Trial 1 - Epoch 3/200 | Train Loss: 0.017399 | Val Loss: 0.013974 LR: 0.00007503
+Trial 1 - Epoch 4/200 | Train Loss: 0.017369 | Val Loss: 0.013922 LR: 0.00007503
+Trial 1 - Epoch 5/200 | Train Loss: 0.017350 | Val Loss: 0.013880 LR: 0.00007503
+Trial 1 - Epoch 6/200 | Train Loss: 0.017325 | Val Loss: 0.013846 LR: 0.00007503
+Trial 1 - Epoch 7/200 | Train Loss: 0.017294 | Val Loss: 0.013817 LR: 0.00007503
+Trial 1 - Epoch 8/200 | Train Loss: 0.017264 | Val Loss: 0.013785 LR: 0.00007503
+Trial 1 - Epoch 9/200 | Train Loss: 0.017237 | Val Loss: 0.013750 LR: 0.00007503
+Trial 1 - Epoch 10/200 | Train Loss: 0.017212 | Val Loss: 0.013716 LR: 0.00007503
+Trial 1 - Epoch 11/200 | Train Loss: 0.017177 | Val Loss: 0.013677 LR: 0.00007503
+Trial 1 - Epoch 12/200 | Train Loss: 0.017135 | Val Loss: 0.013632 LR: 0.00007503
+Trial 1 - Epoch 13/200 | Train Loss: 0.017094 | Val Loss: 0.013583 LR: 0.00007503
+Trial 1 - Epoch 14/200 | Train Loss: 0.017051 | Val Loss: 0.013533 LR: 0.00007503
+Trial 1 - Epoch 15/200 | Train Loss: 0.016997 | Val Loss: 0.013481 LR: 0.00007503
+Trial 1 - Epoch 16/200 | Train Loss: 0.016944 | Val Loss: 0.013432 LR: 0.00007503
+Trial 1 - Epoch 17/200 | Train Loss: 0.016889 | Val Loss: 0.013383 LR: 0.00007503
+Trial 1 - Epoch 18/200 | Train Loss: 0.016831 | Val Loss: 0.013336 LR: 0.00007503
+Trial 1 - Epoch 19/200 | Train Loss: 0.016782 | Val Loss: 0.013296 LR: 0.00007503
+Trial 1 - Epoch 20/200 | Train Loss: 0.016733 | Val Loss: 0.013258 LR: 0.00007503
+Trial 1 - Epoch 21/200 | Train Loss: 0.016701 | Val Loss: 0.013227 LR: 0.00007503
+Trial 1 - Epoch 22/200 | Train Loss: 0.016665 | Val Loss: 0.013201 LR: 0.00007503
+Trial 1 - Epoch 23/200 | Train Loss: 0.016642 | Val Loss: 0.013175 LR: 0.00007503
+Trial 1 - Epoch 24/200 | Train Loss: 0.016624 | Val Loss: 0.013156 LR: 0.00007503
+Trial 1 - Epoch 25/200 | Train Loss: 0.016606 | Val Loss: 0.013137 LR: 0.00007503
+Trial 1 - Epoch 26/200 | Train Loss: 0.016602 | Val Loss: 0.013125 LR: 0.00007503
+Trial 1 - Epoch 27/200 | Train Loss: 0.016587 | Val Loss: 0.013111 LR: 0.00007503
+Trial 1 - Epoch 28/200 | Train Loss: 0.016576 | Val Loss: 0.013099 LR: 0.00007503
+Trial 1 - Epoch 29/200 | Train Loss: 0.016573 | Val Loss: 0.013088 LR: 0.00007503
+Trial 1 - Epoch 30/200 | Train Loss: 0.016570 | Val Loss: 0.013080 LR: 0.00007503
+Trial 1 - Epoch 31/200 | Train Loss: 0.016558 | Val Loss: 0.013071 LR: 0.00007503
+Trial 1 - Epoch 32/200 | Train Loss: 0.016554 | Val Loss: 0.013066 LR: 0.00007503
+Trial 1 - Epoch 33/200 | Train Loss: 0.016555 | Val Loss: 0.013060 LR: 0.00007503
+Trial 1 - Epoch 34/200 | Train Loss: 0.016545 | Val Loss: 0.013054 LR: 0.00007503
+Trial 1 - Epoch 35/200 | Train Loss: 0.016548 | Val Loss: 0.013048 LR: 0.00007503
+Trial 1 - Epoch 36/200 | Train Loss: 0.016549 | Val Loss: 0.013046 LR: 0.00007503
+Trial 1 - Epoch 37/200 | Train Loss: 0.016545 | Val Loss: 0.013042 LR: 0.00007503
+Trial 1 - Epoch 38/200 | Train Loss: 0.016537 | Val Loss: 0.013038 LR: 0.00007503
+Trial 1 - Epoch 39/200 | Train Loss: 0.016544 | Val Loss: 0.013034 LR: 0.00007503
+Trial 1 - Epoch 40/200 | Train Loss: 0.016538 | Val Loss: 0.013031 LR: 0.00007503
+Trial 1 - Epoch 41/200 | Train Loss: 0.016540 | Val Loss: 0.013027 LR: 0.00007503
+Trial 1 - Epoch 42/200 | Train Loss: 0.016545 | Val Loss: 0.013021 LR: 0.00007503
+Trial 1 - Epoch 43/200 | Train Loss: 0.016540 | Val Loss: 0.013019 LR: 0.00007503
+Trial 1 - Epoch 44/200 | Train Loss: 0.016535 | Val Loss: 0.013013 LR: 0.00007503
+Trial 1 - Epoch 45/200 | Train Loss: 0.016538 | Val Loss: 0.013011 LR: 0.00007503
+Trial 1 - Epoch 46/200 | Train Loss: 0.016530 | Val Loss: 0.013006 LR: 0.00007503
+Trial 1 - Epoch 47/200 | Train Loss: 0.016537 | Val Loss: 0.013003 LR: 0.00007503
+Trial 1 - Epoch 48/200 | Train Loss: 0.016536 | Val Loss: 0.013000 LR: 0.00007503
+Trial 1 - Epoch 49/200 | Train Loss: 0.016529 | Val Loss: 0.012997 LR: 0.00007503
+Trial 1 - Epoch 50/200 | Train Loss: 0.016528 | Val Loss: 0.012995 LR: 0.00007503
+Trial 1 - Epoch 51/200 | Train Loss: 0.016523 | Val Loss: 0.012994 LR: 0.00007503
+Trial 1 - Epoch 52/200 | Train Loss: 0.016525 | Val Loss: 0.012990 LR: 0.00007503
+Trial 1 - Epoch 53/200 | Train Loss: 0.016522 | Val Loss: 0.012990 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 54/200 | Train Loss: 0.016525 | Val Loss: 0.012987 LR: 0.00007503
+Trial 1 - Epoch 55/200 | Train Loss: 0.016524 | Val Loss: 0.012987 LR: 0.00007503
+Trial 1 - Epoch 56/200 | Train Loss: 0.016528 | Val Loss: 0.012984 LR: 0.00007503
+Trial 1 - Epoch 57/200 | Train Loss: 0.016529 | Val Loss: 0.012982 LR: 0.00007503
+Trial 1 - Epoch 58/200 | Train Loss: 0.016525 | Val Loss: 0.012980 LR: 0.00007503
+Trial 1 - Epoch 59/200 | Train Loss: 0.016523 | Val Loss: 0.012978 LR: 0.00007503
+Trial 1 - Epoch 60/200 | Train Loss: 0.016525 | Val Loss: 0.012976 LR: 0.00007503
+Trial 1 - Epoch 61/200 | Train Loss: 0.016519 | Val Loss: 0.012974 LR: 0.00007503
+Trial 1 - Epoch 62/200 | Train Loss: 0.016518 | Val Loss: 0.012972 LR: 0.00007503
+Trial 1 - Epoch 63/200 | Train Loss: 0.016517 | Val Loss: 0.012973 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 64/200 | Train Loss: 0.016521 | Val Loss: 0.012971 LR: 0.00007503
+Trial 1 - Epoch 65/200 | Train Loss: 0.016514 | Val Loss: 0.012969 LR: 0.00007503
+Trial 1 - Epoch 66/200 | Train Loss: 0.016514 | Val Loss: 0.012967 LR: 0.00007503
+Trial 1 - Epoch 67/200 | Train Loss: 0.016518 | Val Loss: 0.012966 LR: 0.00007503
+Trial 1 - Epoch 68/200 | Train Loss: 0.016523 | Val Loss: 0.012965 LR: 0.00007503
+Trial 1 - Epoch 69/200 | Train Loss: 0.016519 | Val Loss: 0.012963 LR: 0.00007503
+Trial 1 - Epoch 70/200 | Train Loss: 0.016513 | Val Loss: 0.012962 LR: 0.00007503
+Trial 1 - Epoch 71/200 | Train Loss: 0.016515 | Val Loss: 0.012963 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 72/200 | Train Loss: 0.016516 | Val Loss: 0.012961 LR: 0.00007503
+Trial 1 - Epoch 73/200 | Train Loss: 0.016520 | Val Loss: 0.012962 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 74/200 | Train Loss: 0.016514 | Val Loss: 0.012958 LR: 0.00007503
+Trial 1 - Epoch 75/200 | Train Loss: 0.016518 | Val Loss: 0.012956 LR: 0.00007503
+Trial 1 - Epoch 76/200 | Train Loss: 0.016516 | Val Loss: 0.012957 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 77/200 | Train Loss: 0.016515 | Val Loss: 0.012955 LR: 0.00007503
+Trial 1 - Epoch 78/200 | Train Loss: 0.016521 | Val Loss: 0.012953 LR: 0.00007503
+Trial 1 - Epoch 79/200 | Train Loss: 0.016519 | Val Loss: 0.012954 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 80/200 | Train Loss: 0.016519 | Val Loss: 0.012954 LR: 0.00007503
+Validation loss did not improve. Patience counter: 2/10
+Trial 1 - Epoch 81/200 | Train Loss: 0.016518 | Val Loss: 0.012951 LR: 0.00007503
+Trial 1 - Epoch 82/200 | Train Loss: 0.016515 | Val Loss: 0.012948 LR: 0.00007503
+Trial 1 - Epoch 83/200 | Train Loss: 0.016517 | Val Loss: 0.012949 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 84/200 | Train Loss: 0.016515 | Val Loss: 0.012947 LR: 0.00007503
+Trial 1 - Epoch 85/200 | Train Loss: 0.016512 | Val Loss: 0.012947 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 86/200 | Train Loss: 0.016507 | Val Loss: 0.012946 LR: 0.00007503
+Trial 1 - Epoch 87/200 | Train Loss: 0.016515 | Val Loss: 0.012946 LR: 0.00007503
+Trial 1 - Epoch 88/200 | Train Loss: 0.016515 | Val Loss: 0.012945 LR: 0.00007503
+Trial 1 - Epoch 89/200 | Train Loss: 0.016517 | Val Loss: 0.012943 LR: 0.00007503
+Trial 1 - Epoch 90/200 | Train Loss: 0.016513 | Val Loss: 0.012943 LR: 0.00007503
+Trial 1 - Epoch 91/200 | Train Loss: 0.016509 | Val Loss: 0.012942 LR: 0.00007503
+Trial 1 - Epoch 92/200 | Train Loss: 0.016510 | Val Loss: 0.012940 LR: 0.00007503
+Trial 1 - Epoch 93/200 | Train Loss: 0.016512 | Val Loss: 0.012941 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 94/200 | Train Loss: 0.016513 | Val Loss: 0.012941 LR: 0.00007503
+Validation loss did not improve. Patience counter: 2/10
+Trial 1 - Epoch 95/200 | Train Loss: 0.016510 | Val Loss: 0.012939 LR: 0.00007503
+Trial 1 - Epoch 96/200 | Train Loss: 0.016508 | Val Loss: 0.012938 LR: 0.00007503
+Trial 1 - Epoch 97/200 | Train Loss: 0.016509 | Val Loss: 0.012939 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 98/200 | Train Loss: 0.016510 | Val Loss: 0.012938 LR: 0.00007503
+Trial 1 - Epoch 99/200 | Train Loss: 0.016512 | Val Loss: 0.012936 LR: 0.00007503
+Trial 1 - Epoch 100/200 | Train Loss: 0.016506 | Val Loss: 0.012936 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 101/200 | Train Loss: 0.016505 | Val Loss: 0.012935 LR: 0.00007503
+Trial 1 - Epoch 102/200 | Train Loss: 0.016508 | Val Loss: 0.012934 LR: 0.00007503
+Trial 1 - Epoch 103/200 | Train Loss: 0.016513 | Val Loss: 0.012934 LR: 0.00007503
+Trial 1 - Epoch 104/200 | Train Loss: 0.016506 | Val Loss: 0.012934 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 105/200 | Train Loss: 0.016504 | Val Loss: 0.012934 LR: 0.00007503
+Trial 1 - Epoch 106/200 | Train Loss: 0.016504 | Val Loss: 0.012932 LR: 0.00007503
+Trial 1 - Epoch 107/200 | Train Loss: 0.016503 | Val Loss: 0.012934 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 108/200 | Train Loss: 0.016506 | Val Loss: 0.012933 LR: 0.00007503
+Validation loss did not improve. Patience counter: 2/10
+Trial 1 - Epoch 109/200 | Train Loss: 0.016508 | Val Loss: 0.012933 LR: 0.00007503
+Validation loss did not improve. Patience counter: 3/10
+Trial 1 - Epoch 110/200 | Train Loss: 0.016505 | Val Loss: 0.012931 LR: 0.00007503
+Trial 1 - Epoch 111/200 | Train Loss: 0.016506 | Val Loss: 0.012934 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 112/200 | Train Loss: 0.016503 | Val Loss: 0.012930 LR: 0.00007503
+Trial 1 - Epoch 113/200 | Train Loss: 0.016507 | Val Loss: 0.012930 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 114/200 | Train Loss: 0.016507 | Val Loss: 0.012930 LR: 0.00007503
+Validation loss did not improve. Patience counter: 2/10
+Trial 1 - Epoch 115/200 | Train Loss: 0.016502 | Val Loss: 0.012929 LR: 0.00007503
+Trial 1 - Epoch 116/200 | Train Loss: 0.016503 | Val Loss: 0.012930 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 117/200 | Train Loss: 0.016504 | Val Loss: 0.012930 LR: 0.00007503
+Validation loss did not improve. Patience counter: 2/10
+Trial 1 - Epoch 118/200 | Train Loss: 0.016501 | Val Loss: 0.012928 LR: 0.00007503
+Trial 1 - Epoch 119/200 | Train Loss: 0.016505 | Val Loss: 0.012929 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 120/200 | Train Loss: 0.016507 | Val Loss: 0.012929 LR: 0.00007503
+Validation loss did not improve. Patience counter: 2/10
+Trial 1 - Epoch 121/200 | Train Loss: 0.016506 | Val Loss: 0.012929 LR: 0.00007503
+Validation loss did not improve. Patience counter: 3/10
+Trial 1 - Epoch 122/200 | Train Loss: 0.016499 | Val Loss: 0.012928 LR: 0.00007503
+Trial 1 - Epoch 123/200 | Train Loss: 0.016499 | Val Loss: 0.012927 LR: 0.00007503
+Trial 1 - Epoch 124/200 | Train Loss: 0.016500 | Val Loss: 0.012926 LR: 0.00007503
+Trial 1 - Epoch 125/200 | Train Loss: 0.016506 | Val Loss: 0.012926 LR: 0.00007503
+Trial 1 - Epoch 126/200 | Train Loss: 0.016500 | Val Loss: 0.012925 LR: 0.00007503
+Trial 1 - Epoch 127/200 | Train Loss: 0.016503 | Val Loss: 0.012926 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 128/200 | Train Loss: 0.016503 | Val Loss: 0.012926 LR: 0.00007503
+Validation loss did not improve. Patience counter: 2/10
+Trial 1 - Epoch 129/200 | Train Loss: 0.016509 | Val Loss: 0.012927 LR: 0.00007503
+Validation loss did not improve. Patience counter: 3/10
+Trial 1 - Epoch 130/200 | Train Loss: 0.016506 | Val Loss: 0.012928 LR: 0.00007503
+Validation loss did not improve. Patience counter: 4/10
+Trial 1 - Epoch 131/200 | Train Loss: 0.016502 | Val Loss: 0.012926 LR: 0.00007503
+Validation loss did not improve. Patience counter: 5/10
+Trial 1 - Epoch 132/200 | Train Loss: 0.016502 | Val Loss: 0.012925 LR: 0.00007503
+Trial 1 - Epoch 133/200 | Train Loss: 0.016501 | Val Loss: 0.012926 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 134/200 | Train Loss: 0.016499 | Val Loss: 0.012924 LR: 0.00007503
+Trial 1 - Epoch 135/200 | Train Loss: 0.016493 | Val Loss: 0.012923 LR: 0.00007503
+Trial 1 - Epoch 136/200 | Train Loss: 0.016498 | Val Loss: 0.012925 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 137/200 | Train Loss: 0.016496 | Val Loss: 0.012923 LR: 0.00007503
+Validation loss did not improve. Patience counter: 2/10
+Trial 1 - Epoch 138/200 | Train Loss: 0.016498 | Val Loss: 0.012925 LR: 0.00007503
+Validation loss did not improve. Patience counter: 3/10
+Trial 1 - Epoch 139/200 | Train Loss: 0.016503 | Val Loss: 0.012922 LR: 0.00007503
+Trial 1 - Epoch 140/200 | Train Loss: 0.016502 | Val Loss: 0.012922 LR: 0.00007503
+Trial 1 - Epoch 141/200 | Train Loss: 0.016500 | Val Loss: 0.012925 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 142/200 | Train Loss: 0.016498 | Val Loss: 0.012922 LR: 0.00007503
+Validation loss did not improve. Patience counter: 2/10
+Trial 1 - Epoch 143/200 | Train Loss: 0.016499 | Val Loss: 0.012920 LR: 0.00007503
+Trial 1 - Epoch 144/200 | Train Loss: 0.016497 | Val Loss: 0.012921 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 145/200 | Train Loss: 0.016493 | Val Loss: 0.012921 LR: 0.00007503
+Validation loss did not improve. Patience counter: 2/10
+Trial 1 - Epoch 146/200 | Train Loss: 0.016491 | Val Loss: 0.012921 LR: 0.00007503
+Validation loss did not improve. Patience counter: 3/10
+Trial 1 - Epoch 147/200 | Train Loss: 0.016492 | Val Loss: 0.012920 LR: 0.00007503
+Trial 1 - Epoch 148/200 | Train Loss: 0.016496 | Val Loss: 0.012921 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 149/200 | Train Loss: 0.016493 | Val Loss: 0.012920 LR: 0.00007503
+Validation loss did not improve. Patience counter: 2/10
+Trial 1 - Epoch 150/200 | Train Loss: 0.016491 | Val Loss: 0.012919 LR: 0.00007503
+Trial 1 - Epoch 151/200 | Train Loss: 0.016490 | Val Loss: 0.012919 LR: 0.00007503
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 152/200 | Train Loss: 0.016493 | Val Loss: 0.012919 LR: 0.00007503
+Validation loss did not improve. Patience counter: 2/10
+Trial 1 - Epoch 153/200 | Train Loss: 0.016488 | Val Loss: 0.012920 LR: 0.00007503
+Validation loss did not improve. Patience counter: 3/10
+Trial 1 - Epoch 154/200 | Train Loss: 0.016485 | Val Loss: 0.012920 LR: 0.00007503
+Validation loss did not improve. Patience counter: 4/10
+Trial 1 - Epoch 155/200 | Train Loss: 0.016492 | Val Loss: 0.012922 LR: 0.00007503
+Validation loss did not improve. Patience counter: 5/10
+Trial 1 - Epoch 156/200 | Train Loss: 0.016501 | Val Loss: 0.012920 LR: 0.00007503
+Validation loss did not improve. Patience counter: 6/10
+Trial 1 - Epoch 157/200 | Train Loss: 0.016498 | Val Loss: 0.012924 LR: 0.00007503
+Validation loss did not improve. Patience counter: 7/10
+Trial 1 - Epoch 158/200 | Train Loss: 0.016497 | Val Loss: 0.012923 LR: 0.00007503
+Validation loss did not improve. Patience counter: 8/10
+Trial 1 - Epoch 159/200 | Train Loss: 0.016491 | Val Loss: 0.012922 LR: 0.00007503
+Validation loss did not improve. Patience counter: 9/10
+Trial 1 - Epoch 160/200 | Train Loss: 0.016493 | Val Loss: 0.012918 LR: 0.00007503
+Trial 1 - Epoch 161/200 | Train Loss: 0.016490 | Val Loss: 0.012921 LR: 0.00000750
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 162/200 | Train Loss: 0.017247 | Val Loss: 0.012780 LR: 0.00000750
+Trial 1 - Epoch 163/200 | Train Loss: 0.016950 | Val Loss: 0.012790 LR: 0.00000750
+Validation loss did not improve. Patience counter: 1/10
+Trial 1 - Epoch 164/200 | Train Loss: 0.016864 | Val Loss: 0.012792 LR: 0.00000750
+Validation loss did not improve. Patience counter: 2/10
+Trial 1 - Epoch 165/200 | Train Loss: 0.016831 | Val Loss: 0.012788 LR: 0.00000750
+Validation loss did not improve. Patience counter: 3/10
+Trial 1 - Epoch 166/200 | Train Loss: 0.016810 | Val Loss: 0.012784 LR: 0.00000750
+Validation loss did not improve. Patience counter: 4/10
+Trial 1 - Epoch 167/200 | Train Loss: 0.016798 | Val Loss: 0.012779 LR: 0.00000750
+Trial 1 - Epoch 168/200 | Train Loss: 0.016786 | Val Loss: 0.012776 LR: 0.00000750
+Trial 1 - Epoch 169/200 | Train Loss: 0.016787 | Val Loss: 0.012773 LR: 0.00000750
+Trial 1 - Epoch 170/200 | Train Loss: 0.016776 | Val Loss: 0.012771 LR: 0.00000750
+Trial 1 - Epoch 171/200 | Train Loss: 0.016767 | Val Loss: 0.012770 LR: 0.00000750
+Trial 1 - Epoch 172/200 | Train Loss: 0.016763 | Val Loss: 0.012768 LR: 0.00000750
+Trial 1 - Epoch 173/200 | Train Loss: 0.016766 | Val Loss: 0.012767 LR: 0.00000750
+Trial 1 - Epoch 174/200 | Train Loss: 0.016757 | Val Loss: 0.012766 LR: 0.00000750
+Trial 1 - Epoch 175/200 | Train Loss: 0.016765 | Val Loss: 0.012765 LR: 0.00000750
+Trial 1 - Epoch 176/200 | Train Loss: 0.016760 | Val Loss: 0.012765 LR: 0.00000750
+Trial 1 - Epoch 177/200 | Train Loss: 0.016758 | Val Loss: 0.012764 LR: 0.00000750
+Trial 1 - Epoch 178/200 | Train Loss: 0.016755 | Val Loss: 0.012764 LR: 0.00000750
+Trial 1 - Epoch 179/200 | Train Loss: 0.016756 | Val Loss: 0.012763 LR: 0.00000750
+Trial 1 - Epoch 180/200 | Train Loss: 0.016749 | Val Loss: 0.012763 LR: 0.00000750
+Trial 1 - Epoch 181/200 | Train Loss: 0.016758 | Val Loss: 0.012763 LR: 0.00000750
+Trial 1 - Epoch 182/200 | Train Loss: 0.016753 | Val Loss: 0.012762 LR: 0.00000750
+Trial 1 - Epoch 183/200 | Train Loss: 0.016759 | Val Loss: 0.012762 LR: 0.00000750
+Trial 1 - Epoch 184/200 | Train Loss: 0.016752 | Val Loss: 0.012762 LR: 0.00000750
+Trial 1 - Epoch 185/200 | Train Loss: 0.016754 | Val Loss: 0.012761 LR: 0.00000750
+Trial 1 - Epoch 186/200 | Train Loss: 0.016748 | Val Loss: 0.012761 LR: 0.00000750
+Trial 1 - Epoch 187/200 | Train Loss: 0.016749 | Val Loss: 0.012761 LR: 0.00000750
+Trial 1 - Epoch 188/200 | Train Loss: 0.016747 | Val Loss: 0.012760 LR: 0.00000750
+Trial 1 - Epoch 189/200 | Train Loss: 0.016753 | Val Loss: 0.012760 LR: 0.00000750
+Trial 1 - Epoch 190/200 | Train Loss: 0.016750 | Val Loss: 0.012760 LR: 0.00000750
+Trial 1 - Epoch 191/200 | Train Loss: 0.016754 | Val Loss: 0.012759 LR: 0.00000750
+Trial 1 - Epoch 192/200 | Train Loss: 0.016745 | Val Loss: 0.012759 LR: 0.00000750
+Trial 1 - Epoch 193/200 | Train Loss: 0.016745 | Val Loss: 0.012759 LR: 0.00000750
+Trial 1 - Epoch 194/200 | Train Loss: 0.016747 | Val Loss: 0.012758 LR: 0.00000750
+Trial 1 - Epoch 195/200 | Train Loss: 0.016750 | Val Loss: 0.012758 LR: 0.00000750
+Trial 1 - Epoch 196/200 | Train Loss: 0.016748 | Val Loss: 0.012758 LR: 0.00000750
+Trial 1 - Epoch 197/200 | Train Loss: 0.016747 | Val Loss: 0.012758 LR: 0.00000750
+Trial 1 - Epoch 198/200 | Train Loss: 0.016744 | Val Loss: 0.012757 LR: 0.00000750
+Trial 1 - Epoch 199/200 | Train Loss: 0.016739 | Val Loss: 0.012757 LR: 0.00000750
+Trial 1 - Epoch 200/200 | Train Loss: 0.016739 | Val Loss: 0.012757 LR: 0.00000750
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 32, heads=2)
+  )
+  (rnn): GRU(64, 64, batch_first=True, dropout=0.30000000000000004)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=64, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=64, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.2, patience=7, min_lr=5.652435122628172e-07
+Trial 2 - Epoch 1/200 | Train Loss: 0.022675 | Val Loss: 0.014921 LR: 0.00067321
+Trial 2 - Epoch 2/200 | Train Loss: 0.018833 | Val Loss: 0.014130 LR: 0.00067321
+Trial 2 - Epoch 3/200 | Train Loss: 0.018036 | Val Loss: 0.013599 LR: 0.00067321
+Trial 2 - Epoch 4/200 | Train Loss: 0.017532 | Val Loss: 0.013281 LR: 0.00067321
+Trial 2 - Epoch 5/200 | Train Loss: 0.017210 | Val Loss: 0.013091 LR: 0.00067321
+Trial 2 - Epoch 6/200 | Train Loss: 0.017005 | Val Loss: 0.012973 LR: 0.00067321
+Trial 2 - Epoch 7/200 | Train Loss: 0.016869 | Val Loss: 0.012901 LR: 0.00067321
+Trial 2 - Epoch 8/200 | Train Loss: 0.016772 | Val Loss: 0.012853 LR: 0.00067321
+Trial 2 - Epoch 9/200 | Train Loss: 0.016698 | Val Loss: 0.012818 LR: 0.00067321
+Trial 2 - Epoch 10/200 | Train Loss: 0.016642 | Val Loss: 0.012793 LR: 0.00067321
+Trial 2 - Epoch 11/200 | Train Loss: 0.016601 | Val Loss: 0.012775 LR: 0.00067321
+Trial 2 - Epoch 12/200 | Train Loss: 0.016562 | Val Loss: 0.012760 LR: 0.00067321
+Trial 2 - Epoch 13/200 | Train Loss: 0.016533 | Val Loss: 0.012751 LR: 0.00067321
+Trial 2 - Epoch 14/200 | Train Loss: 0.016509 | Val Loss: 0.012744 LR: 0.00067321
+Trial 2 - Epoch 15/200 | Train Loss: 0.016485 | Val Loss: 0.012740 LR: 0.00067321
+Trial 2 - Epoch 16/200 | Train Loss: 0.016471 | Val Loss: 0.012737 LR: 0.00067321
+Trial 2 - Epoch 17/200 | Train Loss: 0.016453 | Val Loss: 0.012734 LR: 0.00067321
+Trial 2 - Epoch 18/200 | Train Loss: 0.016440 | Val Loss: 0.012734 LR: 0.00067321
+Validation loss did not improve. Patience counter: 1/10
+Trial 2 - Epoch 19/200 | Train Loss: 0.016424 | Val Loss: 0.012734 LR: 0.00067321
+Validation loss did not improve. Patience counter: 2/10
+Trial 2 - Epoch 20/200 | Train Loss: 0.016419 | Val Loss: 0.012734 LR: 0.00067321
+Validation loss did not improve. Patience counter: 3/10
+Trial 2 - Epoch 21/200 | Train Loss: 0.016412 | Val Loss: 0.012733 LR: 0.00067321
+Trial 2 - Epoch 22/200 | Train Loss: 0.016404 | Val Loss: 0.012733 LR: 0.00067321
+Trial 2 - Epoch 23/200 | Train Loss: 0.016391 | Val Loss: 0.012731 LR: 0.00067321
+Trial 2 - Epoch 24/200 | Train Loss: 0.016380 | Val Loss: 0.012733 LR: 0.00067321
+Validation loss did not improve. Patience counter: 1/10
+Trial 2 - Epoch 25/200 | Train Loss: 0.016375 | Val Loss: 0.012734 LR: 0.00067321
+Validation loss did not improve. Patience counter: 2/10
+Trial 2 - Epoch 26/200 | Train Loss: 0.016368 | Val Loss: 0.012734 LR: 0.00067321
+Validation loss did not improve. Patience counter: 3/10
+Trial 2 - Epoch 27/200 | Train Loss: 0.016359 | Val Loss: 0.012734 LR: 0.00067321
+Validation loss did not improve. Patience counter: 4/10
+Trial 2 - Epoch 28/200 | Train Loss: 0.016357 | Val Loss: 0.012733 LR: 0.00067321
+Validation loss did not improve. Patience counter: 5/10
+Trial 2 - Epoch 29/200 | Train Loss: 0.016349 | Val Loss: 0.012733 LR: 0.00067321
+Validation loss did not improve. Patience counter: 6/10
+Trial 2 - Epoch 30/200 | Train Loss: 0.016347 | Val Loss: 0.012733 LR: 0.00067321
+Validation loss did not improve. Patience counter: 7/10
+Trial 2 - Epoch 31/200 | Train Loss: 0.016339 | Val Loss: 0.012733 LR: 0.00013464
+Validation loss did not improve. Patience counter: 8/10
+Trial 2 - Epoch 32/200 | Train Loss: 0.016540 | Val Loss: 0.012767 LR: 0.00013464
+Validation loss did not improve. Patience counter: 9/10
+Trial 2 - Epoch 33/200 | Train Loss: 0.016522 | Val Loss: 0.012775 LR: 0.00013464
+Validation loss did not improve. Patience counter: 10/10
+Trial 2 early stopping triggered at epoch 33.
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 64, heads=1)
+    (1-2): 2 x GATConv(64, 64, heads=1)
+  )
+  (rnn): GRU(64, 64, num_layers=3, batch_first=True, dropout=0.30000000000000004)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=64, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=64, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.4, patience=10, min_lr=1.5843076765231838e-08
+Trial 3 - Epoch 1/200 | Train Loss: 0.043919 | Val Loss: 0.014953 LR: 0.00002372
+Trial 3 - Epoch 2/200 | Train Loss: 0.018442 | Val Loss: 0.014495 LR: 0.00002372
+Trial 3 pruned at epoch 2.
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 16, heads=8)
+    (1-2): 2 x GATConv(128, 16, heads=8)
+  )
+  (rnn): GRU(128, 128, batch_first=True, dropout=0.30000000000000004)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=128, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=128, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.7, patience=9, min_lr=9.81243067985162e-08
+Trial 4 - Epoch 1/200 | Train Loss: 0.057901 | Val Loss: 0.028464 LR: 0.00001254
+Trial 4 - Epoch 2/200 | Train Loss: 0.025421 | Val Loss: 0.016101 LR: 0.00001254
+Trial 4 - Epoch 3/200 | Train Loss: 0.019856 | Val Loss: 0.015623 LR: 0.00001254
+Trial 4 - Epoch 4/200 | Train Loss: 0.019477 | Val Loss: 0.015400 LR: 0.00001254
+Trial 4 - Epoch 5/200 | Train Loss: 0.019248 | Val Loss: 0.015198 LR: 0.00001254
+Trial 4 - Epoch 6/200 | Train Loss: 0.019060 | Val Loss: 0.015013 LR: 0.00001254
+Trial 4 - Epoch 7/200 | Train Loss: 0.018858 | Val Loss: 0.014838 LR: 0.00001254
+Trial 4 - Epoch 8/200 | Train Loss: 0.018665 | Val Loss: 0.014677 LR: 0.00001254
+Trial 4 - Epoch 9/200 | Train Loss: 0.018480 | Val Loss: 0.014529 LR: 0.00001254
+Trial 4 - Epoch 10/200 | Train Loss: 0.018312 | Val Loss: 0.014387 LR: 0.00001254
+Trial 4 - Epoch 11/200 | Train Loss: 0.018138 | Val Loss: 0.014259 LR: 0.00001254
+Trial 4 - Epoch 12/200 | Train Loss: 0.017975 | Val Loss: 0.014140 LR: 0.00001254
+Trial 4 - Epoch 13/200 | Train Loss: 0.017826 | Val Loss: 0.014032 LR: 0.00001254
+Trial 4 - Epoch 14/200 | Train Loss: 0.017671 | Val Loss: 0.013935 LR: 0.00001254
+Trial 4 - Epoch 15/200 | Train Loss: 0.017529 | Val Loss: 0.013847 LR: 0.00001254
+Trial 4 - Epoch 16/200 | Train Loss: 0.017395 | Val Loss: 0.013772 LR: 0.00001254
+Trial 4 - Epoch 17/200 | Train Loss: 0.017273 | Val Loss: 0.013705 LR: 0.00001254
+Trial 4 - Epoch 18/200 | Train Loss: 0.017161 | Val Loss: 0.013644 LR: 0.00001254
+Trial 4 - Epoch 19/200 | Train Loss: 0.017060 | Val Loss: 0.013595 LR: 0.00001254
+Trial 4 - Epoch 20/200 | Train Loss: 0.016969 | Val Loss: 0.013551 LR: 0.00001254
+Trial 4 - Epoch 21/200 | Train Loss: 0.016886 | Val Loss: 0.013517 LR: 0.00001254
+Trial 4 - Epoch 22/200 | Train Loss: 0.016818 | Val Loss: 0.013486 LR: 0.00001254
+Trial 4 - Epoch 23/200 | Train Loss: 0.016761 | Val Loss: 0.013459 LR: 0.00001254
+Trial 4 - Epoch 24/200 | Train Loss: 0.016714 | Val Loss: 0.013440 LR: 0.00001254
+Trial 4 - Epoch 25/200 | Train Loss: 0.016668 | Val Loss: 0.013420 LR: 0.00001254
+Trial 4 - Epoch 26/200 | Train Loss: 0.016634 | Val Loss: 0.013408 LR: 0.00001254
+Trial 4 - Epoch 27/200 | Train Loss: 0.016603 | Val Loss: 0.013390 LR: 0.00001254
+Trial 4 - Epoch 28/200 | Train Loss: 0.016579 | Val Loss: 0.013382 LR: 0.00001254
+Trial 4 - Epoch 29/200 | Train Loss: 0.016553 | Val Loss: 0.013371 LR: 0.00001254
+Trial 4 - Epoch 30/200 | Train Loss: 0.016540 | Val Loss: 0.013361 LR: 0.00001254
+Trial 4 - Epoch 31/200 | Train Loss: 0.016518 | Val Loss: 0.013357 LR: 0.00001254
+Trial 4 - Epoch 32/200 | Train Loss: 0.016510 | Val Loss: 0.013346 LR: 0.00001254
+Trial 4 - Epoch 33/200 | Train Loss: 0.016497 | Val Loss: 0.013338 LR: 0.00001254
+Trial 4 - Epoch 34/200 | Train Loss: 0.016487 | Val Loss: 0.013332 LR: 0.00001254
+Trial 4 - Epoch 35/200 | Train Loss: 0.016480 | Val Loss: 0.013322 LR: 0.00001254
+Trial 4 - Epoch 36/200 | Train Loss: 0.016471 | Val Loss: 0.013318 LR: 0.00001254
+Trial 4 - Epoch 37/200 | Train Loss: 0.016459 | Val Loss: 0.013313 LR: 0.00001254
+Trial 4 - Epoch 38/200 | Train Loss: 0.016462 | Val Loss: 0.013310 LR: 0.00001254
+Trial 4 - Epoch 39/200 | Train Loss: 0.016460 | Val Loss: 0.013302 LR: 0.00001254
+Trial 4 - Epoch 40/200 | Train Loss: 0.016453 | Val Loss: 0.013300 LR: 0.00001254
+Trial 4 - Epoch 41/200 | Train Loss: 0.016445 | Val Loss: 0.013295 LR: 0.00001254
+Trial 4 - Epoch 42/200 | Train Loss: 0.016440 | Val Loss: 0.013288 LR: 0.00001254
+Trial 4 - Epoch 43/200 | Train Loss: 0.016436 | Val Loss: 0.013284 LR: 0.00001254
+Trial 4 - Epoch 44/200 | Train Loss: 0.016433 | Val Loss: 0.013284 LR: 0.00001254
+Validation loss did not improve. Patience counter: 1/10
+Trial 4 - Epoch 45/200 | Train Loss: 0.016444 | Val Loss: 0.013276 LR: 0.00001254
+Trial 4 - Epoch 46/200 | Train Loss: 0.016433 | Val Loss: 0.013275 LR: 0.00001254
+Trial 4 - Epoch 47/200 | Train Loss: 0.016427 | Val Loss: 0.013268 LR: 0.00001254
+Trial 4 - Epoch 48/200 | Train Loss: 0.016421 | Val Loss: 0.013263 LR: 0.00001254
+Trial 4 - Epoch 49/200 | Train Loss: 0.016416 | Val Loss: 0.013261 LR: 0.00001254
+Trial 4 - Epoch 50/200 | Train Loss: 0.016422 | Val Loss: 0.013259 LR: 0.00001254
+Trial 4 - Epoch 51/200 | Train Loss: 0.016416 | Val Loss: 0.013249 LR: 0.00001254
+Trial 4 - Epoch 52/200 | Train Loss: 0.016412 | Val Loss: 0.013247 LR: 0.00001254
+Trial 4 - Epoch 53/200 | Train Loss: 0.016412 | Val Loss: 0.013245 LR: 0.00001254
+Trial 4 - Epoch 54/200 | Train Loss: 0.016407 | Val Loss: 0.013241 LR: 0.00001254
+Trial 4 - Epoch 55/200 | Train Loss: 0.016411 | Val Loss: 0.013241 LR: 0.00001254
+Validation loss did not improve. Patience counter: 1/10
+Trial 4 - Epoch 56/200 | Train Loss: 0.016410 | Val Loss: 0.013237 LR: 0.00001254
+Trial 4 - Epoch 57/200 | Train Loss: 0.016411 | Val Loss: 0.013232 LR: 0.00001254
+Trial 4 - Epoch 58/200 | Train Loss: 0.016399 | Val Loss: 0.013227 LR: 0.00001254
+Trial 4 - Epoch 59/200 | Train Loss: 0.016401 | Val Loss: 0.013225 LR: 0.00001254
+Trial 4 - Epoch 60/200 | Train Loss: 0.016403 | Val Loss: 0.013221 LR: 0.00001254
+Trial 4 - Epoch 61/200 | Train Loss: 0.016402 | Val Loss: 0.013216 LR: 0.00001254
+Trial 4 - Epoch 62/200 | Train Loss: 0.016402 | Val Loss: 0.013214 LR: 0.00001254
+Trial 4 - Epoch 63/200 | Train Loss: 0.016402 | Val Loss: 0.013214 LR: 0.00001254
+Trial 4 - Epoch 64/200 | Train Loss: 0.016408 | Val Loss: 0.013208 LR: 0.00001254
+Trial 4 - Epoch 65/200 | Train Loss: 0.016398 | Val Loss: 0.013205 LR: 0.00001254
+Trial 4 - Epoch 66/200 | Train Loss: 0.016399 | Val Loss: 0.013201 LR: 0.00001254
+Trial 4 - Epoch 67/200 | Train Loss: 0.016393 | Val Loss: 0.013199 LR: 0.00001254
+Trial 4 - Epoch 68/200 | Train Loss: 0.016390 | Val Loss: 0.013197 LR: 0.00001254
+Trial 4 - Epoch 69/200 | Train Loss: 0.016389 | Val Loss: 0.013196 LR: 0.00001254
+Trial 4 - Epoch 70/200 | Train Loss: 0.016396 | Val Loss: 0.013189 LR: 0.00001254
+Trial 4 - Epoch 71/200 | Train Loss: 0.016396 | Val Loss: 0.013186 LR: 0.00001254
+Trial 4 - Epoch 72/200 | Train Loss: 0.016393 | Val Loss: 0.013184 LR: 0.00001254
+Trial 4 - Epoch 73/200 | Train Loss: 0.016392 | Val Loss: 0.013182 LR: 0.00001254
+Trial 4 - Epoch 74/200 | Train Loss: 0.016391 | Val Loss: 0.013178 LR: 0.00001254
+Trial 4 - Epoch 75/200 | Train Loss: 0.016388 | Val Loss: 0.013176 LR: 0.00001254
+Trial 4 - Epoch 76/200 | Train Loss: 0.016390 | Val Loss: 0.013173 LR: 0.00001254
+Trial 4 - Epoch 77/200 | Train Loss: 0.016393 | Val Loss: 0.013173 LR: 0.00001254
+Validation loss did not improve. Patience counter: 1/10
+Trial 4 - Epoch 78/200 | Train Loss: 0.016386 | Val Loss: 0.013166 LR: 0.00001254
+Trial 4 - Epoch 79/200 | Train Loss: 0.016386 | Val Loss: 0.013163 LR: 0.00001254
+Trial 4 - Epoch 80/200 | Train Loss: 0.016384 | Val Loss: 0.013165 LR: 0.00001254
+Validation loss did not improve. Patience counter: 1/10
+Trial 4 - Epoch 81/200 | Train Loss: 0.016387 | Val Loss: 0.013160 LR: 0.00001254
+Trial 4 - Epoch 82/200 | Train Loss: 0.016388 | Val Loss: 0.013154 LR: 0.00001254
+Trial 4 - Epoch 83/200 | Train Loss: 0.016377 | Val Loss: 0.013153 LR: 0.00001254
+Trial 4 - Epoch 84/200 | Train Loss: 0.016386 | Val Loss: 0.013150 LR: 0.00001254
+Trial 4 - Epoch 85/200 | Train Loss: 0.016390 | Val Loss: 0.013148 LR: 0.00001254
+Trial 4 - Epoch 86/200 | Train Loss: 0.016378 | Val Loss: 0.013146 LR: 0.00001254
+Trial 4 - Epoch 87/200 | Train Loss: 0.016383 | Val Loss: 0.013143 LR: 0.00001254
+Trial 4 - Epoch 88/200 | Train Loss: 0.016377 | Val Loss: 0.013143 LR: 0.00001254
+Validation loss did not improve. Patience counter: 1/10
+Trial 4 - Epoch 89/200 | Train Loss: 0.016375 | Val Loss: 0.013136 LR: 0.00001254
+Trial 4 - Epoch 90/200 | Train Loss: 0.016379 | Val Loss: 0.013135 LR: 0.00001254
+Trial 4 - Epoch 91/200 | Train Loss: 0.016388 | Val Loss: 0.013135 LR: 0.00001254
+Validation loss did not improve. Patience counter: 1/10
+Trial 4 - Epoch 92/200 | Train Loss: 0.016376 | Val Loss: 0.013130 LR: 0.00001254
+Trial 4 - Epoch 93/200 | Train Loss: 0.016375 | Val Loss: 0.013128 LR: 0.00001254
+Trial 4 - Epoch 94/200 | Train Loss: 0.016378 | Val Loss: 0.013124 LR: 0.00001254
+Trial 4 - Epoch 95/200 | Train Loss: 0.016379 | Val Loss: 0.013123 LR: 0.00001254
+Trial 4 - Epoch 96/200 | Train Loss: 0.016373 | Val Loss: 0.013122 LR: 0.00001254
+Trial 4 - Epoch 97/200 | Train Loss: 0.016373 | Val Loss: 0.013118 LR: 0.00001254
+Trial 4 - Epoch 98/200 | Train Loss: 0.016372 | Val Loss: 0.013120 LR: 0.00001254
+Validation loss did not improve. Patience counter: 1/10
+Trial 4 - Epoch 99/200 | Train Loss: 0.016378 | Val Loss: 0.013116 LR: 0.00001254
+Trial 4 - Epoch 100/200 | Train Loss: 0.016378 | Val Loss: 0.013114 LR: 0.00001254
+Trial 4 - Epoch 101/200 | Train Loss: 0.016369 | Val Loss: 0.013110 LR: 0.00001254
+Trial 4 - Epoch 102/200 | Train Loss: 0.016373 | Val Loss: 0.013107 LR: 0.00001254
+Trial 4 - Epoch 103/200 | Train Loss: 0.016373 | Val Loss: 0.013104 LR: 0.00001254
+Trial 4 - Epoch 104/200 | Train Loss: 0.016379 | Val Loss: 0.013102 LR: 0.00001254
+Trial 4 - Epoch 105/200 | Train Loss: 0.016369 | Val Loss: 0.013096 LR: 0.00001254
+Trial 4 - Epoch 106/200 | Train Loss: 0.016376 | Val Loss: 0.013100 LR: 0.00001254
+Validation loss did not improve. Patience counter: 1/10
+Trial 4 - Epoch 107/200 | Train Loss: 0.016370 | Val Loss: 0.013096 LR: 0.00001254
+Trial 4 - Epoch 108/200 | Train Loss: 0.016364 | Val Loss: 0.013091 LR: 0.00001254
+Trial 4 - Epoch 109/200 | Train Loss: 0.016370 | Val Loss: 0.013092 LR: 0.00001254
+Validation loss did not improve. Patience counter: 1/10
+Trial 4 - Epoch 110/200 | Train Loss: 0.016370 | Val Loss: 0.013088 LR: 0.00001254
+Trial 4 - Epoch 111/200 | Train Loss: 0.016367 | Val Loss: 0.013087 LR: 0.00001254
+Trial 4 - Epoch 112/200 | Train Loss: 0.016373 | Val Loss: 0.013083 LR: 0.00001254
+Trial 4 - Epoch 113/200 | Train Loss: 0.016369 | Val Loss: 0.013081 LR: 0.00001254
+Trial 4 - Epoch 114/200 | Train Loss: 0.016364 | Val Loss: 0.013080 LR: 0.00001254
+Trial 4 - Epoch 115/200 | Train Loss: 0.016373 | Val Loss: 0.013078 LR: 0.00001254
+Trial 4 - Epoch 116/200 | Train Loss: 0.016359 | Val Loss: 0.013075 LR: 0.00001254
+Trial 4 - Epoch 117/200 | Train Loss: 0.016369 | Val Loss: 0.013075 LR: 0.00001254
+Trial 4 - Epoch 118/200 | Train Loss: 0.016367 | Val Loss: 0.013072 LR: 0.00001254
+Trial 4 - Epoch 119/200 | Train Loss: 0.016365 | Val Loss: 0.013070 LR: 0.00001254
+Trial 4 - Epoch 120/200 | Train Loss: 0.016365 | Val Loss: 0.013066 LR: 0.00001254
+Trial 4 - Epoch 121/200 | Train Loss: 0.016365 | Val Loss: 0.013065 LR: 0.00001254
+Trial 4 - Epoch 122/200 | Train Loss: 0.016359 | Val Loss: 0.013065 LR: 0.00001254
+Validation loss did not improve. Patience counter: 1/10
+Trial 4 - Epoch 123/200 | Train Loss: 0.016364 | Val Loss: 0.013062 LR: 0.00001254
+Trial 4 - Epoch 124/200 | Train Loss: 0.016359 | Val Loss: 0.013058 LR: 0.00001254
+Trial 4 - Epoch 125/200 | Train Loss: 0.016366 | Val Loss: 0.013057 LR: 0.00001254
+Trial 4 - Epoch 126/200 | Train Loss: 0.016364 | Val Loss: 0.013052 LR: 0.00001254
+Trial 4 - Epoch 127/200 | Train Loss: 0.016366 | Val Loss: 0.013054 LR: 0.00001254
+Validation loss did not improve. Patience counter: 1/10
+Trial 4 - Epoch 128/200 | Train Loss: 0.016355 | Val Loss: 0.013053 LR: 0.00001254
+Validation loss did not improve. Patience counter: 2/10
+Trial 4 - Epoch 129/200 | Train Loss: 0.016361 | Val Loss: 0.013049 LR: 0.00001254
+Trial 4 - Epoch 130/200 | Train Loss: 0.016364 | Val Loss: 0.013047 LR: 0.00001254
+Trial 4 - Epoch 131/200 | Train Loss: 0.016363 | Val Loss: 0.013044 LR: 0.00001254
+Trial 4 - Epoch 132/200 | Train Loss: 0.016366 | Val Loss: 0.013044 LR: 0.00001254
+Trial 4 - Epoch 133/200 | Train Loss: 0.016363 | Val Loss: 0.013041 LR: 0.00001254
+Trial 4 - Epoch 134/200 | Train Loss: 0.016357 | Val Loss: 0.013040 LR: 0.00001254
+Trial 4 - Epoch 135/200 | Train Loss: 0.016363 | Val Loss: 0.013037 LR: 0.00001254
+Trial 4 - Epoch 136/200 | Train Loss: 0.016361 | Val Loss: 0.013035 LR: 0.00001254
+Trial 4 - Epoch 137/200 | Train Loss: 0.016358 | Val Loss: 0.013035 LR: 0.00001254
+Validation loss did not improve. Patience counter: 1/10
+Trial 4 - Epoch 138/200 | Train Loss: 0.016364 | Val Loss: 0.013035 LR: 0.00001254
+Validation loss did not improve. Patience counter: 2/10
+Trial 4 - Epoch 139/200 | Train Loss: 0.016366 | Val Loss: 0.013029 LR: 0.00001254
+Trial 4 - Epoch 140/200 | Train Loss: 0.016355 | Val Loss: 0.013027 LR: 0.00001254
+Trial 4 - Epoch 141/200 | Train Loss: 0.016352 | Val Loss: 0.013026 LR: 0.00001254
+Trial 4 - Epoch 142/200 | Train Loss: 0.016363 | Val Loss: 0.013025 LR: 0.00001254
+Trial 4 - Epoch 143/200 | Train Loss: 0.016353 | Val Loss: 0.013023 LR: 0.00001254
+Trial 4 - Epoch 144/200 | Train Loss: 0.016358 | Val Loss: 0.013022 LR: 0.00001254
+Trial 4 - Epoch 145/200 | Train Loss: 0.016358 | Val Loss: 0.013018 LR: 0.00001254
+Trial 4 - Epoch 146/200 | Train Loss: 0.016356 | Val Loss: 0.013017 LR: 0.00001254
+Trial 4 - Epoch 147/200 | Train Loss: 0.016349 | Val Loss: 0.013016 LR: 0.00001254
+Trial 4 - Epoch 148/200 | Train Loss: 0.016353 | Val Loss: 0.013013 LR: 0.00001254
+Trial 4 - Epoch 149/200 | Train Loss: 0.016349 | Val Loss: 0.013012 LR: 0.00001254
+Trial 4 - Epoch 150/200 | Train Loss: 0.016354 | Val Loss: 0.013008 LR: 0.00001254
+Trial 4 - Epoch 151/200 | Train Loss: 0.016352 | Val Loss: 0.013006 LR: 0.00001254
+Trial 4 - Epoch 152/200 | Train Loss: 0.016351 | Val Loss: 0.013007 LR: 0.00001254
+Validation loss did not improve. Patience counter: 1/10
+Trial 4 - Epoch 153/200 | Train Loss: 0.016351 | Val Loss: 0.013005 LR: 0.00001254
+Trial 4 - Epoch 154/200 | Train Loss: 0.016352 | Val Loss: 0.013007 LR: 0.00001254
+Validation loss did not improve. Patience counter: 1/10
+Trial 4 - Epoch 155/200 | Train Loss: 0.016351 | Val Loss: 0.013003 LR: 0.00001254
+Trial 4 - Epoch 156/200 | Train Loss: 0.016348 | Val Loss: 0.012998 LR: 0.00001254
+Trial 4 - Epoch 157/200 | Train Loss: 0.016353 | Val Loss: 0.012998 LR: 0.00001254
+Trial 4 - Epoch 158/200 | Train Loss: 0.016351 | Val Loss: 0.012996 LR: 0.00001254
+Trial 4 - Epoch 159/200 | Train Loss: 0.016352 | Val Loss: 0.012995 LR: 0.00001254
+Trial 4 - Epoch 160/200 | Train Loss: 0.016349 | Val Loss: 0.012993 LR: 0.00001254
+Trial 4 - Epoch 161/200 | Train Loss: 0.016346 | Val Loss: 0.012991 LR: 0.00001254
+Trial 4 - Epoch 162/200 | Train Loss: 0.016351 | Val Loss: 0.012992 LR: 0.00001254
+Validation loss did not improve. Patience counter: 1/10
+Trial 4 - Epoch 163/200 | Train Loss: 0.016350 | Val Loss: 0.012986 LR: 0.00001254
+Trial 4 - Epoch 164/200 | Train Loss: 0.016348 | Val Loss: 0.012986 LR: 0.00001254
+Validation loss did not improve. Patience counter: 1/10
+Trial 4 - Epoch 165/200 | Train Loss: 0.016345 | Val Loss: 0.012986 LR: 0.00001254
+Trial 4 - Epoch 166/200 | Train Loss: 0.016342 | Val Loss: 0.012982 LR: 0.00001254
+Trial 4 - Epoch 167/200 | Train Loss: 0.016346 | Val Loss: 0.012983 LR: 0.00001254
+Validation loss did not improve. Patience counter: 1/10
+Trial 4 - Epoch 168/200 | Train Loss: 0.016345 | Val Loss: 0.012980 LR: 0.00001254
+Trial 4 - Epoch 169/200 | Train Loss: 0.016344 | Val Loss: 0.012978 LR: 0.00001254
+Trial 4 - Epoch 170/200 | Train Loss: 0.016348 | Val Loss: 0.012978 LR: 0.00001254
+Trial 4 - Epoch 171/200 | Train Loss: 0.016343 | Val Loss: 0.012976 LR: 0.00001254
+Trial 4 - Epoch 172/200 | Train Loss: 0.016342 | Val Loss: 0.012973 LR: 0.00001254
+Trial 4 - Epoch 173/200 | Train Loss: 0.016345 | Val Loss: 0.012970 LR: 0.00001254
+Trial 4 - Epoch 174/200 | Train Loss: 0.016346 | Val Loss: 0.012972 LR: 0.00001254
+Validation loss did not improve. Patience counter: 1/10
+Trial 4 - Epoch 175/200 | Train Loss: 0.016348 | Val Loss: 0.012970 LR: 0.00001254
+Validation loss did not improve. Patience counter: 2/10
+Trial 4 - Epoch 176/200 | Train Loss: 0.016344 | Val Loss: 0.012968 LR: 0.00001254
+Trial 4 - Epoch 177/200 | Train Loss: 0.016343 | Val Loss: 0.012966 LR: 0.00001254
+Trial 4 - Epoch 178/200 | Train Loss: 0.016347 | Val Loss: 0.012964 LR: 0.00001254
+Trial 4 - Epoch 179/200 | Train Loss: 0.016344 | Val Loss: 0.012961 LR: 0.00001254
+Trial 4 - Epoch 180/200 | Train Loss: 0.016342 | Val Loss: 0.012962 LR: 0.00001254
+Validation loss did not improve. Patience counter: 1/10
+Trial 4 - Epoch 181/200 | Train Loss: 0.016338 | Val Loss: 0.012962 LR: 0.00001254
+Validation loss did not improve. Patience counter: 2/10
+Trial 4 - Epoch 182/200 | Train Loss: 0.016339 | Val Loss: 0.012957 LR: 0.00001254
+Trial 4 - Epoch 183/200 | Train Loss: 0.016339 | Val Loss: 0.012956 LR: 0.00001254
+Trial 4 - Epoch 184/200 | Train Loss: 0.016339 | Val Loss: 0.012957 LR: 0.00001254
+Validation loss did not improve. Patience counter: 1/10
+Trial 4 - Epoch 185/200 | Train Loss: 0.016343 | Val Loss: 0.012955 LR: 0.00001254
+Trial 4 - Epoch 186/200 | Train Loss: 0.016339 | Val Loss: 0.012952 LR: 0.00001254
+Trial 4 - Epoch 187/200 | Train Loss: 0.016336 | Val Loss: 0.012949 LR: 0.00001254
+Trial 4 - Epoch 188/200 | Train Loss: 0.016337 | Val Loss: 0.012949 LR: 0.00001254
+Trial 4 - Epoch 189/200 | Train Loss: 0.016341 | Val Loss: 0.012949 LR: 0.00001254
+Trial 4 - Epoch 190/200 | Train Loss: 0.016337 | Val Loss: 0.012946 LR: 0.00001254
+Trial 4 - Epoch 191/200 | Train Loss: 0.016333 | Val Loss: 0.012945 LR: 0.00001254
+Trial 4 - Epoch 192/200 | Train Loss: 0.016337 | Val Loss: 0.012946 LR: 0.00001254
+Validation loss did not improve. Patience counter: 1/10
+Trial 4 - Epoch 193/200 | Train Loss: 0.016338 | Val Loss: 0.012944 LR: 0.00001254
+Trial 4 - Epoch 194/200 | Train Loss: 0.016335 | Val Loss: 0.012940 LR: 0.00001254
+Trial 4 - Epoch 195/200 | Train Loss: 0.016340 | Val Loss: 0.012939 LR: 0.00001254
+Trial 4 - Epoch 196/200 | Train Loss: 0.016333 | Val Loss: 0.012937 LR: 0.00001254
+Trial 4 - Epoch 197/200 | Train Loss: 0.016341 | Val Loss: 0.012938 LR: 0.00001254
+Validation loss did not improve. Patience counter: 1/10
+Trial 4 - Epoch 198/200 | Train Loss: 0.016334 | Val Loss: 0.012935 LR: 0.00001254
+Trial 4 - Epoch 199/200 | Train Loss: 0.016332 | Val Loss: 0.012934 LR: 0.00001254
+Trial 4 - Epoch 200/200 | Train Loss: 0.016332 | Val Loss: 0.012931 LR: 0.00001254
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 16, heads=2)
+  )
+  (rnn): GRU(32, 32, num_layers=3, batch_first=True, dropout=0.2)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=32, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=32, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.1, patience=4, min_lr=2.97255136008285e-07
+Trial 5 - Epoch 1/200 | Train Loss: 0.029120 | Val Loss: 0.014305 LR: 0.00010553
+Trial 5 - Epoch 2/200 | Train Loss: 0.017941 | Val Loss: 0.014061 LR: 0.00010553
+Trial 5 - Epoch 3/200 | Train Loss: 0.017748 | Val Loss: 0.013878 LR: 0.00010553
+Trial 5 - Epoch 4/200 | Train Loss: 0.017587 | Val Loss: 0.013733 LR: 0.00010553
+Trial 5 - Epoch 5/200 | Train Loss: 0.017450 | Val Loss: 0.013603 LR: 0.00010553
+Trial 5 - Epoch 6/200 | Train Loss: 0.017306 | Val Loss: 0.013475 LR: 0.00010553
+Trial 5 - Epoch 7/200 | Train Loss: 0.017181 | Val Loss: 0.013351 LR: 0.00010553
+Trial 5 - Epoch 8/200 | Train Loss: 0.017045 | Val Loss: 0.013235 LR: 0.00010553
+Trial 5 - Epoch 9/200 | Train Loss: 0.016932 | Val Loss: 0.013137 LR: 0.00010553
+Trial 5 - Epoch 10/200 | Train Loss: 0.016831 | Val Loss: 0.013054 LR: 0.00010553
+Trial 5 - Epoch 11/200 | Train Loss: 0.016748 | Val Loss: 0.012988 LR: 0.00010553
+Trial 5 - Epoch 12/200 | Train Loss: 0.016674 | Val Loss: 0.012938 LR: 0.00010553
+Trial 5 - Epoch 13/200 | Train Loss: 0.016620 | Val Loss: 0.012901 LR: 0.00010553
+Trial 5 - Epoch 14/200 | Train Loss: 0.016579 | Val Loss: 0.012872 LR: 0.00010553
+Trial 5 - Epoch 15/200 | Train Loss: 0.016549 | Val Loss: 0.012850 LR: 0.00010553
+Trial 5 - Epoch 16/200 | Train Loss: 0.016525 | Val Loss: 0.012834 LR: 0.00010553
+Trial 5 - Epoch 17/200 | Train Loss: 0.016506 | Val Loss: 0.012819 LR: 0.00010553
+Trial 5 - Epoch 18/200 | Train Loss: 0.016489 | Val Loss: 0.012809 LR: 0.00010553
+Trial 5 - Epoch 19/200 | Train Loss: 0.016469 | Val Loss: 0.012800 LR: 0.00010553
+Trial 5 - Epoch 20/200 | Train Loss: 0.016462 | Val Loss: 0.012794 LR: 0.00010553
+Trial 5 - Epoch 21/200 | Train Loss: 0.016449 | Val Loss: 0.012787 LR: 0.00010553
+Trial 5 - Epoch 22/200 | Train Loss: 0.016441 | Val Loss: 0.012783 LR: 0.00010553
+Trial 5 - Epoch 23/200 | Train Loss: 0.016430 | Val Loss: 0.012778 LR: 0.00010553
+Trial 5 - Epoch 24/200 | Train Loss: 0.016424 | Val Loss: 0.012774 LR: 0.00010553
+Trial 5 - Epoch 25/200 | Train Loss: 0.016417 | Val Loss: 0.012770 LR: 0.00010553
+Trial 5 - Epoch 26/200 | Train Loss: 0.016411 | Val Loss: 0.012767 LR: 0.00010553
+Trial 5 - Epoch 27/200 | Train Loss: 0.016399 | Val Loss: 0.012764 LR: 0.00010553
+Trial 5 - Epoch 28/200 | Train Loss: 0.016401 | Val Loss: 0.012762 LR: 0.00010553
+Trial 5 - Epoch 29/200 | Train Loss: 0.016397 | Val Loss: 0.012759 LR: 0.00010553
+Trial 5 - Epoch 30/200 | Train Loss: 0.016391 | Val Loss: 0.012758 LR: 0.00010553
+Trial 5 - Epoch 31/200 | Train Loss: 0.016384 | Val Loss: 0.012756 LR: 0.00010553
+Trial 5 - Epoch 32/200 | Train Loss: 0.016383 | Val Loss: 0.012754 LR: 0.00010553
+Trial 5 - Epoch 33/200 | Train Loss: 0.016377 | Val Loss: 0.012752 LR: 0.00010553
+Trial 5 - Epoch 34/200 | Train Loss: 0.016378 | Val Loss: 0.012752 LR: 0.00010553
+Validation loss did not improve. Patience counter: 1/10
+Trial 5 - Epoch 35/200 | Train Loss: 0.016374 | Val Loss: 0.012750 LR: 0.00010553
+Trial 5 - Epoch 36/200 | Train Loss: 0.016366 | Val Loss: 0.012748 LR: 0.00010553
+Trial 5 - Epoch 37/200 | Train Loss: 0.016366 | Val Loss: 0.012747 LR: 0.00010553
+Trial 5 - Epoch 38/200 | Train Loss: 0.016364 | Val Loss: 0.012746 LR: 0.00010553
+Trial 5 - Epoch 39/200 | Train Loss: 0.016364 | Val Loss: 0.012745 LR: 0.00010553
+Trial 5 - Epoch 40/200 | Train Loss: 0.016359 | Val Loss: 0.012744 LR: 0.00010553
+Trial 5 - Epoch 41/200 | Train Loss: 0.016355 | Val Loss: 0.012744 LR: 0.00010553
+Validation loss did not improve. Patience counter: 1/10
+Trial 5 - Epoch 42/200 | Train Loss: 0.016355 | Val Loss: 0.012743 LR: 0.00010553
+Trial 5 - Epoch 43/200 | Train Loss: 0.016355 | Val Loss: 0.012742 LR: 0.00010553
+Trial 5 - Epoch 44/200 | Train Loss: 0.016356 | Val Loss: 0.012741 LR: 0.00010553
+Trial 5 - Epoch 45/200 | Train Loss: 0.016351 | Val Loss: 0.012741 LR: 0.00010553
+Trial 5 - Epoch 46/200 | Train Loss: 0.016346 | Val Loss: 0.012741 LR: 0.00010553
+Trial 5 - Epoch 47/200 | Train Loss: 0.016344 | Val Loss: 0.012739 LR: 0.00010553
+Trial 5 - Epoch 48/200 | Train Loss: 0.016343 | Val Loss: 0.012741 LR: 0.00010553
+Validation loss did not improve. Patience counter: 1/10
+Trial 5 - Epoch 49/200 | Train Loss: 0.016342 | Val Loss: 0.012739 LR: 0.00010553
+Validation loss did not improve. Patience counter: 2/10
+Trial 5 - Epoch 50/200 | Train Loss: 0.016341 | Val Loss: 0.012738 LR: 0.00010553
+Trial 5 - Epoch 51/200 | Train Loss: 0.016337 | Val Loss: 0.012739 LR: 0.00010553
+Validation loss did not improve. Patience counter: 1/10
+Trial 5 - Epoch 52/200 | Train Loss: 0.016340 | Val Loss: 0.012738 LR: 0.00001055
+Trial 5 - Epoch 53/200 | Train Loss: 0.016959 | Val Loss: 0.012685 LR: 0.00001055
+Trial 5 - Epoch 54/200 | Train Loss: 0.016733 | Val Loss: 0.012704 LR: 0.00001055
+Validation loss did not improve. Patience counter: 1/10
+Trial 5 - Epoch 55/200 | Train Loss: 0.016671 | Val Loss: 0.012705 LR: 0.00001055
+Validation loss did not improve. Patience counter: 2/10
+Trial 5 - Epoch 56/200 | Train Loss: 0.016641 | Val Loss: 0.012699 LR: 0.00001055
+Validation loss did not improve. Patience counter: 3/10
+Trial 5 - Epoch 57/200 | Train Loss: 0.016627 | Val Loss: 0.012691 LR: 0.00001055
+Validation loss did not improve. Patience counter: 4/10
+Trial 5 - Epoch 58/200 | Train Loss: 0.016619 | Val Loss: 0.012685 LR: 0.00000106
+Validation loss did not improve. Patience counter: 5/10
+Trial 5 - Epoch 59/200 | Train Loss: 0.016652 | Val Loss: 0.012694 LR: 0.00000106
+Validation loss did not improve. Patience counter: 6/10
+Trial 5 - Epoch 60/200 | Train Loss: 0.016633 | Val Loss: 0.012703 LR: 0.00000106
+Validation loss did not improve. Patience counter: 7/10
+Trial 5 - Epoch 61/200 | Train Loss: 0.016620 | Val Loss: 0.012713 LR: 0.00000106
+Validation loss did not improve. Patience counter: 8/10
+Trial 5 - Epoch 62/200 | Train Loss: 0.016609 | Val Loss: 0.012722 LR: 0.00000106
+Validation loss did not improve. Patience counter: 9/10
+Trial 5 - Epoch 63/200 | Train Loss: 0.016603 | Val Loss: 0.012731 LR: 0.00000030
+Validation loss did not improve. Patience counter: 10/10
+Trial 5 early stopping triggered at epoch 63.
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 48, heads=1)
+    (1-2): 2 x GATConv(48, 48, heads=1)
+  )
+  (rnn): GRU(48, 48, num_layers=3, batch_first=True, dropout=0.4)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=48, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=48, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.1, patience=3, min_lr=4.369452062807897e-08
+Trial 6 - Epoch 1/200 | Train Loss: 0.026181 | Val Loss: 0.015806 LR: 0.00030502
+Trial 6 - Epoch 2/200 | Train Loss: 0.018793 | Val Loss: 0.015827 LR: 0.00030502
+Trial 6 pruned at epoch 2.
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 12, heads=8)
+    (1-3): 3 x GATConv(96, 12, heads=8)
+  )
+  (rnn): GRU(96, 96, num_layers=4, batch_first=True, dropout=0.1)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=96, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=96, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.7, patience=7, min_lr=7.07532235909441e-07
+Trial 7 - Epoch 1/200 | Train Loss: 0.041964 | Val Loss: 0.014791 LR: 0.00002192
+Trial 7 - Epoch 2/200 | Train Loss: 0.018442 | Val Loss: 0.014352 LR: 0.00002192
+Trial 7 - Epoch 3/200 | Train Loss: 0.018337 | Val Loss: 0.014264 LR: 0.00002192
+Trial 7 - Epoch 4/200 | Train Loss: 0.018286 | Val Loss: 0.014195 LR: 0.00002192
+Trial 7 - Epoch 5/200 | Train Loss: 0.018241 | Val Loss: 0.014137 LR: 0.00002192
+Trial 7 - Epoch 6/200 | Train Loss: 0.018208 | Val Loss: 0.014087 LR: 0.00002192
+Trial 7 - Epoch 7/200 | Train Loss: 0.018173 | Val Loss: 0.014041 LR: 0.00002192
+Trial 7 - Epoch 8/200 | Train Loss: 0.018143 | Val Loss: 0.014000 LR: 0.00002192
+Trial 7 - Epoch 9/200 | Train Loss: 0.018116 | Val Loss: 0.013960 LR: 0.00002192
+Trial 7 - Epoch 10/200 | Train Loss: 0.018089 | Val Loss: 0.013924 LR: 0.00002192
+Trial 7 - Epoch 11/200 | Train Loss: 0.018061 | Val Loss: 0.013888 LR: 0.00002192
+Trial 7 - Epoch 12/200 | Train Loss: 0.018034 | Val Loss: 0.013854 LR: 0.00002192
+Trial 7 - Epoch 13/200 | Train Loss: 0.018009 | Val Loss: 0.013821 LR: 0.00002192
+Trial 7 - Epoch 14/200 | Train Loss: 0.017979 | Val Loss: 0.013788 LR: 0.00002192
+Trial 7 - Epoch 15/200 | Train Loss: 0.017953 | Val Loss: 0.013756 LR: 0.00002192
+Trial 7 - Epoch 16/200 | Train Loss: 0.017922 | Val Loss: 0.013723 LR: 0.00002192
+Trial 7 - Epoch 17/200 | Train Loss: 0.017894 | Val Loss: 0.013691 LR: 0.00002192
+Trial 7 - Epoch 18/200 | Train Loss: 0.017860 | Val Loss: 0.013657 LR: 0.00002192
+Trial 7 - Epoch 19/200 | Train Loss: 0.017829 | Val Loss: 0.013624 LR: 0.00002192
+Trial 7 - Epoch 20/200 | Train Loss: 0.017794 | Val Loss: 0.013589 LR: 0.00002192
+Trial 7 - Epoch 21/200 | Train Loss: 0.017758 | Val Loss: 0.013554 LR: 0.00002192
+Trial 7 - Epoch 22/200 | Train Loss: 0.017721 | Val Loss: 0.013517 LR: 0.00002192
+Trial 7 - Epoch 23/200 | Train Loss: 0.017679 | Val Loss: 0.013479 LR: 0.00002192
+Trial 7 - Epoch 24/200 | Train Loss: 0.017636 | Val Loss: 0.013439 LR: 0.00002192
+Trial 7 - Epoch 25/200 | Train Loss: 0.017591 | Val Loss: 0.013398 LR: 0.00002192
+Trial 7 - Epoch 26/200 | Train Loss: 0.017546 | Val Loss: 0.013356 LR: 0.00002192
+Trial 7 - Epoch 27/200 | Train Loss: 0.017493 | Val Loss: 0.013313 LR: 0.00002192
+Trial 7 - Epoch 28/200 | Train Loss: 0.017443 | Val Loss: 0.013270 LR: 0.00002192
+Trial 7 - Epoch 29/200 | Train Loss: 0.017389 | Val Loss: 0.013227 LR: 0.00002192
+Trial 7 - Epoch 30/200 | Train Loss: 0.017336 | Val Loss: 0.013187 LR: 0.00002192
+Trial 7 - Epoch 31/200 | Train Loss: 0.017285 | Val Loss: 0.013148 LR: 0.00002192
+Trial 7 - Epoch 32/200 | Train Loss: 0.017233 | Val Loss: 0.013113 LR: 0.00002192
+Trial 7 - Epoch 33/200 | Train Loss: 0.017190 | Val Loss: 0.013082 LR: 0.00002192
+Trial 7 - Epoch 34/200 | Train Loss: 0.017147 | Val Loss: 0.013054 LR: 0.00002192
+Trial 7 - Epoch 35/200 | Train Loss: 0.017108 | Val Loss: 0.013031 LR: 0.00002192
+Trial 7 - Epoch 36/200 | Train Loss: 0.017074 | Val Loss: 0.013011 LR: 0.00002192
+Trial 7 - Epoch 37/200 | Train Loss: 0.017047 | Val Loss: 0.012994 LR: 0.00002192
+Trial 7 - Epoch 38/200 | Train Loss: 0.017024 | Val Loss: 0.012980 LR: 0.00002192
+Trial 7 - Epoch 39/200 | Train Loss: 0.017000 | Val Loss: 0.012967 LR: 0.00002192
+Trial 7 - Epoch 40/200 | Train Loss: 0.016982 | Val Loss: 0.012957 LR: 0.00002192
+Trial 7 - Epoch 41/200 | Train Loss: 0.016965 | Val Loss: 0.012948 LR: 0.00002192
+Trial 7 - Epoch 42/200 | Train Loss: 0.016948 | Val Loss: 0.012940 LR: 0.00002192
+Trial 7 - Epoch 43/200 | Train Loss: 0.016939 | Val Loss: 0.012933 LR: 0.00002192
+Trial 7 - Epoch 44/200 | Train Loss: 0.016928 | Val Loss: 0.012927 LR: 0.00002192
+Trial 7 - Epoch 45/200 | Train Loss: 0.016918 | Val Loss: 0.012921 LR: 0.00002192
+Trial 7 - Epoch 46/200 | Train Loss: 0.016912 | Val Loss: 0.012916 LR: 0.00002192
+Trial 7 - Epoch 47/200 | Train Loss: 0.016902 | Val Loss: 0.012911 LR: 0.00002192
+Trial 7 - Epoch 48/200 | Train Loss: 0.016896 | Val Loss: 0.012907 LR: 0.00002192
+Trial 7 - Epoch 49/200 | Train Loss: 0.016887 | Val Loss: 0.012903 LR: 0.00002192
+Trial 7 - Epoch 50/200 | Train Loss: 0.016882 | Val Loss: 0.012900 LR: 0.00002192
+Trial 7 - Epoch 51/200 | Train Loss: 0.016882 | Val Loss: 0.012896 LR: 0.00002192
+Trial 7 - Epoch 52/200 | Train Loss: 0.016871 | Val Loss: 0.012893 LR: 0.00002192
+Trial 7 - Epoch 53/200 | Train Loss: 0.016868 | Val Loss: 0.012891 LR: 0.00002192
+Trial 7 - Epoch 54/200 | Train Loss: 0.016866 | Val Loss: 0.012888 LR: 0.00002192
+Trial 7 - Epoch 55/200 | Train Loss: 0.016862 | Val Loss: 0.012886 LR: 0.00002192
+Trial 7 - Epoch 56/200 | Train Loss: 0.016861 | Val Loss: 0.012884 LR: 0.00002192
+Trial 7 - Epoch 57/200 | Train Loss: 0.016858 | Val Loss: 0.012882 LR: 0.00002192
+Trial 7 - Epoch 58/200 | Train Loss: 0.016856 | Val Loss: 0.012880 LR: 0.00002192
+Trial 7 - Epoch 59/200 | Train Loss: 0.016851 | Val Loss: 0.012878 LR: 0.00002192
+Trial 7 - Epoch 60/200 | Train Loss: 0.016850 | Val Loss: 0.012877 LR: 0.00002192
+Trial 7 - Epoch 61/200 | Train Loss: 0.016847 | Val Loss: 0.012876 LR: 0.00002192
+Trial 7 - Epoch 62/200 | Train Loss: 0.016845 | Val Loss: 0.012874 LR: 0.00002192
+Trial 7 - Epoch 63/200 | Train Loss: 0.016843 | Val Loss: 0.012873 LR: 0.00002192
+Trial 7 - Epoch 64/200 | Train Loss: 0.016842 | Val Loss: 0.012872 LR: 0.00002192
+Trial 7 - Epoch 65/200 | Train Loss: 0.016841 | Val Loss: 0.012870 LR: 0.00002192
+Trial 7 - Epoch 66/200 | Train Loss: 0.016839 | Val Loss: 0.012869 LR: 0.00002192
+Trial 7 - Epoch 67/200 | Train Loss: 0.016838 | Val Loss: 0.012868 LR: 0.00002192
+Trial 7 - Epoch 68/200 | Train Loss: 0.016834 | Val Loss: 0.012867 LR: 0.00002192
+Trial 7 - Epoch 69/200 | Train Loss: 0.016834 | Val Loss: 0.012866 LR: 0.00002192
+Trial 7 - Epoch 70/200 | Train Loss: 0.016834 | Val Loss: 0.012866 LR: 0.00002192
+Trial 7 - Epoch 71/200 | Train Loss: 0.016835 | Val Loss: 0.012865 LR: 0.00002192
+Trial 7 - Epoch 72/200 | Train Loss: 0.016833 | Val Loss: 0.012865 LR: 0.00002192
+Trial 7 - Epoch 73/200 | Train Loss: 0.016833 | Val Loss: 0.012864 LR: 0.00002192
+Trial 7 - Epoch 74/200 | Train Loss: 0.016831 | Val Loss: 0.012864 LR: 0.00002192
+Trial 7 - Epoch 75/200 | Train Loss: 0.016829 | Val Loss: 0.012863 LR: 0.00002192
+Trial 7 - Epoch 76/200 | Train Loss: 0.016829 | Val Loss: 0.012862 LR: 0.00002192
+Trial 7 - Epoch 77/200 | Train Loss: 0.016828 | Val Loss: 0.012862 LR: 0.00002192
+Trial 7 - Epoch 78/200 | Train Loss: 0.016826 | Val Loss: 0.012862 LR: 0.00002192
+Trial 7 - Epoch 79/200 | Train Loss: 0.016825 | Val Loss: 0.012861 LR: 0.00002192
+Trial 7 - Epoch 80/200 | Train Loss: 0.016825 | Val Loss: 0.012861 LR: 0.00002192
+Validation loss did not improve. Patience counter: 1/10
+Trial 7 - Epoch 81/200 | Train Loss: 0.016827 | Val Loss: 0.012861 LR: 0.00002192
+Trial 7 - Epoch 82/200 | Train Loss: 0.016827 | Val Loss: 0.012861 LR: 0.00002192
+Validation loss did not improve. Patience counter: 1/10
+Trial 7 - Epoch 83/200 | Train Loss: 0.016827 | Val Loss: 0.012860 LR: 0.00002192
+Trial 7 - Epoch 84/200 | Train Loss: 0.016824 | Val Loss: 0.012860 LR: 0.00002192
+Trial 7 - Epoch 85/200 | Train Loss: 0.016822 | Val Loss: 0.012860 LR: 0.00002192
+Trial 7 - Epoch 86/200 | Train Loss: 0.016820 | Val Loss: 0.012859 LR: 0.00002192
+Trial 7 - Epoch 87/200 | Train Loss: 0.016823 | Val Loss: 0.012859 LR: 0.00002192
+Validation loss did not improve. Patience counter: 1/10
+Trial 7 - Epoch 88/200 | Train Loss: 0.016822 | Val Loss: 0.012859 LR: 0.00002192
+Trial 7 - Epoch 89/200 | Train Loss: 0.016822 | Val Loss: 0.012858 LR: 0.00002192
+Trial 7 - Epoch 90/200 | Train Loss: 0.016821 | Val Loss: 0.012858 LR: 0.00002192
+Trial 7 - Epoch 91/200 | Train Loss: 0.016819 | Val Loss: 0.012858 LR: 0.00002192
+Trial 7 - Epoch 92/200 | Train Loss: 0.016820 | Val Loss: 0.012858 LR: 0.00002192
+Trial 7 - Epoch 93/200 | Train Loss: 0.016819 | Val Loss: 0.012858 LR: 0.00002192
+Validation loss did not improve. Patience counter: 1/10
+Trial 7 - Epoch 94/200 | Train Loss: 0.016816 | Val Loss: 0.012857 LR: 0.00001535
+Trial 7 - Epoch 95/200 | Train Loss: 0.016933 | Val Loss: 0.012846 LR: 0.00001535
+Trial 7 - Epoch 96/200 | Train Loss: 0.016899 | Val Loss: 0.012848 LR: 0.00001535
+Validation loss did not improve. Patience counter: 1/10
+Trial 7 - Epoch 97/200 | Train Loss: 0.016893 | Val Loss: 0.012848 LR: 0.00001535
+Validation loss did not improve. Patience counter: 2/10
+Trial 7 - Epoch 98/200 | Train Loss: 0.016890 | Val Loss: 0.012848 LR: 0.00001535
+Validation loss did not improve. Patience counter: 3/10
+Trial 7 - Epoch 99/200 | Train Loss: 0.016885 | Val Loss: 0.012848 LR: 0.00001535
+Validation loss did not improve. Patience counter: 4/10
+Trial 7 - Epoch 100/200 | Train Loss: 0.016882 | Val Loss: 0.012848 LR: 0.00001535
+Validation loss did not improve. Patience counter: 5/10
+Trial 7 - Epoch 101/200 | Train Loss: 0.016881 | Val Loss: 0.012847 LR: 0.00001535
+Validation loss did not improve. Patience counter: 6/10
+Trial 7 - Epoch 102/200 | Train Loss: 0.016880 | Val Loss: 0.012847 LR: 0.00001535
+Validation loss did not improve. Patience counter: 7/10
+Trial 7 - Epoch 103/200 | Train Loss: 0.016883 | Val Loss: 0.012848 LR: 0.00001074
+Validation loss did not improve. Patience counter: 8/10
+Trial 7 - Epoch 104/200 | Train Loss: 0.016999 | Val Loss: 0.012807 LR: 0.00001074
+Trial 7 - Epoch 105/200 | Train Loss: 0.016936 | Val Loss: 0.012809 LR: 0.00001074
+Validation loss did not improve. Patience counter: 1/10
+Trial 7 - Epoch 106/200 | Train Loss: 0.016932 | Val Loss: 0.012810 LR: 0.00001074
+Validation loss did not improve. Patience counter: 2/10
+Trial 7 - Epoch 107/200 | Train Loss: 0.016928 | Val Loss: 0.012811 LR: 0.00001074
+Validation loss did not improve. Patience counter: 3/10
+Trial 7 - Epoch 108/200 | Train Loss: 0.016927 | Val Loss: 0.012811 LR: 0.00001074
+Validation loss did not improve. Patience counter: 4/10
+Trial 7 - Epoch 109/200 | Train Loss: 0.016924 | Val Loss: 0.012811 LR: 0.00001074
+Validation loss did not improve. Patience counter: 5/10
+Trial 7 - Epoch 110/200 | Train Loss: 0.016924 | Val Loss: 0.012811 LR: 0.00001074
+Validation loss did not improve. Patience counter: 6/10
+Trial 7 - Epoch 111/200 | Train Loss: 0.016923 | Val Loss: 0.012811 LR: 0.00001074
+Validation loss did not improve. Patience counter: 7/10
+Trial 7 - Epoch 112/200 | Train Loss: 0.016922 | Val Loss: 0.012811 LR: 0.00000752
+Validation loss did not improve. Patience counter: 8/10
+Trial 7 - Epoch 113/200 | Train Loss: 0.017010 | Val Loss: 0.012787 LR: 0.00000752
+Trial 7 - Epoch 114/200 | Train Loss: 0.016945 | Val Loss: 0.012789 LR: 0.00000752
+Validation loss did not improve. Patience counter: 1/10
+Trial 7 - Epoch 115/200 | Train Loss: 0.016939 | Val Loss: 0.012791 LR: 0.00000752
+Validation loss did not improve. Patience counter: 2/10
+Trial 7 - Epoch 116/200 | Train Loss: 0.016936 | Val Loss: 0.012791 LR: 0.00000752
+Validation loss did not improve. Patience counter: 3/10
+Trial 7 - Epoch 117/200 | Train Loss: 0.016936 | Val Loss: 0.012792 LR: 0.00000752
+Validation loss did not improve. Patience counter: 4/10
+Trial 7 - Epoch 118/200 | Train Loss: 0.016933 | Val Loss: 0.012792 LR: 0.00000752
+Validation loss did not improve. Patience counter: 5/10
+Trial 7 - Epoch 119/200 | Train Loss: 0.016933 | Val Loss: 0.012792 LR: 0.00000752
+Validation loss did not improve. Patience counter: 6/10
+Trial 7 - Epoch 120/200 | Train Loss: 0.016929 | Val Loss: 0.012791 LR: 0.00000752
+Validation loss did not improve. Patience counter: 7/10
+Trial 7 - Epoch 121/200 | Train Loss: 0.016931 | Val Loss: 0.012791 LR: 0.00000526
+Validation loss did not improve. Patience counter: 8/10
+Trial 7 - Epoch 122/200 | Train Loss: 0.016982 | Val Loss: 0.012795 LR: 0.00000526
+Validation loss did not improve. Patience counter: 9/10
+Trial 7 - Epoch 123/200 | Train Loss: 0.016934 | Val Loss: 0.012798 LR: 0.00000526
+Validation loss did not improve. Patience counter: 10/10
+Trial 7 early stopping triggered at epoch 123.
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 12, heads=8)
+  )
+  (rnn): GRU(96, 96, num_layers=3, batch_first=True, dropout=0.4)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=96, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=96, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.4, patience=7, min_lr=1.93697965087858e-08
+Trial 8 - Epoch 1/200 | Train Loss: 0.018611 | Val Loss: 0.020416 LR: 0.00084639
+Trial 8 - Epoch 2/200 | Train Loss: 0.017482 | Val Loss: 0.016488 LR: 0.00084639
+Trial 8 pruned at epoch 2.
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 96, heads=1)
+    (1): GATConv(96, 96, heads=1)
+  )
+  (rnn): GRU(96, 96, num_layers=3, batch_first=True, dropout=0.4)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=96, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=96, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.4, patience=7, min_lr=2.4227561741945268e-08
+Trial 9 - Epoch 1/200 | Train Loss: 0.020064 | Val Loss: 0.016832 LR: 0.00017238
+Trial 9 - Epoch 2/200 | Train Loss: 0.018051 | Val Loss: 0.015585 LR: 0.00017238
+Trial 9 - Epoch 3/200 | Train Loss: 0.017764 | Val Loss: 0.014927 LR: 0.00017238
+Trial 9 - Epoch 4/200 | Train Loss: 0.017578 | Val Loss: 0.014490 LR: 0.00017238
+Trial 9 pruned at epoch 4.
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 8, heads=2)
+    (1): GATConv(16, 8, heads=2)
+  )
+  (rnn): GRU(16, 16, num_layers=2, batch_first=True, dropout=0.1)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=16, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=16, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.30000000000000004, patience=3, min_lr=2.613365052962434e-07
+Trial 10 - Epoch 1/200 | Train Loss: 0.071569 | Val Loss: 0.024075 LR: 0.00006546
+Trial 10 - Epoch 2/200 | Train Loss: 0.021899 | Val Loss: 0.014565 LR: 0.00006546
+Trial 10 pruned at epoch 2.
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 24, heads=2)
+  )
+  (rnn): GRU(48, 48, num_layers=2, batch_first=True, dropout=0.2)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=48, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=48, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.2, patience=5, min_lr=9.70636881730044e-07
+Trial 11 - Epoch 1/200 | Train Loss: 0.019160 | Val Loss: 0.019650 LR: 0.00090067
+Trial 11 - Epoch 2/200 | Train Loss: 0.017767 | Val Loss: 0.016557 LR: 0.00090067
+Trial 11 - Epoch 3/200 | Train Loss: 0.017539 | Val Loss: 0.015167 LR: 0.00090067
+Trial 11 - Epoch 4/200 | Train Loss: 0.017407 | Val Loss: 0.014464 LR: 0.00090067
+Trial 11 pruned at epoch 4.
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 8, heads=2)
+  )
+  (rnn): GRU(16, 16, num_layers=4, batch_first=True, dropout=0.2)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=16, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=16, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.2, patience=5, min_lr=2.3073615595616355e-07
+Trial 12 - Epoch 1/200 | Train Loss: 0.036775 | Val Loss: 0.014152 LR: 0.00042456
+Trial 12 - Epoch 2/200 | Train Loss: 0.018200 | Val Loss: 0.014109 LR: 0.00042456
+Trial 12 - Epoch 3/200 | Train Loss: 0.018101 | Val Loss: 0.014026 LR: 0.00042456
+Trial 12 - Epoch 4/200 | Train Loss: 0.018024 | Val Loss: 0.013943 LR: 0.00042456
+Trial 12 pruned at epoch 4.
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 32, heads=2)
+    (1): GATConv(64, 32, heads=2)
+  )
+  (rnn): GRU(64, 64, num_layers=2, batch_first=True, dropout=0.2)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=64, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=64, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.2, patience=5, min_lr=2.299213845897011e-07
+Trial 13 - Epoch 1/200 | Train Loss: 0.023220 | Val Loss: 0.014664 LR: 0.00012513
+Trial 13 - Epoch 2/200 | Train Loss: 0.017953 | Val Loss: 0.014393 LR: 0.00012513
+Trial 13 pruned at epoch 2.
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 24, heads=2)
+  )
+  (rnn): GRU(48, 48, batch_first=True, dropout=0.30000000000000004)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=48, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=48, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.30000000000000004, patience=6, min_lr=4.388133031208138e-07
+Trial 14 - Epoch 1/200 | Train Loss: 0.033614 | Val Loss: 0.016017 LR: 0.00004421
+Trial 14 - Epoch 2/200 | Train Loss: 0.018909 | Val Loss: 0.015342 LR: 0.00004421
+Trial 14 pruned at epoch 2.
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 20, heads=4)
+    (1): GATConv(80, 20, heads=4)
+  )
+  (rnn): GRU(80, 80, num_layers=2, batch_first=True, dropout=0.1)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=80, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=80, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.5, patience=4, min_lr=1.5193008967960015e-07
+Trial 15 - Epoch 1/200 | Train Loss: 0.021420 | Val Loss: 0.015273 LR: 0.00045932
+Trial 15 - Epoch 2/200 | Train Loss: 0.019193 | Val Loss: 0.014711 LR: 0.00045932
+Trial 15 - Epoch 3/200 | Train Loss: 0.018627 | Val Loss: 0.014345 LR: 0.00045932
+Trial 15 - Epoch 4/200 | Train Loss: 0.018231 | Val Loss: 0.013973 LR: 0.00045932
+Trial 15 - Epoch 5/200 | Train Loss: 0.017898 | Val Loss: 0.013725 LR: 0.00045932
+Trial 15 - Epoch 6/200 | Train Loss: 0.017627 | Val Loss: 0.013544 LR: 0.00045932
+Trial 15 - Epoch 7/200 | Train Loss: 0.017406 | Val Loss: 0.013387 LR: 0.00045932
+Trial 15 - Epoch 8/200 | Train Loss: 0.017221 | Val Loss: 0.013240 LR: 0.00045932
+Trial 15 - Epoch 9/200 | Train Loss: 0.017070 | Val Loss: 0.013121 LR: 0.00045932
+Trial 15 - Epoch 10/200 | Train Loss: 0.016950 | Val Loss: 0.013033 LR: 0.00045932
+Trial 15 - Epoch 11/200 | Train Loss: 0.016855 | Val Loss: 0.012971 LR: 0.00045932
+Trial 15 - Epoch 12/200 | Train Loss: 0.016790 | Val Loss: 0.012928 LR: 0.00045932
+Trial 15 - Epoch 13/200 | Train Loss: 0.016731 | Val Loss: 0.012899 LR: 0.00045932
+Trial 15 - Epoch 14/200 | Train Loss: 0.016683 | Val Loss: 0.012872 LR: 0.00045932
+Trial 15 - Epoch 15/200 | Train Loss: 0.016648 | Val Loss: 0.012847 LR: 0.00045932
+Trial 15 - Epoch 16/200 | Train Loss: 0.016611 | Val Loss: 0.012832 LR: 0.00045932
+Trial 15 - Epoch 17/200 | Train Loss: 0.016582 | Val Loss: 0.012819 LR: 0.00045932
+Trial 15 - Epoch 18/200 | Train Loss: 0.016553 | Val Loss: 0.012811 LR: 0.00045932
+Trial 15 - Epoch 19/200 | Train Loss: 0.016530 | Val Loss: 0.012804 LR: 0.00045932
+Trial 15 - Epoch 20/200 | Train Loss: 0.016517 | Val Loss: 0.012791 LR: 0.00045932
+Trial 15 - Epoch 21/200 | Train Loss: 0.016495 | Val Loss: 0.012778 LR: 0.00045932
+Trial 15 - Epoch 22/200 | Train Loss: 0.016476 | Val Loss: 0.012777 LR: 0.00045932
+Trial 15 - Epoch 23/200 | Train Loss: 0.016465 | Val Loss: 0.012774 LR: 0.00045932
+Trial 15 - Epoch 24/200 | Train Loss: 0.016453 | Val Loss: 0.012768 LR: 0.00045932
+Trial 15 - Epoch 25/200 | Train Loss: 0.016441 | Val Loss: 0.012769 LR: 0.00045932
+Validation loss did not improve. Patience counter: 1/10
+Trial 15 - Epoch 26/200 | Train Loss: 0.016429 | Val Loss: 0.012765 LR: 0.00045932
+Trial 15 - Epoch 27/200 | Train Loss: 0.016418 | Val Loss: 0.012763 LR: 0.00045932
+Trial 15 - Epoch 28/200 | Train Loss: 0.016411 | Val Loss: 0.012761 LR: 0.00045932
+Trial 15 - Epoch 29/200 | Train Loss: 0.016405 | Val Loss: 0.012760 LR: 0.00045932
+Trial 15 - Epoch 30/200 | Train Loss: 0.016399 | Val Loss: 0.012763 LR: 0.00045932
+Validation loss did not improve. Patience counter: 1/10
+Trial 15 - Epoch 31/200 | Train Loss: 0.016394 | Val Loss: 0.012754 LR: 0.00045932
+Trial 15 - Epoch 32/200 | Train Loss: 0.016383 | Val Loss: 0.012758 LR: 0.00045932
+Validation loss did not improve. Patience counter: 1/10
+Trial 15 - Epoch 33/200 | Train Loss: 0.016381 | Val Loss: 0.012756 LR: 0.00045932
+Validation loss did not improve. Patience counter: 2/10
+Trial 15 - Epoch 34/200 | Train Loss: 0.016376 | Val Loss: 0.012761 LR: 0.00045932
+Validation loss did not improve. Patience counter: 3/10
+Trial 15 - Epoch 35/200 | Train Loss: 0.016370 | Val Loss: 0.012756 LR: 0.00045932
+Validation loss did not improve. Patience counter: 4/10
+Trial 15 - Epoch 36/200 | Train Loss: 0.016366 | Val Loss: 0.012752 LR: 0.00045932
+Trial 15 - Epoch 37/200 | Train Loss: 0.016361 | Val Loss: 0.012758 LR: 0.00045932
+Validation loss did not improve. Patience counter: 1/10
+Trial 15 - Epoch 38/200 | Train Loss: 0.016366 | Val Loss: 0.012757 LR: 0.00045932
+Validation loss did not improve. Patience counter: 2/10
+Trial 15 - Epoch 39/200 | Train Loss: 0.016362 | Val Loss: 0.012754 LR: 0.00045932
+Validation loss did not improve. Patience counter: 3/10
+Trial 15 - Epoch 40/200 | Train Loss: 0.016356 | Val Loss: 0.012758 LR: 0.00045932
+Validation loss did not improve. Patience counter: 4/10
+Trial 15 - Epoch 41/200 | Train Loss: 0.016357 | Val Loss: 0.012758 LR: 0.00022966
+Validation loss did not improve. Patience counter: 5/10
+Trial 15 - Epoch 42/200 | Train Loss: 0.016372 | Val Loss: 0.012832 LR: 0.00022966
+Validation loss did not improve. Patience counter: 6/10
+Trial 15 - Epoch 43/200 | Train Loss: 0.016365 | Val Loss: 0.012848 LR: 0.00022966
+Validation loss did not improve. Patience counter: 7/10
+Trial 15 - Epoch 44/200 | Train Loss: 0.016363 | Val Loss: 0.012851 LR: 0.00022966
+Validation loss did not improve. Patience counter: 8/10
+Trial 15 - Epoch 45/200 | Train Loss: 0.016367 | Val Loss: 0.012851 LR: 0.00022966
+Validation loss did not improve. Patience counter: 9/10
+Trial 15 - Epoch 46/200 | Train Loss: 0.016367 | Val Loss: 0.012845 LR: 0.00011483
+Validation loss did not improve. Patience counter: 10/10
+Trial 15 early stopping triggered at epoch 46.
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 40, heads=2)
+    (1-3): 3 x GATConv(80, 40, heads=2)
+  )
+  (rnn): GRU(80, 80, num_layers=4, batch_first=True, dropout=0.5)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=80, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=80, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.30000000000000004, patience=8, min_lr=5.064609018684164e-07
+Trial 16 - Epoch 1/200 | Train Loss: 0.025675 | Val Loss: 0.015162 LR: 0.00004173
+Trial 16 - Epoch 2/200 | Train Loss: 0.018063 | Val Loss: 0.014915 LR: 0.00004173
+Trial 16 - Epoch 3/200 | Train Loss: 0.017920 | Val Loss: 0.014649 LR: 0.00004173
+Trial 16 - Epoch 4/200 | Train Loss: 0.017787 | Val Loss: 0.014383 LR: 0.00004173
+Trial 16 pruned at epoch 4.
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 16, heads=2)
+  )
+  (rnn): GRU(32, 32, batch_first=True, dropout=0.2)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=32, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=32, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.2, patience=6, min_lr=5.2337442115875155e-08
+Trial 17 - Epoch 1/200 | Train Loss: 0.028341 | Val Loss: 0.015312 LR: 0.00053959
+Trial 17 - Epoch 2/200 | Train Loss: 0.018711 | Val Loss: 0.014199 LR: 0.00053959
+Trial 17 - Epoch 3/200 | Train Loss: 0.017912 | Val Loss: 0.013685 LR: 0.00053959
+Trial 17 - Epoch 4/200 | Train Loss: 0.017445 | Val Loss: 0.013378 LR: 0.00053959
+Trial 17 - Epoch 5/200 | Train Loss: 0.017137 | Val Loss: 0.013193 LR: 0.00053959
+Trial 17 - Epoch 6/200 | Train Loss: 0.016939 | Val Loss: 0.013082 LR: 0.00053959
+Trial 17 - Epoch 7/200 | Train Loss: 0.016806 | Val Loss: 0.013010 LR: 0.00053959
+Trial 17 - Epoch 8/200 | Train Loss: 0.016712 | Val Loss: 0.012959 LR: 0.00053959
+Trial 17 - Epoch 9/200 | Train Loss: 0.016649 | Val Loss: 0.012919 LR: 0.00053959
+Trial 17 - Epoch 10/200 | Train Loss: 0.016596 | Val Loss: 0.012888 LR: 0.00053959
+Trial 17 - Epoch 11/200 | Train Loss: 0.016555 | Val Loss: 0.012863 LR: 0.00053959
+Trial 17 - Epoch 12/200 | Train Loss: 0.016517 | Val Loss: 0.012841 LR: 0.00053959
+Trial 17 - Epoch 13/200 | Train Loss: 0.016491 | Val Loss: 0.012821 LR: 0.00053959
+Trial 17 - Epoch 14/200 | Train Loss: 0.016461 | Val Loss: 0.012804 LR: 0.00053959
+Trial 17 - Epoch 15/200 | Train Loss: 0.016441 | Val Loss: 0.012790 LR: 0.00053959
+Trial 17 - Epoch 16/200 | Train Loss: 0.016426 | Val Loss: 0.012776 LR: 0.00053959
+Trial 17 - Epoch 17/200 | Train Loss: 0.016403 | Val Loss: 0.012765 LR: 0.00053959
+Trial 17 - Epoch 18/200 | Train Loss: 0.016386 | Val Loss: 0.012755 LR: 0.00053959
+Trial 17 - Epoch 19/200 | Train Loss: 0.016373 | Val Loss: 0.012746 LR: 0.00053959
+Trial 17 - Epoch 20/200 | Train Loss: 0.016361 | Val Loss: 0.012738 LR: 0.00053959
+Trial 17 - Epoch 21/200 | Train Loss: 0.016351 | Val Loss: 0.012731 LR: 0.00053959
+Trial 17 - Epoch 22/200 | Train Loss: 0.016341 | Val Loss: 0.012724 LR: 0.00053959
+Trial 17 - Epoch 23/200 | Train Loss: 0.016332 | Val Loss: 0.012718 LR: 0.00053959
+Trial 17 - Epoch 24/200 | Train Loss: 0.016325 | Val Loss: 0.012712 LR: 0.00053959
+Trial 17 - Epoch 25/200 | Train Loss: 0.016311 | Val Loss: 0.012708 LR: 0.00053959
+Trial 17 - Epoch 26/200 | Train Loss: 0.016309 | Val Loss: 0.012704 LR: 0.00053959
+Trial 17 - Epoch 27/200 | Train Loss: 0.016304 | Val Loss: 0.012700 LR: 0.00053959
+Trial 17 - Epoch 28/200 | Train Loss: 0.016297 | Val Loss: 0.012697 LR: 0.00053959
+Trial 17 - Epoch 29/200 | Train Loss: 0.016291 | Val Loss: 0.012695 LR: 0.00053959
+Trial 17 - Epoch 30/200 | Train Loss: 0.016287 | Val Loss: 0.012693 LR: 0.00053959
+Trial 17 - Epoch 31/200 | Train Loss: 0.016284 | Val Loss: 0.012691 LR: 0.00053959
+Trial 17 - Epoch 32/200 | Train Loss: 0.016281 | Val Loss: 0.012689 LR: 0.00053959
+Trial 17 - Epoch 33/200 | Train Loss: 0.016280 | Val Loss: 0.012687 LR: 0.00053959
+Trial 17 - Epoch 34/200 | Train Loss: 0.016277 | Val Loss: 0.012687 LR: 0.00053959
+Trial 17 - Epoch 35/200 | Train Loss: 0.016278 | Val Loss: 0.012686 LR: 0.00053959
+Trial 17 - Epoch 36/200 | Train Loss: 0.016272 | Val Loss: 0.012685 LR: 0.00053959
+Trial 17 - Epoch 37/200 | Train Loss: 0.016269 | Val Loss: 0.012683 LR: 0.00053959
+Trial 17 - Epoch 38/200 | Train Loss: 0.016265 | Val Loss: 0.012682 LR: 0.00053959
+Trial 17 - Epoch 39/200 | Train Loss: 0.016260 | Val Loss: 0.012681 LR: 0.00053959
+Trial 17 - Epoch 40/200 | Train Loss: 0.016260 | Val Loss: 0.012679 LR: 0.00053959
+Trial 17 - Epoch 41/200 | Train Loss: 0.016255 | Val Loss: 0.012678 LR: 0.00053959
+Trial 17 - Epoch 42/200 | Train Loss: 0.016255 | Val Loss: 0.012679 LR: 0.00053959
+Validation loss did not improve. Patience counter: 1/10
+Trial 17 - Epoch 43/200 | Train Loss: 0.016253 | Val Loss: 0.012679 LR: 0.00053959
+Validation loss did not improve. Patience counter: 2/10
+Trial 17 - Epoch 44/200 | Train Loss: 0.016252 | Val Loss: 0.012679 LR: 0.00053959
+Validation loss did not improve. Patience counter: 3/10
+Trial 17 - Epoch 45/200 | Train Loss: 0.016256 | Val Loss: 0.012678 LR: 0.00053959
+Validation loss did not improve. Patience counter: 4/10
+Trial 17 - Epoch 46/200 | Train Loss: 0.016254 | Val Loss: 0.012681 LR: 0.00053959
+Validation loss did not improve. Patience counter: 5/10
+Trial 17 - Epoch 47/200 | Train Loss: 0.016253 | Val Loss: 0.012682 LR: 0.00053959
+Validation loss did not improve. Patience counter: 6/10
+Trial 17 - Epoch 48/200 | Train Loss: 0.016249 | Val Loss: 0.012683 LR: 0.00010792
+Validation loss did not improve. Patience counter: 7/10
+Trial 17 - Epoch 49/200 | Train Loss: 0.016549 | Val Loss: 0.012656 LR: 0.00010792
+Trial 17 - Epoch 50/200 | Train Loss: 0.016463 | Val Loss: 0.012660 LR: 0.00010792
+Validation loss did not improve. Patience counter: 1/10
+Trial 17 - Epoch 51/200 | Train Loss: 0.016440 | Val Loss: 0.012667 LR: 0.00010792
+Validation loss did not improve. Patience counter: 2/10
+Trial 17 - Epoch 52/200 | Train Loss: 0.016426 | Val Loss: 0.012673 LR: 0.00010792
+Validation loss did not improve. Patience counter: 3/10
+Trial 17 - Epoch 53/200 | Train Loss: 0.016415 | Val Loss: 0.012677 LR: 0.00010792
+Validation loss did not improve. Patience counter: 4/10
+Trial 17 - Epoch 54/200 | Train Loss: 0.016410 | Val Loss: 0.012680 LR: 0.00010792
+Validation loss did not improve. Patience counter: 5/10
+Trial 17 - Epoch 55/200 | Train Loss: 0.016407 | Val Loss: 0.012683 LR: 0.00010792
+Validation loss did not improve. Patience counter: 6/10
+Trial 17 - Epoch 56/200 | Train Loss: 0.016403 | Val Loss: 0.012684 LR: 0.00002158
+Validation loss did not improve. Patience counter: 7/10
+Trial 17 - Epoch 57/200 | Train Loss: 0.016521 | Val Loss: 0.012593 LR: 0.00002158
+Trial 17 - Epoch 58/200 | Train Loss: 0.016428 | Val Loss: 0.012571 LR: 0.00002158
+Trial 17 - Epoch 59/200 | Train Loss: 0.016393 | Val Loss: 0.012568 LR: 0.00002158
+Trial 17 - Epoch 60/200 | Train Loss: 0.016375 | Val Loss: 0.012569 LR: 0.00002158
+Validation loss did not improve. Patience counter: 1/10
+Trial 17 - Epoch 61/200 | Train Loss: 0.016368 | Val Loss: 0.012572 LR: 0.00002158
+Validation loss did not improve. Patience counter: 2/10
+Trial 17 - Epoch 62/200 | Train Loss: 0.016361 | Val Loss: 0.012574 LR: 0.00002158
+Validation loss did not improve. Patience counter: 3/10
+Trial 17 - Epoch 63/200 | Train Loss: 0.016360 | Val Loss: 0.012575 LR: 0.00002158
+Validation loss did not improve. Patience counter: 4/10
+Trial 17 - Epoch 64/200 | Train Loss: 0.016357 | Val Loss: 0.012576 LR: 0.00002158
+Validation loss did not improve. Patience counter: 5/10
+Trial 17 - Epoch 65/200 | Train Loss: 0.016355 | Val Loss: 0.012576 LR: 0.00002158
+Validation loss did not improve. Patience counter: 6/10
+Trial 17 - Epoch 66/200 | Train Loss: 0.016354 | Val Loss: 0.012577 LR: 0.00000432
+Validation loss did not improve. Patience counter: 7/10
+Trial 17 - Epoch 67/200 | Train Loss: 0.016337 | Val Loss: 0.012576 LR: 0.00000432
+Validation loss did not improve. Patience counter: 8/10
+Trial 17 - Epoch 68/200 | Train Loss: 0.016334 | Val Loss: 0.012576 LR: 0.00000432
+Validation loss did not improve. Patience counter: 9/10
+Trial 17 - Epoch 69/200 | Train Loss: 0.016335 | Val Loss: 0.012576 LR: 0.00000432
+Validation loss did not improve. Patience counter: 10/10
+Trial 17 early stopping triggered at epoch 69.
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 16, heads=2)
+    (1): GATConv(32, 16, heads=2)
+  )
+  (rnn): GRU(32, 32, num_layers=2, batch_first=True, dropout=0.2)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=32, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=32, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.6, patience=4, min_lr=5.241215404997455e-08
+Trial 18 - Epoch 1/200 | Train Loss: 0.027208 | Val Loss: 0.014127 LR: 0.00013277
+Trial 18 - Epoch 2/200 | Train Loss: 0.017826 | Val Loss: 0.013876 LR: 0.00013277
+Trial 18 - Epoch 3/200 | Train Loss: 0.017624 | Val Loss: 0.013685 LR: 0.00013277
+Trial 18 - Epoch 4/200 | Train Loss: 0.017451 | Val Loss: 0.013523 LR: 0.00013277
+Trial 18 pruned at epoch 4.
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 8, heads=4)
+  )
+  (rnn): GRU(32, 32, num_layers=4, batch_first=True, dropout=0.1)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=32, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=32, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.1, patience=6, min_lr=5.316661756633278e-08
+Trial 19 - Epoch 1/200 | Train Loss: 0.018991 | Val Loss: 0.019628 LR: 0.00033042
+Trial 19 - Epoch 2/200 | Train Loss: 0.017372 | Val Loss: 0.017820 LR: 0.00033042
+Trial 19 pruned at epoch 2.
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 8, heads=2)
+    (1): GATConv(16, 8, heads=2)
+  )
+  (rnn): GRU(16, 16, batch_first=True, dropout=0.2)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=16, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=16, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.30000000000000004, patience=4, min_lr=1.0580343480063671e-08
+Trial 20 - Epoch 1/200 | Train Loss: 0.040846 | Val Loss: 0.016264 LR: 0.00023612
+Trial 20 - Epoch 2/200 | Train Loss: 0.018766 | Val Loss: 0.014277 LR: 0.00023612
+Trial 20 - Epoch 3/200 | Train Loss: 0.018095 | Val Loss: 0.014106 LR: 0.00023612
+Trial 20 - Epoch 4/200 | Train Loss: 0.017921 | Val Loss: 0.013954 LR: 0.00023612
+Trial 20 pruned at epoch 4.
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 16, heads=2)
+  )
+  (rnn): GRU(32, 32, batch_first=True, dropout=0.30000000000000004)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=32, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=32, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.2, patience=8, min_lr=3.022950330080789e-07
+Trial 21 - Epoch 1/200 | Train Loss: 0.027509 | Val Loss: 0.015278 LR: 0.00057192
+Trial 21 - Epoch 2/200 | Train Loss: 0.018961 | Val Loss: 0.014413 LR: 0.00057192
+Trial 21 pruned at epoch 2.
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 24, heads=2)
+  )
+  (rnn): GRU(48, 48, batch_first=True, dropout=0.30000000000000004)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=48, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=48, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.2, patience=6, min_lr=1.4026332613921305e-07
+Trial 22 - Epoch 1/200 | Train Loss: 0.020879 | Val Loss: 0.014615 LR: 0.00065641
+Trial 22 - Epoch 2/200 | Train Loss: 0.018191 | Val Loss: 0.013807 LR: 0.00065641
+Trial 22 - Epoch 3/200 | Train Loss: 0.017607 | Val Loss: 0.013356 LR: 0.00065641
+Trial 22 - Epoch 4/200 | Train Loss: 0.017193 | Val Loss: 0.013086 LR: 0.00065641
+Trial 22 - Epoch 5/200 | Train Loss: 0.016943 | Val Loss: 0.012940 LR: 0.00065641
+Trial 22 - Epoch 6/200 | Train Loss: 0.016789 | Val Loss: 0.012851 LR: 0.00065641
+Trial 22 - Epoch 7/200 | Train Loss: 0.016684 | Val Loss: 0.012795 LR: 0.00065641
+Trial 22 - Epoch 8/200 | Train Loss: 0.016614 | Val Loss: 0.012759 LR: 0.00065641
+Trial 22 - Epoch 9/200 | Train Loss: 0.016559 | Val Loss: 0.012735 LR: 0.00065641
+Trial 22 - Epoch 10/200 | Train Loss: 0.016523 | Val Loss: 0.012720 LR: 0.00065641
+Trial 22 - Epoch 11/200 | Train Loss: 0.016487 | Val Loss: 0.012708 LR: 0.00065641
+Trial 22 - Epoch 12/200 | Train Loss: 0.016464 | Val Loss: 0.012702 LR: 0.00065641
+Trial 22 - Epoch 13/200 | Train Loss: 0.016444 | Val Loss: 0.012696 LR: 0.00065641
+Trial 22 - Epoch 14/200 | Train Loss: 0.016432 | Val Loss: 0.012693 LR: 0.00065641
+Trial 22 - Epoch 15/200 | Train Loss: 0.016422 | Val Loss: 0.012690 LR: 0.00065641
+Trial 22 - Epoch 16/200 | Train Loss: 0.016410 | Val Loss: 0.012686 LR: 0.00065641
+Trial 22 - Epoch 17/200 | Train Loss: 0.016397 | Val Loss: 0.012686 LR: 0.00065641
+Trial 22 - Epoch 18/200 | Train Loss: 0.016390 | Val Loss: 0.012685 LR: 0.00065641
+Trial 22 - Epoch 19/200 | Train Loss: 0.016387 | Val Loss: 0.012681 LR: 0.00065641
+Trial 22 - Epoch 20/200 | Train Loss: 0.016385 | Val Loss: 0.012682 LR: 0.00065641
+Validation loss did not improve. Patience counter: 1/10
+Trial 22 - Epoch 21/200 | Train Loss: 0.016375 | Val Loss: 0.012680 LR: 0.00065641
+Trial 22 - Epoch 22/200 | Train Loss: 0.016375 | Val Loss: 0.012677 LR: 0.00065641
+Trial 22 - Epoch 23/200 | Train Loss: 0.016370 | Val Loss: 0.012678 LR: 0.00065641
+Validation loss did not improve. Patience counter: 1/10
+Trial 22 - Epoch 24/200 | Train Loss: 0.016368 | Val Loss: 0.012680 LR: 0.00065641
+Validation loss did not improve. Patience counter: 2/10
+Trial 22 - Epoch 25/200 | Train Loss: 0.016363 | Val Loss: 0.012681 LR: 0.00065641
+Validation loss did not improve. Patience counter: 3/10
+Trial 22 - Epoch 26/200 | Train Loss: 0.016362 | Val Loss: 0.012673 LR: 0.00065641
+Trial 22 - Epoch 27/200 | Train Loss: 0.016361 | Val Loss: 0.012678 LR: 0.00065641
+Validation loss did not improve. Patience counter: 1/10
+Trial 22 - Epoch 28/200 | Train Loss: 0.016362 | Val Loss: 0.012672 LR: 0.00065641
+Trial 22 - Epoch 29/200 | Train Loss: 0.016360 | Val Loss: 0.012673 LR: 0.00065641
+Validation loss did not improve. Patience counter: 1/10
+Trial 22 - Epoch 30/200 | Train Loss: 0.016358 | Val Loss: 0.012675 LR: 0.00065641
+Validation loss did not improve. Patience counter: 2/10
+Trial 22 - Epoch 31/200 | Train Loss: 0.016360 | Val Loss: 0.012673 LR: 0.00065641
+Validation loss did not improve. Patience counter: 3/10
+Trial 22 - Epoch 32/200 | Train Loss: 0.016360 | Val Loss: 0.012677 LR: 0.00065641
+Validation loss did not improve. Patience counter: 4/10
+Trial 22 - Epoch 33/200 | Train Loss: 0.016357 | Val Loss: 0.012673 LR: 0.00013128
+Validation loss did not improve. Patience counter: 5/10
+Trial 22 - Epoch 34/200 | Train Loss: 0.016698 | Val Loss: 0.012640 LR: 0.00013128
+Trial 22 - Epoch 35/200 | Train Loss: 0.016628 | Val Loss: 0.012640 LR: 0.00013128
+Trial 22 - Epoch 36/200 | Train Loss: 0.016602 | Val Loss: 0.012643 LR: 0.00013128
+Validation loss did not improve. Patience counter: 1/10
+Trial 22 - Epoch 37/200 | Train Loss: 0.016589 | Val Loss: 0.012646 LR: 0.00013128
+Validation loss did not improve. Patience counter: 2/10
+Trial 22 - Epoch 38/200 | Train Loss: 0.016579 | Val Loss: 0.012647 LR: 0.00013128
+Validation loss did not improve. Patience counter: 3/10
+Trial 22 - Epoch 39/200 | Train Loss: 0.016575 | Val Loss: 0.012647 LR: 0.00013128
+Validation loss did not improve. Patience counter: 4/10
+Trial 22 - Epoch 40/200 | Train Loss: 0.016568 | Val Loss: 0.012647 LR: 0.00013128
+Validation loss did not improve. Patience counter: 5/10
+Trial 22 - Epoch 41/200 | Train Loss: 0.016565 | Val Loss: 0.012646 LR: 0.00002626
+Validation loss did not improve. Patience counter: 6/10
+Trial 22 - Epoch 42/200 | Train Loss: 0.016693 | Val Loss: 0.012590 LR: 0.00002626
+Trial 22 - Epoch 43/200 | Train Loss: 0.016586 | Val Loss: 0.012584 LR: 0.00002626
+Trial 22 - Epoch 44/200 | Train Loss: 0.016543 | Val Loss: 0.012589 LR: 0.00002626
+Validation loss did not improve. Patience counter: 1/10
+Trial 22 - Epoch 45/200 | Train Loss: 0.016525 | Val Loss: 0.012594 LR: 0.00002626
+Validation loss did not improve. Patience counter: 2/10
+Trial 22 - Epoch 46/200 | Train Loss: 0.016509 | Val Loss: 0.012598 LR: 0.00002626
+Validation loss did not improve. Patience counter: 3/10
+Trial 22 - Epoch 47/200 | Train Loss: 0.016506 | Val Loss: 0.012601 LR: 0.00002626
+Validation loss did not improve. Patience counter: 4/10
+Trial 22 - Epoch 48/200 | Train Loss: 0.016501 | Val Loss: 0.012602 LR: 0.00002626
+Validation loss did not improve. Patience counter: 5/10
+Trial 22 - Epoch 49/200 | Train Loss: 0.016499 | Val Loss: 0.012602 LR: 0.00002626
+Validation loss did not improve. Patience counter: 6/10
+Trial 22 - Epoch 50/200 | Train Loss: 0.016502 | Val Loss: 0.012602 LR: 0.00000525
+Validation loss did not improve. Patience counter: 7/10
+Trial 22 - Epoch 51/200 | Train Loss: 0.016478 | Val Loss: 0.012604 LR: 0.00000525
+Validation loss did not improve. Patience counter: 8/10
+Trial 22 - Epoch 52/200 | Train Loss: 0.016477 | Val Loss: 0.012605 LR: 0.00000525
+Validation loss did not improve. Patience counter: 9/10
+Trial 22 - Epoch 53/200 | Train Loss: 0.016471 | Val Loss: 0.012607 LR: 0.00000525
+Validation loss did not improve. Patience counter: 10/10
+Trial 22 early stopping triggered at epoch 53.
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 24, heads=2)
+  )
+  (rnn): GRU(48, 48, num_layers=2, batch_first=True, dropout=0.2)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=48, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=48, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.1, patience=6, min_lr=1.4385558771299382e-07
+Trial 23 - Epoch 1/200 | Train Loss: 0.027794 | Val Loss: 0.014760 LR: 0.00033826
+Trial 23 - Epoch 2/200 | Train Loss: 0.018470 | Val Loss: 0.014142 LR: 0.00033826
+Trial 23 - Epoch 3/200 | Train Loss: 0.017994 | Val Loss: 0.013754 LR: 0.00033826
+Trial 23 - Epoch 4/200 | Train Loss: 0.017636 | Val Loss: 0.013448 LR: 0.00033826
+Trial 23 pruned at epoch 4.
+GATGRUGNN(
+  (gats): ModuleList(
+    (0): GATConv(7, 16, heads=2)
+  )
+  (rnn): GRU(32, 32, batch_first=True, dropout=0.4)
+  (temporal_attn): TemporalAttention(
+    (score): Linear(in_features=32, out_features=1, bias=True)
+  )
+  (head): Linear(in_features=32, out_features=24, bias=True)
+)
+Creating DataLoaders...
+  Using ReduceLROnPlateau: factor=0.2, patience=5, min_lr=7.100285711447846e-08
+Trial 24 - Epoch 1/200 | Train Loss: 0.022962 | Val Loss: 0.015086 LR: 0.00099128
+Trial 24 - Epoch 2/200 | Train Loss: 0.018741 | Val Loss: 0.014400 LR: 0.00099128
+Trial 24 - Epoch 3/200 | Train Loss: 0.018088 | Val Loss: 0.013825 LR: 0.00099128
+Trial 24 - Epoch 4/200 | Train Loss: 0.017686 | Val Loss: 0.013486 LR: 0.00099128
+Trial 24 - Epoch 5/200 | Train Loss: 0.017418 | Val Loss: 0.013276 LR: 0.00099128
+Trial 24 - Epoch 6/200 | Train Loss: 0.017215 | Val Loss: 0.013126 LR: 0.00099128
+Trial 24 - Epoch 7/200 | Train Loss: 0.017064 | Val Loss: 0.013019 LR: 0.00099128
+Trial 24 - Epoch 8/200 | Train Loss: 0.016946 | Val Loss: 0.012944 LR: 0.00099128
+Trial 24 - Epoch 9/200 | Train Loss: 0.016862 | Val Loss: 0.012889 LR: 0.00099128
+Trial 24 - Epoch 10/200 | Train Loss: 0.016799 | Val Loss: 0.012850 LR: 0.00099128
+Trial 24 - Epoch 11/200 | Train Loss: 0.016750 | Val Loss: 0.012822 LR: 0.00099128
+Trial 24 - Epoch 12/200 | Train Loss: 0.016714 | Val Loss: 0.012799 LR: 0.00099128
+Trial 24 - Epoch 13/200 | Train Loss: 0.016683 | Val Loss: 0.012781 LR: 0.00099128
+Trial 24 - Epoch 14/200 | Train Loss: 0.016662 | Val Loss: 0.012774 LR: 0.00099128
+Trial 24 - Epoch 15/200 | Train Loss: 0.016649 | Val Loss: 0.012759 LR: 0.00099128
+Trial 24 - Epoch 16/200 | Train Loss: 0.016627 | Val Loss: 0.012749 LR: 0.00099128
+Trial 24 - Epoch 17/200 | Train Loss: 0.016613 | Val Loss: 0.012744 LR: 0.00099128
+Trial 24 - Epoch 18/200 | Train Loss: 0.016602 | Val Loss: 0.012738 LR: 0.00099128
+Trial 24 - Epoch 19/200 | Train Loss: 0.016595 | Val Loss: 0.012733 LR: 0.00099128
+Trial 24 - Epoch 20/200 | Train Loss: 0.016584 | Val Loss: 0.012734 LR: 0.00099128
+Validation loss did not improve. Patience counter: 1/10
+Trial 24 - Epoch 21/200 | Train Loss: 0.016581 | Val Loss: 0.012732 LR: 0.00099128
+submitit WARNING (2025-04-19 15:58:26,010) - Bypassing signal SIGCONT
+[2025-04-19 15:58:26,010][submitit][WARNING] - Bypassing signal SIGCONT
+submitit INFO (2025-04-19 15:58:26,011) - Job has timed out. Ran 1438 minutes out of requested 1440 minutes.
+[2025-04-19 15:58:26,011][submitit][INFO] - Job has timed out. Ran 1438 minutes out of requested 1440 minutes.
+submitit WARNING (2025-04-19 15:58:26,011) - Caught signal SIGUSR2 on v100v2gpu9: this job is timed-out.
+[2025-04-19 15:58:26,011][submitit][WARNING] - Caught signal SIGUSR2 on v100v2gpu9: this job is timed-out.
+submitit INFO (2025-04-19 15:58:26,012) - Calling checkpoint method.
+[2025-04-19 15:58:26,012][submitit][INFO] - Calling checkpoint method.
+submitit INFO (2025-04-19 15:58:26,051) - Job not requeued because: timed-out too many times.
+[2025-04-19 15:58:26,051][submitit][INFO] - Job not requeued because: timed-out too many times.
+submitit INFO (2025-04-19 15:58:26,136) - Job completed successfully
+[2025-04-19 15:58:26,136][submitit][INFO] - Job completed successfully
+submitit INFO (2025-04-19 15:58:26,144) - Exiting after successful completion
+[2025-04-19 15:58:26,144][submitit][INFO] - Exiting after successful completion
+
+###############################################################################
+Hábrók Cluster
+Job 16699047_3 for user s5185491
+Finished at: Sat Apr 19 15:58:32 CEST 2025
+
+Job details:
+============
+
+Job ID                         : 16699047_3
+Name                           : tune_and_final_hydra
+User                           : s5185491
+Partition                      : gpumedium
+Nodes                          : v100v2gpu9
+Number of Nodes                : 1
+Cores                          : 4
+Number of Tasks                : 1
+State                          : COMPLETED  
+Submit                         : 2025-04-18T15:00:26
+Start                          : 2025-04-18T16:00:39
+End                            : 2025-04-19T15:58:27
+Reserved walltime              : 1-00:00:00
+Used walltime                  :   23:57:48
+Used CPU time                  :   23:48:28 (Efficiency: 24.84%)
+% User (Computation)           : 99.94%
+% System (I/O)                 :  0.06%
+Total memory reserved          : 32G
+Maximum memory used            : 2.50G
+Requested GPUs                 : 1
+Allocated GPUs                 : v100=1
+Max GPU utilization            : 28%
+Max GPU memory used            : 1.11G
+
+Acknowledgements:
+=================
+
+Please see this page for information about acknowledging Hábrók in your publications:
+
+https://wiki.hpc.rug.nl/habrok/introduction/scientific_output
+
+################################################################################

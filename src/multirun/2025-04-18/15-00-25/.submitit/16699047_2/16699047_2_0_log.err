@@ -1,0 +1,54 @@
+[I 2025-04-18 15:56:53,539] A new study created in RDB with name: attentiongnn-gnn-tuning-20250418-155649
+[I 2025-04-18 18:59:48,008] Trial 0 finished with value: 0.016209853899199517 and parameters: {'lr': 1.0490026943566493e-05, 'weight_decay': 0.00043954647254253545, 'batch_size': 32, 'hidden_dim': 96, 'num_gcn': 2, 'heads': 4, 'dropout': 0.30000000000000004, 'plateau_factor': 0.5, 'plateau_patience': 4, 'plateau_min_lr': 1.1872914432657047e-07}. Best is trial 0 with value: 0.016209853899199517.
+[I 2025-04-18 19:38:08,297] Trial 1 finished with value: 0.019759608963504434 and parameters: {'lr': 9.54656743567489e-05, 'weight_decay': 1.3799822964638464e-05, 'batch_size': 64, 'hidden_dim': 48, 'num_gcn': 1, 'heads': 5, 'dropout': 0.4, 'plateau_factor': 0.5, 'plateau_patience': 9, 'plateau_min_lr': 3.268413309940671e-08}. Best is trial 0 with value: 0.016209853899199517.
+[I 2025-04-18 22:04:04,248] Trial 2 finished with value: 0.012399461371824145 and parameters: {'lr': 0.00017501121338378125, 'weight_decay': 0.00022907695850482742, 'batch_size': 32, 'hidden_dim': 80, 'num_gcn': 4, 'heads': 6, 'dropout': 0.1, 'plateau_factor': 0.6, 'plateau_patience': 6, 'plateau_min_lr': 3.3703156083165384e-07}. Best is trial 2 with value: 0.012399461371824145.
+[I 2025-04-18 22:04:58,718] Trial 3 pruned. 
+[I 2025-04-18 22:05:53,619] Trial 4 pruned. 
+[I 2025-04-19 03:56:16,496] Trial 5 finished with value: 0.023473235696437767 and parameters: {'lr': 6.588825353054431e-05, 'weight_decay': 1.8951157598034814e-05, 'batch_size': 32, 'hidden_dim': 16, 'num_gcn': 4, 'heads': 5, 'dropout': 0.5, 'plateau_factor': 0.5, 'plateau_patience': 5, 'plateau_min_lr': 8.952225455068058e-08}. Best is trial 2 with value: 0.012399461371824145.
+[I 2025-04-19 04:01:40,327] Trial 6 pruned. 
+[I 2025-04-19 07:04:18,336] Trial 7 finished with value: 0.012458613058552146 and parameters: {'lr': 6.462650328868232e-05, 'weight_decay': 0.0009082904594879788, 'batch_size': 64, 'hidden_dim': 64, 'num_gcn': 4, 'heads': 3, 'dropout': 0.1, 'plateau_factor': 0.7, 'plateau_patience': 3, 'plateau_min_lr': 7.772651495247798e-07}. Best is trial 2 with value: 0.012399461371824145.
+[I 2025-04-19 10:01:32,676] Trial 8 finished with value: 0.016071335170418023 and parameters: {'lr': 3.2289248773292163e-05, 'weight_decay': 0.00018402820916494953, 'batch_size': 64, 'hidden_dim': 16, 'num_gcn': 4, 'heads': 5, 'dropout': 0.30000000000000004, 'plateau_factor': 0.4, 'plateau_patience': 7, 'plateau_min_lr': 1.898640990982762e-07}. Best is trial 2 with value: 0.012399461371824145.
+[I 2025-04-19 10:05:06,697] Trial 9 pruned. 
+[I 2025-04-19 13:57:48,997] Trial 10 finished with value: 0.011684998020064086 and parameters: {'lr': 0.0003220055045501099, 'weight_decay': 4.450492781962982e-05, 'batch_size': 32, 'hidden_dim': 80, 'num_gcn': 3, 'heads': 7, 'dropout': 0.1, 'plateau_factor': 0.1, 'plateau_patience': 8, 'plateau_min_lr': 3.930662653131538e-07}. Best is trial 10 with value: 0.011684998020064086.
+submitit WARNING (2025-04-19 15:54:25,017) - Bypassing signal SIGCONT
+submitit WARNING (2025-04-19 15:54:25,018) - Caught signal SIGUSR2 on v100v2gpu5: this job is timed-out.
+[W 2025-04-19 15:54:25,125] Trial 11 failed with parameters: {'lr': 0.0003263806400297134, 'weight_decay': 5.008642894681289e-05, 'batch_size': 32, 'hidden_dim': 80, 'num_gcn': 3, 'heads': 8, 'dropout': 0.1, 'plateau_factor': 0.1, 'plateau_patience': 8, 'plateau_min_lr': 3.8330327150917734e-07} because of the following error: UncompletedJobError('Job not requeued because: timed-out too many times.').
+Traceback (most recent call last):
+  File "/home4/s5185491/forecasting_smog_DL_GNN/.venv/lib/python3.10/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
+    value_or_values = func(trial)
+  File "/home4/s5185491/second-copy/src/tune_and_final_hydra.py", line 109, in <lambda>
+    lambda trial: objective(
+  File "/home4/s5185491/second-copy/src/graph_modelling/utils/tune_gnn.py", line 283, in objective
+    avg_train_loss = train_epoch_optuna(
+  File "/home4/s5185491/second-copy/src/graph_modelling/utils/tune_gnn.py", line 50, in train_epoch_optuna
+    out = model(batch)
+  File "/home4/s5185491/forecasting_smog_DL_GNN/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home4/s5185491/second-copy/src/graph_modelling/models/attentiongnn.py", line 60, in forward
+    x_t = conv(x_t, edge_index)
+  File "/home4/s5185491/forecasting_smog_DL_GNN/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home4/s5185491/forecasting_smog_DL_GNN/.venv/lib/python3.10/site-packages/torch_geometric/nn/conv/gat_conv.py", line 366, in forward
+    out = self.propagate(edge_index, x=x, alpha=alpha, size=size)
+  File "/tmp/torch_geometric.nn.conv.gat_conv_GATConv_propagate_v5zutp_c.py", line 212, in propagate
+    out = self.aggregate(
+  File "/home4/s5185491/forecasting_smog_DL_GNN/.venv/lib/python3.10/site-packages/torch_geometric/nn/conv/message_passing.py", line 594, in aggregate
+    return self.aggr_module(inputs, index, ptr=ptr, dim_size=dim_size,
+  File "/home4/s5185491/forecasting_smog_DL_GNN/.venv/lib/python3.10/site-packages/torch_geometric/experimental.py", line 117, in wrapper
+    return func(*args, **kwargs)
+  File "/home4/s5185491/forecasting_smog_DL_GNN/.venv/lib/python3.10/site-packages/torch_geometric/nn/aggr/base.py", line 139, in __call__
+    raise e
+  File "/home4/s5185491/forecasting_smog_DL_GNN/.venv/lib/python3.10/site-packages/torch_geometric/nn/aggr/base.py", line 131, in __call__
+    return super().__call__(x, index=index, ptr=ptr, dim_size=dim_size,
+  File "/home4/s5185491/forecasting_smog_DL_GNN/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home4/s5185491/forecasting_smog_DL_GNN/.venv/lib/python3.10/site-packages/torch_geometric/nn/aggr/basic.py", line 22, in forward
+    return self.reduce(x, index, ptr, dim_size, dim, reduce='sum')
+  File "/home4/s5185491/forecasting_smog_DL_GNN/.venv/lib/python3.10/site-packages/torch_geometric/nn/aggr/base.py", line 185, in reduce
+    return scatter(x, index, dim, dim_size, reduce)
+  File "/home4/s5185491/forecasting_smog_DL_GNN/.venv/lib/python3.10/site-packages/torch_geometric/utils/_scatter.py", line 75, in scatter
+    return src.new_zeros(size).scatter_add_(dim, index, src)
+  File "/home4/s5185491/forecasting_smog_DL_GNN/.venv/lib/python3.10/site-packages/submitit/core/job_environment.py", line 226, in checkpoint_and_try_requeue
+    raise utils.UncompletedJobError(message)
+submitit.core.utils.UncompletedJobError: Job not requeued because: timed-out too many times.
+[W 2025-04-19 15:54:25,181] Trial 11 failed with value None.

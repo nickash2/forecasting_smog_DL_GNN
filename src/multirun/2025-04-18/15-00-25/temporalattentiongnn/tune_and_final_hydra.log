@@ -1,0 +1,7 @@
+[2025-04-19 15:58:26,010][submitit][WARNING] - Bypassing signal SIGCONT
+[2025-04-19 15:58:26,011][submitit][INFO] - Job has timed out. Ran 1438 minutes out of requested 1440 minutes.
+[2025-04-19 15:58:26,011][submitit][WARNING] - Caught signal SIGUSR2 on v100v2gpu9: this job is timed-out.
+[2025-04-19 15:58:26,012][submitit][INFO] - Calling checkpoint method.
+[2025-04-19 15:58:26,051][submitit][INFO] - Job not requeued because: timed-out too many times.
+[2025-04-19 15:58:26,136][submitit][INFO] - Job completed successfully
+[2025-04-19 15:58:26,144][submitit][INFO] - Exiting after successful completion

@@ -1,0 +1,143 @@
+# src/pipeline/extract.py
+
+# This file contains code which functions as the first step in the pipeline;
+# its functions extract data from the source and return it as a DataFrame
+
+import os
+from pathlib import Path
+import sys
+import pandas as pd
+from .knmy_data_collector import KNMIDataCollector
+import pickle
+
+
+def read_contaminant_csv_from_data_raw(
+    component: str, year: str, rows_to_skip: int = 9
+) -> pd.DataFrame:
+    """
+    Reads the contaminant data from the raw data folder. The data is in CSV format.
+    The data contains 9 rows of metedata, which are skipped. These can be loaded in
+    by adjusting the default value of the 'rows_to_skip' parameter, but will cause
+    errors further down the pipeline if not handled correctly. Easier would be to
+    inspect the .csv files manuallt if any metadata is needed. Or, read the metadata
+    separately. The encoding is set to ISO-8859-15, as specified in the pdf:
+
+    https://data.rivm.nl/data/luchtmeetnet/readme.pdf
+
+    :param component: the contaminant to be read
+    :param year: the year of the data to be read
+    :param path: the path to the data folder
+    :param device: the device name
+    :param rows_to_skip: the number of rows to skip in the CSV file
+    :return: the contaminant data as a pandas DataFrame
+    """
+    os.chdir(Path.cwd())
+    try:
+        df = pd.read_csv(
+            f"data/data_raw/{year}_{component}.csv",
+            sep=";",
+            encoding="ISO-8859-15",
+            skiprows=rows_to_skip,
+        )
+
+        return df
+
+    except FileNotFoundError:
+        print(f"File not found: {year}_{component}.csv")
+        sys.exit(1)
+
+
+def read_meteo_csv_from_data_raw(
+    year: str, city: str = "Utrecht", city_station: int = 260
+) -> pd.DataFrame:
+    """
+    Reads the meteorological data from the raw data folder
+
+    :param year: the year of the data to be read
+    :param path: the path to the data folder
+    :param device: the device name
+    :return: the meteorological data as a pandas DataFrame
+    """
+    os.chdir(Path.cwd())
+
+    try:
+        df = pd.read_csv(
+            f"data/data_raw/{year}_meteo_{city}.csv",
+            sep=";",
+            encoding="UTF-8",
+            index_col=0,
+        )
+        return df
+    except FileNotFoundError:
+        print(f"File not found: {year}_meteo_{city}.csv")
+        print(f"Would you like to download the meteo data for {city} of {year}?")
+        request = input("y/n: ")
+
+        if request == "y":
+            data_collector = KNMIDataCollector()
+            data_collector.collect_data({city: [city_station]}, [year])
+            df = pd.read_csv(
+                f"data/data_raw/{year}_meteo_{city}.csv",
+                sep=";",
+                encoding="UTF-8",
+                index_col=0,
+            )
+            return df
+        else:
+            print("Exiting program")
+            sys.exit(1)
+
+
+def read_four_contaminants(year: str, contaminants: str) -> pd.DataFrame:
+    """
+    Helper function for downloading four contaminant dataframes at once
+
+    :param year: the year of the data to be read
+    :param contaminants: a list of the four contaminants to be read
+    :param path: the path to the data folder
+    :param device: the device name
+    :return: four contaminant dataframes
+    """
+    df_arr = []
+    for contaminant in contaminants:
+        df_arr.append(read_contaminant_csv_from_data_raw(contaminant, year))
+    return df_arr
+
+
+def read_two_meteo_years(yr1: str, yr2: str) -> pd.DataFrame:
+    """
+    Helper function for downloading two meteorological dataframes at once
+
+    :param yr1: the first year of the data to be read
+    :param yr2: the second year of the data to be read
+    :param path: the path to the data folder
+    :param device: the device name
+    :return: two meteorological dataframes
+    """
+    return read_meteo_csv_from_data_raw(yr1), read_meteo_csv_from_data_raw(yr2)
+
+
+def read_pickle_from_dir(path):
+    """
+    Reads a pickle file from a directory
+
+    :param path: path to the pickle file
+    :return: the pickle file
+    """
+    pickle_files = []
+    for file in os.listdir(path):
+        if file.endswith(".pkl"):
+            with open(f"{path}/{file}", "rb") as f:
+                pickle_files.append(pickle.load(f))
+    return pickle_files
+
+
+def read_all_city_train_frames(path):
+    """
+    Reads all training dataframes for all cities
+
+    :param path: path to training dataframes
+    :return: list of dataframes
+    """
+    dfs: list[dict] = read_pickle_from_dir(path)
+    return dfs
