@@ -62,10 +62,12 @@ class NO2DatasetLoader(object):
             if os.path.exists(cache_path):
                 print(f"Loading cached dataset from {cache_path}")
                 if self._load_cached_dataset(cache_path):
+                    print("Successfully loaded cached dataset")
                     return
                 else:
                     print("Failed to load cached dataset. Processing from scratch.")
 
+        print("Processing dataset from source files...")
         x_path = os.path.join(self.data_dir, "X.csv")
 
         # We're only reading X.csv now - we'll use lagged features instead of separate y.csv
@@ -360,7 +362,17 @@ class NO2DatasetLoader(object):
         # Create a specific cache file for this parameter set if caching is enabled
         dataset_cache_file = None
         if cache and self.cache_file:
-            suffix = f"_l{lags}" + (f"_{cache_suffix}" if cache_suffix else "")
+            # Include sample_size in the cache filename
+            sample_tag = ""
+            if sample_size is not None:
+                if isinstance(sample_size, float):
+                    sample_tag = f"_s{int(sample_size * 100)}"
+                else:
+                    sample_tag = f"_s{sample_size}"
+
+            suffix = f"_l{lags}{sample_tag}" + (
+                f"_{cache_suffix}" if cache_suffix else ""
+            )
             dataset_cache_file = f"dataset{suffix}.pkl"
             dataset_cache_path = os.path.join(self.data_dir, dataset_cache_file)
 
@@ -598,13 +610,25 @@ class NO2DatasetLoader(object):
 
         # Create datasets
         train_dataset = self.IndexDataset(
-            x_train, data, lags, gpu=(allGPU != -1), lazy=dask_batching, horizon=horizon
+            x_train,
+            data,
+            horizon,
+            gpu=(allGPU != -1),
+            lazy=dask_batching,
         )
         val_dataset = self.IndexDataset(
-            x_val, data, lags, gpu=(allGPU != -1), lazy=dask_batching, horizon=horizon
+            x_val,
+            data,
+            horizon,
+            gpu=(allGPU != -1),
+            lazy=dask_batching,
         )
         test_dataset = self.IndexDataset(
-            x_test, data, lags, gpu=(allGPU != -1), lazy=dask_batching, horizon=horizon
+            x_test,
+            data,
+            horizon,
+            gpu=(allGPU != -1),
+            lazy=dask_batching,
         )
 
         # Create dataloaders

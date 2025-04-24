@@ -67,68 +67,53 @@ class RecurrentGNN(torch.nn.Module):
         return h
 
 
-# Function to visualize the graph
-def visualize_graph(edge_index, edge_attr=None, node_labels=None):
-    """
-    Visualize the graph structure with NetworkX
+class StructuredRecurrentGNN(torch.nn.Module):
+    def __init__(
+        self, node_features, num_vars, num_lags, hidden_channels=32, out_channels=1, k=2
+    ):
+        super(StructuredRecurrentGNN, self).__init__()
+        self.num_vars = num_vars
+        self.num_lags = num_lags
 
-    Args:
-        edge_index: Tensor containing the edge indices
-        edge_attr: Tensor containing edge weights/attributes (optional)
-        node_labels: List of node labels (optional)
-    """
-    # Create a new graph
-    G = nx.DiGraph()
+        # Adjust hidden_channels to be divisible by num_vars
+        self.hidden_per_var = hidden_channels // num_vars
+        self.total_hidden = self.hidden_per_var * num_vars
 
-    # Add nodes
-    num_nodes = max(edge_index[0].max(), edge_index[1].max()) + 1
-    G.add_nodes_from(range(num_nodes))
+        print(f"Adjusted hidden channels from {hidden_channels} to {self.total_hidden}")
 
-    # Add edges with their weights
-    for i in range(edge_index.shape[1]):
-        src, dst = edge_index[0, i].item(), edge_index[1, i].item()
-        weight = 1.0 if edge_attr is None else edge_attr[i].item()
-        G.add_edge(src, dst, weight=weight)
+        # Each variable gets its own recurrent unit
+        self.var_recurrent = torch.nn.ModuleList(
+            [GConvGRU(num_lags, self.hidden_per_var, k) for _ in range(num_vars)]
+        )
 
-    # Create figure
-    plt.figure(figsize=(10, 8))
+        # Use the actual total hidden size for the linear layers
+        self.combine = torch.nn.Linear(self.total_hidden, self.total_hidden // 2)
+        self.final = torch.nn.Linear(self.total_hidden // 2, out_channels)
 
-    # Generate positions for the nodes
-    pos = nx.spring_layout(G, seed=42)
+    def forward(self, x, edge_index, edge_weight=None):
+        # Reshape from [batch_size, flattened_features] to [batch_size, num_vars, num_lags]
+        x_structured = x.reshape(-1, self.num_vars, self.num_lags)
 
-    # Draw nodes
-    nx.draw_networkx_nodes(G, pos, node_color="skyblue", node_size=700)
+        # Process each variable separately
+        var_outputs = []
+        for i in range(self.num_vars):
+            # Extract this variable's data
+            var_data = x_structured[:, i, :]
 
-    # Draw edges with width proportional to weight
-    edge_widths = (
-        [G[u][v]["weight"] / 10 for u, v in G.edges()]
-        if edge_attr is not None
-        else [1.0 for _ in G.edges()]
-    )
-    nx.draw_networkx_edges(G, pos, width=edge_widths, arrowsize=20, alpha=0.7)
+            # Process with its own GRU
+            var_output = self.var_recurrent[i](var_data, edge_index, edge_weight)
+            var_outputs.append(var_output)
 
-    # Add node labels
-    if node_labels is None:
-        node_labels = {i: f"City {i}" for i in range(num_nodes)}
-    else:
-        node_labels = {i: label for i, label in enumerate(node_labels)}
-    nx.draw_networkx_labels(G, pos, node_labels, font_size=12)
+        # Concatenate variable embeddings
+        combined = torch.cat(var_outputs, dim=1)
 
-    # Add edge weights as labels
-    if edge_attr is not None:
-        edge_labels = {(u, v): f"{G[u][v]['weight']:.1f}" for u, v in G.edges()}
-        nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=10)
+        # Final processing
+        h = F.relu(combined)
+        h = self.combine(h)
+        h = F.relu(h)
+        h = self.final(h)
 
-    plt.title("NO2 Monitoring Network Graph", fontsize=15)
-    plt.axis("off")
-
-    # Save the graph visualization
-    plt.savefig(
-        str(BASE_DIR / "results" / "graph_plots" / "graph_visualization.png"),
-        dpi=300,
-        bbox_inches="tight",
-    )
-    plt.show()
+        return h
 
 
 def train_model(
@@ -338,13 +323,185 @@ def plot_training_history(history):
     plt.close()
 
 
+def plot_predictions(predictions, targets, city_names=None):
+    """
+    Plot test predictions against actual values for each city
+
+    Args:
+        predictions: Model predictions (denormalized)
+        targets: Actual target values (denormalized)
+        city_names: Names of cities for the plot labels
+    """
+    if city_names is None:
+        city_names = ["Amsterdam", "Rotterdam", "Utrecht"]
+
+    # Determine the number of cities (nodes) from the data shape
+    n_cities = targets.shape[1] if len(targets.shape) > 1 else 1
+    n_samples = len(predictions) // n_cities if n_cities > 1 else len(predictions)
+
+    # Reshape data for plotting if needed
+    if n_cities > 1:
+        # Reshape into format [samples, cities]
+        preds_reshaped = predictions.reshape(n_samples, n_cities)
+        targets_reshaped = targets.reshape(n_samples, n_cities)
+    else:
+        preds_reshaped = predictions.reshape(-1)
+        targets_reshaped = targets.reshape(-1)
+
+    # Create time steps for x-axis (assuming hourly data)
+    time_steps = np.arange(n_samples)
+
+    # Create subplots - one for each city
+    fig, axes = plt.subplots(n_cities, 1, figsize=(12, 4 * n_cities))
+
+    # Make axes iterable even if there's only one city
+    if n_cities == 1:
+        axes = [axes]
+
+    # Plot predictions vs actual values for each city
+    for i in range(n_cities):
+        city_name = city_names[i] if i < len(city_names) else f"City {i}"
+
+        if n_cities > 1:
+            city_preds = preds_reshaped[:, i]
+            city_targets = targets_reshaped[:, i]
+        else:
+            city_preds = preds_reshaped
+            city_targets = targets_reshaped
+
+        axes[i].plot(time_steps, city_targets, "b-", label="Actual")
+        axes[i].plot(time_steps, city_preds, "r--", label="Predicted")
+        axes[i].set_title(f"NO2 Predictions for {city_name}")
+        axes[i].set_xlabel("Time (hours)")
+        axes[i].set_ylabel("NO2 (μg/m³)")
+        axes[i].legend()
+        axes[i].grid(True, alpha=0.3)
+
+        # Add error metrics in the plot
+        mse = np.mean((city_preds - city_targets) ** 2)
+        rmse = np.sqrt(mse)
+        mae = np.mean(np.abs(city_preds - city_targets))
+
+        # Display metrics on the plot
+        axes[i].text(
+            0.02,
+            0.92,
+            f"RMSE: {rmse:.2f} μg/m³\nMAE: {mae:.2f} μg/m³",
+            transform=axes[i].transAxes,
+            bbox=dict(facecolor="white", alpha=0.7),
+        )
+
+    plt.tight_layout()
+    plt.savefig(
+        str(BASE_DIR / "results" / "test_predictions.png"), dpi=300, bbox_inches="tight"
+    )
+    plt.close()
+
+    # Also create a scatter plot of predicted vs actual values
+    plt.figure(figsize=(10, 8))
+
+    # Different colors for each city
+    colors = ["blue", "red", "green", "orange", "purple"]
+
+    for i in range(n_cities):
+        if n_cities > 1:
+            city_preds = preds_reshaped[:, i]
+            city_targets = targets_reshaped[:, i]
+        else:
+            city_preds = preds_reshaped
+            city_targets = targets_reshaped
+
+        plt.scatter(
+            city_targets,
+            city_preds,
+            alpha=0.5,
+            color=colors[i % len(colors)],
+            label=city_names[i] if i < len(city_names) else f"City {i}",
+        )
+
+    # Add reference line (perfect predictions)
+    max_val = max(np.max(predictions), np.max(targets))
+    min_val = min(np.min(predictions), np.min(targets))
+    plt.plot([min_val, max_val], [min_val, max_val], "k--", alpha=0.8)
+
+    plt.xlabel("Actual NO2 (μg/m³)")
+    plt.ylabel("Predicted NO2 (μg/m³)")
+    plt.title("Predicted vs Actual NO2 Values")
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.axis("equal")
+
+    plt.savefig(
+        str(BASE_DIR / "results" / "prediction_scatter.png"),
+        dpi=300,
+        bbox_inches="tight",
+    )
+    plt.close()
+
+
+def visualize_graph(edge_index, edge_attr=None, node_labels=None):
+    # Create a new graph
+    G = nx.DiGraph()
+
+    # Add nodes
+    num_nodes = max(edge_index[0].max(), edge_index[1].max()) + 1
+    G.add_nodes_from(range(num_nodes))
+
+    # Add edges with their weights
+    for i in range(edge_index.shape[1]):
+        src, dst = edge_index[0, i].item(), edge_index[1, i].item()
+        weight = 1.0 if edge_attr is None else edge_attr[i].item()
+        G.add_edge(src, dst, weight=weight)
+
+    # Create figure
+    plt.figure(figsize=(10, 8))
+
+    # Generate positions for the nodes
+    pos = nx.spring_layout(G, seed=42)
+
+    # Draw nodes
+    nx.draw_networkx_nodes(G, pos, node_color="skyblue", node_size=700)
+
+    # Draw edges with width proportional to weight
+    edge_widths = (
+        [G[u][v]["weight"] / 10 for u, v in G.edges()]
+        if edge_attr is not None
+        else [1.0 for _ in G.edges()]
+    )
+    nx.draw_networkx_edges(G, pos, width=edge_widths, arrowsize=20, alpha=0.7)
+
+    # Add node labels
+    if node_labels is None:
+        node_labels = {i: f"City {i}" for i in range(num_nodes)}
+    else:
+        node_labels = {i: label for i, label in enumerate(node_labels)}
+    nx.draw_networkx_labels(G, pos, node_labels, font_size=12)
+
+    # Add edge weights as labels
+    if edge_attr is not None:
+        edge_labels = {(u, v): f"{G[u][v]['weight']:.1f}" for u, v in G.edges()}
+        nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=10)
+
+    plt.title("NO2 Monitoring Network Graph", fontsize=15)
+    plt.axis("off")
+
+    # Save the graph visualization
+    plt.savefig(
+        str(BASE_DIR / "results" / "graph_plots" / "graph_visualization.png"),
+        dpi=300,
+        bbox_inches="tight",
+    )
+    plt.show()
+
+
 def main():
     """Main function to process data and train the model"""
     from torch_geometric_temporal.signal import temporal_signal_split
 
-    loader = NO2DatasetLoader(only_no2=True)
+    N_LAGS = 72
+    loader = NO2DatasetLoader(only_no2=False)
     print("Loading dataset...")
-    dataset = loader.get_dataset(lags=24, only_no2=True, sample_size=0.20)
+    dataset = loader.get_dataset(lags=N_LAGS, only_no2=False, sample_size=0.2)
     print("Dataset loaded.")
 
     print("Splitting dataset into train and test sets...")
@@ -362,8 +519,17 @@ def main():
     print(f"Using device: {device}")
 
     # Define model and move to device
-    model = RecurrentGNN(
-        node_features=num_node_features, hidden_channels=64, out_channels=1, k=3
+    # model = RecurrentGNN(
+    #     node_features=num_node_features, hidden_channels=64, out_channels=1, k=3
+    # ).to(device)
+
+    model = StructuredRecurrentGNN(
+        node_features=num_node_features,
+        num_vars=7,
+        num_lags=N_LAGS,
+        hidden_channels=70,
+        out_channels=1,
+        k=3,
     ).to(device)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
@@ -391,15 +557,22 @@ def main():
 
     # Training loop
     model.train()
-    num_epochs = 50
-
-    for epoch in tqdm(range(num_epochs)):
+    num_epochs = 1
+    patience = 5  # Early stopping patience
+    best_val_loss = float("inf")
+    counter = 0
+    best_model = None
+    print("Starting training...")
+    print(f"Number of epochs: {num_epochs}")
+    for epoch in range(num_epochs):
         # Training phase
         model.train()
         train_loss = 0.0
         num_training_batches = 0
 
-        for time, snapshot in enumerate(train_dataset):
+        for time, snapshot in tqdm(
+            enumerate(train_dataset), total=len(list(train_dataset))
+        ):
             x = snapshot.x.to(device)
             y = snapshot.y.to(device)
             edge_index = snapshot.edge_index.to(device)
@@ -423,7 +596,9 @@ def main():
         num_val_batches = 0
 
         with torch.no_grad():
-            for time, snapshot in enumerate(val_dataset):
+            for time, snapshot in tqdm(
+                enumerate(val_dataset), total=len(list(val_dataset))
+            ):
                 x = snapshot.x.to(device)
                 y = snapshot.y.to(device)
                 edge_index = snapshot.edge_index.to(device)
@@ -436,6 +611,17 @@ def main():
 
         avg_val_loss = val_loss / num_val_batches
         history["val_loss"].append(avg_val_loss)
+
+        # Early stopping check
+        if avg_val_loss < best_val_loss:
+            best_val_loss = avg_val_loss
+            counter = 0
+        else:
+            counter += 1
+            print(f"Epoch {epoch + 1}: Early stopping counter: {counter}/{patience}")
+            if counter >= patience:
+                print(f"Early stopping at epoch {epoch + 1}")
+                break
 
         # Log metrics to TensorBoard - both train and val loss on same chart
         writer.add_scalars(
@@ -454,6 +640,11 @@ def main():
             f"Epoch {epoch + 1}/{num_epochs} - Train loss: {avg_train_loss:.6f}, Val loss: {avg_val_loss:.6f}"
         )
 
+    # Load best model for evaluation
+    if best_model is not None:
+        model.load_state_dict(best_model)
+        print("Loaded best model for evaluation")
+
     writer.close()
 
     plot_training_history(history)
@@ -466,7 +657,9 @@ def main():
     all_targets = []
 
     with torch.no_grad():
-        for time, snapshot in enumerate(test_dataset):
+        for time, snapshot in tqdm(
+            enumerate(test_dataset), total=len(list(test_dataset))
+        ):
             x = snapshot.x.to(device)
             y = snapshot.y.to(device)
             edge_index = snapshot.edge_index.to(device)
@@ -486,15 +679,25 @@ def main():
     print(f"Test MSE (scaled): {test_loss:.6f}")
     print(f"Test RMSE (scaled): {np.sqrt(test_loss):.6f}")
 
-    # Convert lists to numpy arrays
-    all_preds = np.concatenate([pred.reshape(-1) for pred in all_preds])
-    all_targets = np.concatenate([target.reshape(-1) for target in all_targets])
+    # Get the number of cities from the graph structure
+    num_cities = snapshot.y.size(0)  # Number of nodes in your graph
+    print(f"Number of cities in prediction: {num_cities}")
+
+    # Stack predictions while preserving city structure
+    all_preds_array = np.vstack([p for p in all_preds])  # Shape: [timesteps, cities]
+    all_targets_array = np.vstack(
+        [t for t in all_targets]
+    )  # Shape: [timesteps, cities]
 
     # Calculate unscaled metrics
     try:
         # Use loader's built-in denormalization function
-        unscaled_preds = loader.denormalize_no2(all_preds)
-        unscaled_targets = loader.denormalize_no2(all_targets)
+        unscaled_preds = loader.denormalize_no2(all_preds_array)
+        unscaled_targets = loader.denormalize_no2(all_targets_array)
+
+        print(
+            f"Predictions shape: {unscaled_preds.shape}"
+        )  # Should show [timesteps, cities]
 
         # Calculate unscaled MSE and RMSE
         unscaled_mse = np.mean((unscaled_preds - unscaled_targets) ** 2)
@@ -502,6 +705,10 @@ def main():
 
         print(f"Test MSE (unscaled): {unscaled_mse:.4f}")
         print(f"Test RMSE (unscaled): {unscaled_rmse:.4f} μg/m³")
+
+        # Plot test predictions
+        plot_predictions(unscaled_preds, unscaled_targets, city_names=cities)
+        print("Prediction plots saved to results directory")
 
         # Save predictions for visualization if needed
         np.savez(
@@ -511,7 +718,7 @@ def main():
         )
 
     except Exception as e:
-        print(f"Error during denormalization: {e}")
+        print(f"Error during denormalization or plotting: {e}")
 
     # Save the final model
     torch.save(model.state_dict(), MODEL_PATH / "final_recurrent_gnn_model.pt")
