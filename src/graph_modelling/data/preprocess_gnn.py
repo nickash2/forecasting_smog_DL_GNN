@@ -498,10 +498,10 @@ def main():
     """Main function to process data and train the model"""
     from torch_geometric_temporal.signal import temporal_signal_split
 
-    N_LAGS = 24
+    N_LAGS = 72
     loader = NO2DatasetLoader(only_no2=False)
     print("Loading dataset...")
-    dataset = loader.get_dataset(lags=N_LAGS, only_no2=False, sample_size=0.20)
+    dataset = loader.get_dataset(lags=N_LAGS, only_no2=False, sample_size=0.2)
     print("Dataset loaded.")
 
     print("Splitting dataset into train and test sets...")
@@ -557,7 +557,7 @@ def main():
 
     # Training loop
     model.train()
-    num_epochs = 50
+    num_epochs = 1
     patience = 5  # Early stopping patience
     best_val_loss = float("inf")
     counter = 0
