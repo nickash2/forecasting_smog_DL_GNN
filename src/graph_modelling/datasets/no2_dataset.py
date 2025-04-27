@@ -7,7 +7,8 @@ from torch.utils.data import DataLoader
 from sklearn.preprocessing import MinMaxScaler
 
 from torch_geometric_temporal.signal import StaticGraphTemporalSignal
-from torch_geometric_temporal.signal.index_dataset import IndexDataset
+from ..utils.index_dataset import IndexDataset
+from torch_geometric_temporal.signal import StaticGraphTemporalSignalBatch
 
 
 class NO2DatasetLoader(object):
@@ -62,10 +63,12 @@ class NO2DatasetLoader(object):
             if os.path.exists(cache_path):
                 print(f"Loading cached dataset from {cache_path}")
                 if self._load_cached_dataset(cache_path):
+                    print("Successfully loaded cached dataset")
                     return
                 else:
                     print("Failed to load cached dataset. Processing from scratch.")
 
+        print("Processing dataset from source files...")
         x_path = os.path.join(self.data_dir, "X.csv")
 
         # We're only reading X.csv now - we'll use lagged features instead of separate y.csv
@@ -360,7 +363,17 @@ class NO2DatasetLoader(object):
         # Create a specific cache file for this parameter set if caching is enabled
         dataset_cache_file = None
         if cache and self.cache_file:
-            suffix = f"_l{lags}" + (f"_{cache_suffix}" if cache_suffix else "")
+            # Include sample_size in the cache filename
+            sample_tag = ""
+            if sample_size is not None:
+                if isinstance(sample_size, float):
+                    sample_tag = f"_s{int(sample_size * 100)}"
+                else:
+                    sample_tag = f"_s{sample_size}"
+
+            suffix = f"_l{lags}{sample_tag}" + (
+                f"_{cache_suffix}" if cache_suffix else ""
+            )
             dataset_cache_file = f"dataset{suffix}.pkl"
             dataset_cache_path = os.path.join(self.data_dir, dataset_cache_file)
 
@@ -401,6 +414,99 @@ class NO2DatasetLoader(object):
 
         return dataset
 
+    # TODO: CHECK THIS IF IT WORKS AND IF CORRECT IMPLEMENTATION
+    def get_batched_dataset(
+        self,
+        lags=24,
+        batch_size=32,
+        only_no2=None,
+        sample_size=None,
+        cache=True,
+        cache_suffix=None,
+    ) -> StaticGraphTemporalSignalBatch:
+        """Return batched NO2 forecasting dataset using StaticGraphTemporalSignalBatch.
+
+        Args:
+            lags (int, optional): The number of time lags. Defaults to 24.
+            batch_size (int, optional): Size of each batch. Defaults to 32.
+            only_no2 (bool, optional): If provided, overrides the instance setting for using only NO2 as features.
+            sample_size (int or float, optional): If int, use only that many samples.
+                                                If float between 0-1, use that fraction of data.
+                                                If None, use all data. Defaults to None.
+            cache (bool, optional): Whether to cache the processed dataset. Defaults to True.
+            cache_suffix (str, optional): Suffix to add to the cache filename. Defaults to None.
+
+        Returns:
+            StaticGraphTemporalSignalBatch: Batched temporal graph dataset
+        """
+        # Create a specific cache file for this parameter set if caching is enabled
+        batch_cache_file = None
+        if cache and self.cache_file:
+            # Include parameters in the cache filename
+            suffix = f"_l{lags}_b{batch_size}"
+            if sample_size is not None:
+                if isinstance(sample_size, float):
+                    suffix += f"_s{int(sample_size * 100)}"
+                else:
+                    suffix += f"_s{sample_size}"
+            if only_no2:
+                suffix += "_no2only"
+            if cache_suffix:
+                suffix += f"_{cache_suffix}"
+
+            batch_cache_file = f"batched_dataset{suffix}.pkl"
+            batch_cache_path = os.path.join(self.data_dir, batch_cache_file)
+
+            # Try to load cached dataset
+            if os.path.exists(batch_cache_path):
+                try:
+                    with open(batch_cache_path, "rb") as f:
+                        cached_result = pickle.load(f)
+                    print(f"Loaded cached batched dataset from {batch_cache_path}")
+                    return cached_result
+                except Exception as e:
+                    print(f"Failed to load cached batched dataset: {e}")
+
+        # Processing parameters
+        self.lags = lags
+        if only_no2 is not None:
+            self.only_no2 = only_no2
+        self._get_edges()
+        self._get_edge_weights()
+
+        # Store sample_size for use in _get_targets_and_features
+        self.sample_size = sample_size
+
+        # Get features and targets
+        self._get_targets_and_features()
+
+        # Get number of cities
+        num_cities = len(self.cities)
+
+        # Shape: [num_cities]
+        batches = np.zeros(num_cities, dtype=np.int64)
+
+        # Create the batched dataset with proper sequencing
+        # We're passing a list of features and targets, where each element represents a timestep
+        batched_dataset = StaticGraphTemporalSignalBatch(
+            edge_index=self._edges,
+            edge_weight=self._edge_weights,
+            features=self.features,  # Already in right format: list of [num_cities, feature_dim] arrays
+            targets=self.targets,  # Already in right format: list of [num_cities] arrays
+            batches=batches,  # Each node (city) belongs to the same batch
+        )
+
+        # Cache the dataset if requested
+        if cache and batch_cache_file:
+            try:
+                with open(batch_cache_path, "wb") as f:
+                    pickle.dump(batched_dataset, f)
+                print(f"Batched dataset cached to {batch_cache_path}")
+            except Exception as e:
+                print(f"Failed to cache batched dataset: {e}")
+
+        return batched_dataset
+
     def get_index_dataset(
         self,
         lags=24,
@@ -414,6 +520,7 @@ class NO2DatasetLoader(object):
         horizon=None,
         cache=True,
         cache_suffix=None,
+        step_size=1,
     ):
         """
         Returns torch dataloaders using index batching for NO2 forecasting dataset.
@@ -437,6 +544,7 @@ class NO2DatasetLoader(object):
             Tuple: (train_dataloader, val_dataloader, test_dataloader, edges, edge_weights)
         """
         # Create a specific cache file for this parameter set if caching is enabled
+        self.lags = lags
         index_dataset_cache_file = None
         if cache and self.cache_file:
             suffix = f"_l{lags}_b{batch_size}_r{ratio[0]}-{ratio[1]}-{ratio[2]}"
@@ -555,11 +663,11 @@ class NO2DatasetLoader(object):
 
         # Apply sample_size if specified
         if sample_size is not None:
-            if isinstance(sample_size, float) and 0 < sample_size < 1:
-                # Use a fraction of the data
-                num_samples_to_use = int(num_samples * sample_size)
+            if isinstance(sample_size, float) and 0 < sample_size <= 1:
+                num_samples_to_use = max(round(num_samples * sample_size), self.lags)
                 data = data[:num_samples_to_use]
                 print(f"Using {num_samples_to_use} samples ({sample_size:.2%} of data)")
+
             elif isinstance(sample_size, int) and sample_size > 0:
                 # Use specified number of samples
                 num_samples_to_use = min(sample_size, num_samples)
@@ -572,39 +680,48 @@ class NO2DatasetLoader(object):
 
             # Adjust num_samples after sampling
             num_samples = data.shape[0]
-            x_i = np.arange(num_samples - lags)
-            num_samples = x_i.shape[0]
-
-            # Recalculate split sizes
-            num_train = round(num_samples * ratio[0])
-            num_val = round(num_samples * ratio[1])
-            num_test = num_samples - num_train - num_val
 
         # Create tensor versions of edges and weights
         edges = torch.tensor(self._edges, dtype=torch.int64)
         edge_weights = torch.tensor(self._edge_weights, dtype=torch.float)
 
-        # Create indices for train/val/test split
-        x_i = np.arange(num_samples - lags)
+        # Now create indices for train/val/test split
+        # Note: x_i should account for lags and horizon
+        print("x_i lags", lags)
+        x_i = np.arange(0, num_samples - lags - horizon, step=step_size)
 
+        # Recalculate number of samples after adjustments
         num_samples = x_i.shape[0]
+
+        # Recalculate split sizes
         num_train = round(num_samples * ratio[0])
         num_val = round(num_samples * ratio[1])
         num_test = num_samples - num_train - num_val
 
+        # Split indices
         x_train = x_i[:num_train]
         x_val = x_i[num_train : num_train + num_val]
         x_test = x_i[-num_test:]
 
         # Create datasets
         train_dataset = self.IndexDataset(
-            x_train, data, lags, gpu=(allGPU != -1), lazy=dask_batching, horizon=horizon
+            x_train,
+            data,
+            horizon,
+            gpu=(allGPU != -1),
+            lazy=dask_batching,
+            lags=self.lags,
         )
         val_dataset = self.IndexDataset(
-            x_val, data, lags, gpu=(allGPU != -1), lazy=dask_batching, horizon=horizon
+            x_val, data, horizon, gpu=(allGPU != -1), lazy=dask_batching, lags=self.lags
         )
         test_dataset = self.IndexDataset(
-            x_test, data, lags, gpu=(allGPU != -1), lazy=dask_batching, horizon=horizon
+            x_test,
+            data,
+            horizon,
+            gpu=(allGPU != -1),
+            lazy=dask_batching,
+            lags=self.lags,
         )
 
         # Create dataloaders
