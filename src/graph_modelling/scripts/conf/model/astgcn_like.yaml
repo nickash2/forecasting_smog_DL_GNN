@@ -1,0 +1,6 @@
+_target_: src.graph_modelling.models.astgcn.ASTGCN_Like
+block_channels: 32
+gru_channels: 32
+num_blocks: 1
+# Inherits K
+# Needs: num_nodes, num_vars, lags, horizon (passed dynamically)

@@ -1,0 +1,2 @@
+only_no2: False
+num_vars: 7 # NO2 + 6 weather vars
