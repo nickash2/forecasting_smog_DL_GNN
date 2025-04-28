@@ -12,9 +12,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # --- Add project root to sys.path ---
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.append(str(PROJECT_ROOT))
+BASE_DIR = Path.cwd()
+MODEL_PATH = BASE_DIR / "results" / "models"
+DATA_DIR = BASE_DIR / "data" / "data_gnn"
+ALL_DIR = DATA_DIR / "all"
+RAW_DATA_DIR = BASE_DIR / "data" / "data_raw"
 # ------------------------------------
 
 from src.graph_modelling.datasets.no2_dataset import NO2DatasetLoader
@@ -22,16 +24,25 @@ from src.graph_modelling.training.train_utils import train_model_index, evaluate
 from src.graph_modelling.visualization.visualization import (
     plot_training_history,
     plot_predictions,
+    set_base_dir,
 )
 
 # A logger for this file
 log = logging.getLogger(__name__)
 
 
-@hydra.main(version_base="1.3", config_path="conf", config_name="config")
+@hydra.main(version_base=None, config_path="conf", config_name="config")
 def run_experiment(cfg: DictConfig) -> float:
     """Runs a single experiment configuration."""
-
+    # Check if model config loaded correctly
+    if cfg.model is None or '_target_' not in cfg.model:
+        log.error(f"Failed to load model configuration. Available config: {OmegaConf.to_yaml(cfg)}")
+        if hasattr(cfg, 'model') and cfg.model is not None:
+            log.error(f"Model config exists but doesn't contain _target_: {cfg.model}")
+        else:
+            log.error("Model config is None")
+        raise ValueError("Model configuration not found or invalid")
+    
     # --- Setup ---
     hydra_cfg = hydra.core.hydra_config.HydraConfig.get()
     output_dir = Path(hydra_cfg.runtime.output_dir)
@@ -47,7 +58,7 @@ def run_experiment(cfg: DictConfig) -> float:
     # Get the correct path to the cache file
     cache_path = Path(cfg.data.cache_file)
     if not cache_path.is_absolute():
-        cache_path = PROJECT_ROOT / "data" / "data_gnn" / cfg.data.cache_file
+        cache_path = BASE_DIR / "data" / "data_gnn" / cfg.data.cache_file
 
     loader = NO2DatasetLoader(
         index=True,
@@ -80,40 +91,80 @@ def run_experiment(cfg: DictConfig) -> float:
     # --- Model Initialization ---
     # Assuming 3 nodes for this specific dataset (Amsterdam, Rotterdam, Utrecht)
     num_nodes = 3
-    num_vars = cfg.data.num_vars
+    num_vars = 1 if cfg.data.only_no2 else 7
+    print("num_vars", num_vars)
 
     # Find out which model we're creating for better logging
     model_name = cfg.model._target_.split(".")[-1]
     data_mode = "no2_only" if cfg.data.only_no2 else "all_vars"
-    log.info(f"Initializing model: {model_name} with {data_mode}")
 
+    # Create a friendly display name for logging and file naming
+    friendly_model_name = f"{model_name}_{data_mode}"
+
+    log.info(f"Initializing model: {model_name} with {data_mode} data")
+
+    # In the model initialization section
     try:
+        # Get model class to inspect its parameters
+        model_class = hydra.utils.get_class(cfg.model._target_)
+        import inspect
+        
+        # Get the parameters accepted by the model's __init__ method
+        valid_params = list(inspect.signature(model_class.__init__).parameters.keys())
+        if 'self' in valid_params:
+            valid_params.remove('self')
+        
+        # Make sure num_vars matches your data configuration
+        num_vars = 1 if cfg.data.only_no2 else 7  # Or whatever your full var count is
+        
+        # Create dictionary with common parameters
+        model_params = {
+            "num_nodes": num_nodes,
+            "num_vars": num_vars,
+            "lags": cfg.training.n_lags,
+            "horizon": cfg.training.n_horizon,
+        }
+        
+        # Add parameters from cfg.model (like K, hidden_channels) ONLY if the model accepts them
+        for k, v in cfg.model.items():
+            if k != "_target_" and k in valid_params:
+                model_params[k] = v
+        
+        # Filter to only include parameters this model accepts
+        model_params = {k: v for k, v in model_params.items() if k in valid_params}
+        
+        # Instantiate with only the parameters this model accepts
         model = hydra.utils.instantiate(
             cfg.model,
-            num_nodes=num_nodes,
-            num_vars=num_vars,
-            lags=cfg.training.n_lags,
-            horizon=cfg.training.n_horizon,
+            **model_params,
             _recursive_=False,
         ).to(device)
+        model = model.float()
+
+        edges = edges.long()
+
+        if edge_weights is not None:
+            edge_weights = edge_weights.float()  # Edge weights should be float32
+
         log.info(f"Model:\n{model}")
     except Exception as e:
         log.error(f"Error instantiating model: {e}")
         raise e
 
     # --- Training ---
-    log.info("Starting training...")
+    log.info(f"Starting training for {friendly_model_name}...")
     tb_log_dir = output_dir / cfg.paths.tensorboard_subdir
     tb_log_dir.mkdir(parents=True, exist_ok=True)
     writer = SummaryWriter(log_dir=str(tb_log_dir))
+
 
     try:
         model, history = train_model_index(
             model=model,
             train_loader=train_loader,
             val_loader=val_loader,
-            edge_index=edges.to(device),
-            edge_weight=edge_weights.to(device) if edge_weights is not None else None,
+            edge_index=edges.long().to(device),  # Ensure long dtype
+            edge_weight=edge_weights.float().to(device) if edge_weights is not None else None,  # Ensure float dtype
             device=device,
             epochs=cfg.training.n_epochs,
             patience=cfg.training.patience,
@@ -125,25 +176,14 @@ def run_experiment(cfg: DictConfig) -> float:
             json.dump(history, f, indent=4)
         log.info(f"Training history saved to {history_path}")
 
-        # Plot training history
+        # Plot training history with model name
         plots_dir = output_dir / cfg.paths.plot_subdir
         plots_dir.mkdir(parents=True, exist_ok=True)
-        plot_path = plots_dir / "training_history.png"
 
-        # Create plot
-        plt.figure(figsize=(10, 6))
-        plt.plot(history["train_loss"], label="Training Loss")
-        plt.plot(history["val_loss"], label="Validation Loss")
-        plt.xlabel("Epoch")
-        plt.ylabel("Loss")
-        plt.title(f"Training History - {model_name} ({data_mode})")
-        plt.legend()
-        plt.grid(True, alpha=0.3)
-        plt.tight_layout()
-        plt.savefig(plot_path, dpi=300, bbox_inches="tight")
-        plt.close()
-
-        log.info(f"Training history plot saved to {plot_path}")
+        # Use the visualization module's plotting with model name
+        set_base_dir(Path(cfg.base_dir))  # Set base directory for visualization module
+        plot_training_history(history, model_name=friendly_model_name)
+        log.info(f"Training history plot created for {friendly_model_name}")
 
     except KeyboardInterrupt:
         log.warning("Training interrupted by user.")
@@ -153,7 +193,7 @@ def run_experiment(cfg: DictConfig) -> float:
         writer.close()
 
     # --- Evaluation ---
-    log.info("Starting evaluation...")
+    log.info(f"Starting evaluation for {friendly_model_name}...")
     city_names = ["Amsterdam", "Rotterdam", "Utrecht"]
 
     test_loss, predictions, targets = evaluate_index(
@@ -165,14 +205,16 @@ def run_experiment(cfg: DictConfig) -> float:
         loader=loader,
         cities=city_names,
     )
-    log.info(f"Test Loss: {test_loss:.4f}")
+    log.info(f"Test Loss for {friendly_model_name}: {test_loss:.4f}")
 
     # Calculate additional metrics
     mse = test_loss  # Already MSE
     rmse = np.sqrt(mse)
     mae = np.mean(np.abs(predictions - targets))
 
-    log.info(f"Test metrics - MSE: {mse:.4f}, RMSE: {rmse:.4f}, MAE: {mae:.4f}")
+    log.info(
+        f"Test metrics for {friendly_model_name} - MSE: {mse:.4f}, RMSE: {rmse:.4f}, MAE: {mae:.4f}"
+    )
 
     # --- Save Results ---
     # Save test metrics
@@ -181,7 +223,7 @@ def run_experiment(cfg: DictConfig) -> float:
         "test_mse": float(mse),
         "test_rmse": float(rmse),
         "test_mae": float(mae),
-        "model_name": model_name,
+        "model_name": friendly_model_name,
         "data_mode": data_mode,
         "num_vars": int(num_vars),
     }
@@ -191,10 +233,7 @@ def run_experiment(cfg: DictConfig) -> float:
         json.dump(metrics, f, indent=4)
     log.info(f"Test metrics saved to {metrics_path}")
 
-    # Create prediction plots
-    predictions_plot_path = plots_dir / "predictions.png"
-
-    # Assuming predictions and targets are numpy arrays with shape [timesteps, cities]
+    # Create prediction plots with model name and city-specific metrics
     if hasattr(loader, "denormalize_no2"):
         try:
             # Try to denormalize if the loader supports it
@@ -202,36 +241,19 @@ def run_experiment(cfg: DictConfig) -> float:
             targets_orig = loader.denormalize_no2(targets)
             log.info("Successfully denormalized predictions and targets")
 
-            # Call the plotting function
-            plt.figure(figsize=(12, 4 * num_nodes))
+            # Use visualization module's plot_predictions with model name
+            plot_metrics = plot_predictions(
+                predictions_orig,
+                targets_orig,
+                city_names=city_names,
+                model_name=friendly_model_name,
+                save_metrics=True,
+            )
 
-            for i in range(num_nodes):
-                city_name = city_names[i] if i < len(city_names) else f"City {i}"
-                plt.subplot(num_nodes, 1, i + 1)
-                plt.plot(targets_orig[:, i], "b-", label="Actual")
-                plt.plot(predictions_orig[:, i], "r--", label="Predicted")
-                plt.title(f"NO2 Predictions for {city_name}")
-                plt.xlabel("Time (hours)")
-                plt.ylabel("NO2 (μg/m³)")
-                plt.grid(True, alpha=0.3)
-                plt.legend()
-
-                # Add error metrics
-                city_mse = np.mean((predictions_orig[:, i] - targets_orig[:, i]) ** 2)
-                city_rmse = np.sqrt(city_mse)
-                city_mae = np.mean(np.abs(predictions_orig[:, i] - targets_orig[:, i]))
-                plt.text(
-                    0.02,
-                    0.90,
-                    f"RMSE: {city_rmse:.2f}\nMAE: {city_mae:.2f}",
-                    transform=plt.gca().transAxes,
-                    bbox=dict(facecolor="white", alpha=0.7),
+            if plot_metrics:
+                log.info(
+                    "Prediction plots and detailed metrics created with per-city RMSE"
                 )
-
-            plt.tight_layout()
-            plt.savefig(predictions_plot_path, dpi=300, bbox_inches="tight")
-            plt.close()
-            log.info(f"Prediction plots saved to {predictions_plot_path}")
 
         except Exception as e:
             log.warning(f"Could not create denormalized prediction plots: {e}")
@@ -253,7 +275,7 @@ if __name__ == "__main__":
     os.environ["HYDRA_CONFIG_PATH"] = str(Path(__file__).parent / "conf")
 
     # Set base_dir to project root or another appropriate location
-    base_dir = PROJECT_ROOT / "results" / "model_comparison"
+    base_dir = BASE_DIR
     OmegaConf.update(OmegaConf.create(), "base_dir", str(base_dir))
 
     run_experiment()

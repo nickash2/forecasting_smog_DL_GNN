@@ -1,0 +1,235 @@
+submitit INFO (2025-04-27 23:16:24,988) - Starting with JobEnvironment(job_id=16861498_2, hostname=v100v2gpu19, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2025-04-27 23:16:24,988) - Loading pickle: /home4/s5185491/third-copy/comparison_results/multirun/2025-04-27_23-16-20/.submitit/16861498_2/16861498_2_submitted.pkl
+[2025-04-27 23:16:33,720][__main__][INFO] - Hydra output directory: /home4/s5185491/third-copy/comparison_results/multirun/2025-04-27_23-16-20/2_base_dir=/home4/s5185491/third-copy,data=no2_only,model=attention_gconvgru
+[2025-04-27 23:16:33,722][__main__][INFO] - Configuration:
+data:
+  only_no2: true
+  num_vars: 1
+  cache_file: no2_dataset_cache.pkl
+  force_reload: false
+  sample_size: 1.0
+  shuffle: true
+  ratio:
+  - 0.7
+  - 0.15
+  - 0.15
+model:
+  _target_: src.graph_modelling.models.batched_gconvgru_atn.AttentionGConvGRU
+  attention_mlp_hidden: 16
+  K: 1
+seed: 34
+base_dir: /home4/s5185491/third-copy
+results_subdir: comparison_results
+training:
+  n_lags: 72
+  n_horizon: 24
+  batch_size: 16
+  n_step: 24
+  n_epochs: 150
+  patience: 5
+paths:
+  model_save_name: final_model.pt
+  history_save_name: training_history.json
+  metrics_save_name: test_metrics.json
+  tensorboard_subdir: tensorboard_logs
+  plot_subdir: plots
+
+[2025-04-27 23:16:33,733][__main__][INFO] - Using device: cuda
+[2025-04-27 23:16:33,733][__main__][INFO] - Initializing dataset loader...
+Loading cached dataset from /home4/s5185491/third-copy/data/data_gnn/no2_dataset_cache.pkl
+Cached dataset loaded successfully
+Successfully loaded cached dataset
+[2025-04-27 23:16:33,752][__main__][INFO] - Loading dataset with lags=72, horizon=24...
+Loaded cached index dataset from /home4/s5185491/third-copy/data/data_gnn/index_dataset_l72_b16_r0.7-0.15-0.15_s1.0_h24_no2only.pkl
+[2025-04-27 23:16:33,761][__main__][INFO] - Train batches: 39, Val batches: 9, Test batches: 9
+num_vars 1
+[2025-04-27 23:16:33,761][__main__][INFO] - Initializing model: AttentionGConvGRU with no2_only data
+[2025-04-27 23:16:35,155][__main__][INFO] - Model:
+AttentionGConvGRU(
+  (gru): BatchedGConvGRU(
+    (conv_x_z): ChebConv(1, 32, K=1, normalization=sym)
+    (conv_h_z): ChebConv(32, 32, K=1, normalization=sym)
+    (conv_x_r): ChebConv(1, 32, K=1, normalization=sym)
+    (conv_h_r): ChebConv(32, 32, K=1, normalization=sym)
+    (conv_x_h): ChebConv(1, 32, K=1, normalization=sym)
+    (conv_h_h): ChebConv(32, 32, K=1, normalization=sym)
+  )
+  (attention_mlp): Sequential(
+    (0): Linear(in_features=32, out_features=16, bias=True)
+    (1): Tanh()
+    (2): Linear(in_features=16, out_features=1, bias=True)
+  )
+  (node_predict): Linear(in_features=32, out_features=24, bias=True)
+)
+[2025-04-27 23:16:35,155][__main__][INFO] - Starting training for AttentionGConvGRU_no2_only...
+Epoch 1: Train Loss 0.030065, Val Loss 0.026115
+Epoch 2: Train Loss 0.029744, Val Loss 0.025799
+Epoch 3: Train Loss 0.029381, Val Loss 0.025484
+Epoch 4: Train Loss 0.029071, Val Loss 0.025171
+Epoch 5: Train Loss 0.028714, Val Loss 0.024855
+Epoch 6: Train Loss 0.028298, Val Loss 0.024540
+Epoch 7: Train Loss 0.028043, Val Loss 0.024219
+Epoch 8: Train Loss 0.027642, Val Loss 0.023896
+Epoch 9: Train Loss 0.027279, Val Loss 0.023568
+Epoch 10: Train Loss 0.026886, Val Loss 0.023233
+Epoch 11: Train Loss 0.026604, Val Loss 0.022893
+Epoch 12: Train Loss 0.026183, Val Loss 0.022545
+Epoch 13: Train Loss 0.025748, Val Loss 0.022190
+Epoch 14: Train Loss 0.025457, Val Loss 0.021828
+Epoch 15: Train Loss 0.024970, Val Loss 0.021455
+Epoch 16: Train Loss 0.024608, Val Loss 0.021072
+Epoch 17: Train Loss 0.024239, Val Loss 0.020681
+Epoch 18: Train Loss 0.023694, Val Loss 0.020276
+Epoch 19: Train Loss 0.023154, Val Loss 0.019862
+Epoch 20: Train Loss 0.022760, Val Loss 0.019439
+Epoch 21: Train Loss 0.022229, Val Loss 0.019000
+Epoch 22: Train Loss 0.021769, Val Loss 0.018548
+Epoch 23: Train Loss 0.021197, Val Loss 0.018078
+Epoch 24: Train Loss 0.020676, Val Loss 0.017604
+Epoch 25: Train Loss 0.020127, Val Loss 0.017109
+Epoch 26: Train Loss 0.019636, Val Loss 0.016602
+Epoch 27: Train Loss 0.019079, Val Loss 0.016071
+Epoch 28: Train Loss 0.018393, Val Loss 0.015532
+Epoch 29: Train Loss 0.017805, Val Loss 0.014981
+Epoch 30: Train Loss 0.017173, Val Loss 0.014412
+Epoch 31: Train Loss 0.016553, Val Loss 0.013835
+Epoch 32: Train Loss 0.015847, Val Loss 0.013251
+Epoch 33: Train Loss 0.015232, Val Loss 0.012661
+Epoch 34: Train Loss 0.014486, Val Loss 0.012060
+Epoch 35: Train Loss 0.013747, Val Loss 0.011474
+Epoch 36: Train Loss 0.013077, Val Loss 0.010897
+Epoch 37: Train Loss 0.012549, Val Loss 0.010334
+Epoch 38: Train Loss 0.011818, Val Loss 0.009787
+Epoch 39: Train Loss 0.011172, Val Loss 0.009271
+Epoch 40: Train Loss 0.010588, Val Loss 0.008794
+Epoch 41: Train Loss 0.010046, Val Loss 0.008351
+Epoch 42: Train Loss 0.009510, Val Loss 0.007952
+Epoch 43: Train Loss 0.009043, Val Loss 0.007596
+Epoch 44: Train Loss 0.008642, Val Loss 0.007280
+Epoch 45: Train Loss 0.008289, Val Loss 0.007005
+Epoch 46: Train Loss 0.008047, Val Loss 0.006762
+Epoch 47: Train Loss 0.007683, Val Loss 0.006555
+Epoch 48: Train Loss 0.007462, Val Loss 0.006373
+Epoch 49: Train Loss 0.007239, Val Loss 0.006215
+Epoch 50: Train Loss 0.007057, Val Loss 0.006078
+Epoch 51: Train Loss 0.006941, Val Loss 0.005957
+Epoch 52: Train Loss 0.006769, Val Loss 0.005857
+Epoch 53: Train Loss 0.006693, Val Loss 0.005768
+Epoch 54: Train Loss 0.006586, Val Loss 0.005701
+Epoch 55: Train Loss 0.006488, Val Loss 0.005632
+Epoch 56: Train Loss 0.006450, Val Loss 0.005572
+Epoch 57: Train Loss 0.006380, Val Loss 0.005521
+Epoch 58: Train Loss 0.006327, Val Loss 0.005489
+Epoch 59: Train Loss 0.006285, Val Loss 0.005451
+Epoch 60: Train Loss 0.006297, Val Loss 0.005421
+Epoch 61: Train Loss 0.006218, Val Loss 0.005401
+Epoch 62: Train Loss 0.006205, Val Loss 0.005372
+Epoch 63: Train Loss 0.006222, Val Loss 0.005360
+Epoch 64: Train Loss 0.006236, Val Loss 0.005339
+Epoch 65: Train Loss 0.006146, Val Loss 0.005339
+Epoch 66: Train Loss 0.006143, Val Loss 0.005315
+Epoch 67: Train Loss 0.006154, Val Loss 0.005313
+Epoch 68: Train Loss 0.006102, Val Loss 0.005308
+Epoch 69: Train Loss 0.006102, Val Loss 0.005302
+Epoch 70: Train Loss 0.006129, Val Loss 0.005283
+Epoch 71: Train Loss 0.006084, Val Loss 0.005284
+Epoch 72: Train Loss 0.006122, Val Loss 0.005276
+Epoch 73: Train Loss 0.006099, Val Loss 0.005277
+Epoch 74: Train Loss 0.006093, Val Loss 0.005269
+Epoch 75: Train Loss 0.006074, Val Loss 0.005268
+Epoch 76: Train Loss 0.006094, Val Loss 0.005264
+Epoch 77: Train Loss 0.006058, Val Loss 0.005267
+Epoch 78: Train Loss 0.006152, Val Loss 0.005259
+Epoch 79: Train Loss 0.006095, Val Loss 0.005265
+Epoch 80: Train Loss 0.006068, Val Loss 0.005256
+Epoch 81: Train Loss 0.006116, Val Loss 0.005255
+Epoch 82: Train Loss 0.006078, Val Loss 0.005257
+Epoch 83: Train Loss 0.006063, Val Loss 0.005256
+Epoch 84: Train Loss 0.006082, Val Loss 0.005249
+Epoch 85: Train Loss 0.006054, Val Loss 0.005252
+Epoch 86: Train Loss 0.006068, Val Loss 0.005252
+Epoch 87: Train Loss 0.006044, Val Loss 0.005249
+Epoch 88: Train Loss 0.006065, Val Loss 0.005249
+Epoch 89: Train Loss 0.006070, Val Loss 0.005246
+Epoch 90: Train Loss 0.006067, Val Loss 0.005252
+Epoch 91: Train Loss 0.006112, Val Loss 0.005248
+Epoch 92: Train Loss 0.006055, Val Loss 0.005247
+Epoch 93: Train Loss 0.006046, Val Loss 0.005234
+Epoch 94: Train Loss 0.006043, Val Loss 0.005239
+Epoch 95: Train Loss 0.006051, Val Loss 0.005235
+Epoch 96: Train Loss 0.006044, Val Loss 0.005235
+Epoch 97: Train Loss 0.006052, Val Loss 0.005243
+Epoch 98: Train Loss 0.006034, Val Loss 0.005238
+Early stopping after 98 epochs
+[2025-04-27 23:39:03,001][__main__][INFO] - Training history saved to /home4/s5185491/third-copy/comparison_results/multirun/2025-04-27_23-16-20/2_base_dir=/home4/s5185491/third-copy,data=no2_only,model=attention_gconvgru/training_history.json
+[2025-04-27 23:39:03,453][__main__][INFO] - Training history plot created for AttentionGConvGRU_no2_only
+[2025-04-27 23:39:03,454][__main__][INFO] - Starting evaluation for AttentionGConvGRU_no2_only...
+Test MSE (scaled): 0.004185
+Test RMSE (scaled): 0.064695
+Test MSE (unscaled): 133.5831
+Test RMSE (unscaled): 11.5578 μg/m³
+Predictions shape: (9576,), Targets shape: (9576,)
+Reshaped arrays to: (3192, 3)
+Working with 3 cities, 3192 time points
+Metrics saved to /home4/s5185491/third-copy/results/metrics_20250427-231633.json
+Prediction plots saved to results directory
+[2025-04-27 23:39:07,748][__main__][INFO] - Test Loss for AttentionGConvGRU_no2_only: 0.0042
+[2025-04-27 23:39:07,749][__main__][INFO] - Test metrics for AttentionGConvGRU_no2_only - MSE: 0.0042, RMSE: 0.0647, MAE: 0.0532
+[2025-04-27 23:39:07,754][__main__][INFO] - Test metrics saved to /home4/s5185491/third-copy/comparison_results/multirun/2025-04-27_23-16-20/2_base_dir=/home4/s5185491/third-copy,data=no2_only,model=attention_gconvgru/test_metrics.json
+[2025-04-27 23:39:07,754][__main__][INFO] - Successfully denormalized predictions and targets
+Predictions shape: (9576,), Targets shape: (9576,)
+Reshaped arrays to: (3192, 3)
+Working with 3 cities, 3192 time points
+Metrics saved to /home4/s5185491/third-copy/results/AttentionGConvGRU_no2_only_metrics_20250427-231633.json
+[2025-04-27 23:39:09,884][__main__][INFO] - Prediction plots and detailed metrics created with per-city RMSE
+[2025-04-27 23:39:09,900][__main__][INFO] - Final model saved to /home4/s5185491/third-copy/comparison_results/multirun/2025-04-27_23-16-20/2_base_dir=/home4/s5185491/third-copy,data=no2_only,model=attention_gconvgru/final_model.pt
+submitit INFO (2025-04-27 23:39:09,902) - Job completed successfully
+[2025-04-27 23:39:09,902][submitit][INFO] - Job completed successfully
+submitit INFO (2025-04-27 23:39:09,913) - Exiting after successful completion
+[2025-04-27 23:39:09,913][submitit][INFO] - Exiting after successful completion
+
+###############################################################################
+Hábrók Cluster
+Job 16861498_2 for user s5185491
+Finished at: Sun Apr 27 23:39:15 CEST 2025
+
+Job details:
+============
+
+Job ID                         : 16861498_2
+Name                           : compare_models
+User                           : s5185491
+Partition                      : gpushort
+Nodes                          : v100v2gpu19
+Number of Nodes                : 1
+Cores                          : 4
+Number of Tasks                : 1
+State                          : COMPLETED  
+Submit                         : 2025-04-27T23:16:21
+Start                          : 2025-04-27T23:16:22
+End                            : 2025-04-27T23:39:11
+Reserved walltime              : 04:00:00
+Used walltime                  : 00:22:49
+Used CPU time                  : 00:22:37 (Efficiency: 24.77%)
+% User (Computation)           : 99.62%
+% System (I/O)                 :  0.38%
+Total memory reserved          : 32G
+Maximum memory used            : 1.30G
+Requested GPUs                 : 1
+Allocated GPUs                 : v100=1
+Max GPU utilization            : 23%
+Max GPU memory used            : 410.00M
+Hints and tips      :
+ 1) The GPU utilization is low, please check if your code can be optimized,
+    or if you can move your input data to fast local storage.
+ *) For more information on these issues see:
+    https://wiki.hpc.rug.nl/habrok/additional_information/job_hints
+
+Acknowledgements:
+=================
+
+Please see this page for information about acknowledging Hábrók in your publications:
+
+https://wiki.hpc.rug.nl/habrok/introduction/scientific_output
+
+################################################################################

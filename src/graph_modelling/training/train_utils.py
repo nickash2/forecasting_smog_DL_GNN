@@ -16,82 +16,116 @@ def train_model_index(
     writer=None,
 ):
     """
-    Same as before, but `train_loader` yields (x_batch, y_batch),
-    and `edge_index` / `edge_weight` are passed in once.
+    Train model using index-based dataloaders
+    
+    Args:
+        model: Model to train
+        train_loader, val_loader: DataLoaders with training and validation data
+        device: PyTorch device
+        epochs: Max number of epochs to train
+        patience: Early stopping patience (epochs without improvement)
+        only_no2: Whether only NO2 values should be used as targets
     """
-    model.to(device)
-    edge_index = edge_index.to(device)
-    edge_weight = edge_weight.to(device)
-
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
     criterion = torch.nn.MSELoss()
-
-    best_val_loss = float("inf")
-    counter = 0
-    best_state = None
-    history = {"train_loss": [], "val_loss": []}
-
-    for epoch in range(epochs):
-        # ——— Training ———
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
+    
+    best_val_loss = float('inf')
+    patience_counter = 0
+    history = {'train_loss': [], 'val_loss': [], 'epochs': []}
+    
+    for epoch in range(1, epochs + 1):
         model.train()
-        running_loss = 0.0
+        train_losses = []
+        
+        # Training loop with progress bar
+        train_pbar = tqdm(train_loader, desc=f"Train Epoch {epoch}")
+        for x_batch, y_batch in train_pbar:
+            # Move data to device
+            x_batch, y_batch = x_batch.to(device).float(), y_batch.to(device).float()
 
-        for x_batch, y_batch in tqdm(
-            train_loader, desc=f"Train Epoch {epoch + 1}", unit="batch"
-        ):
-            # x_batch: (B, lags, N*F),  y_batch: (B, horizon, N)
-            x_batch = x_batch.to(device).float()
-            y_batch = y_batch.to(device).float()
-
+            edge_index, edge_weight = edge_index.to(device), edge_weight.to(device)
+            
             optimizer.zero_grad()
             y_hat = model(x_batch, edge_index, edge_weight)
-            loss = criterion(y_hat, y_batch)
+            
+            # Extract only NO2 values as targets when using all variables
+            if y_batch.shape[2] != y_hat.shape[2]:
+                # Model is expecting (B, horizon, num_nodes=3)
+                # Target is (B, horizon, num_nodes*num_vars=21)
+                
+                # Reshape to (B, horizon, num_nodes=3, num_vars=7)
+                B, H, NF = y_batch.shape
+                num_nodes = 3  # Assuming 3 cities
+                num_vars = 7   # Assuming 7 variables when all_vars is set
+                
+                # Reshape and extract just NO2 (first variable) for each node
+                y_batch_reshaped = y_batch.view(B, H, num_nodes, num_vars)
+                # Take only NO2 (index 0) for all nodes
+                y_batch_no2 = y_batch_reshaped[:, :, :, 0]
+                
+                # Calculate loss using only NO2 values
+                loss = criterion(y_hat, y_batch_no2)
+            else:
+                # Normal case when only_no2=True
+                loss = criterion(y_hat, y_batch)
+                
             loss.backward()
             optimizer.step()
-
-            running_loss += loss.item()
-
-        avg_train = running_loss / len(train_loader)
-        history["train_loss"].append(avg_train)
-
-        # ——— Validation ———
-        model.eval()
-        running_val = 0.0
-
-        with torch.no_grad():
-            for x_batch, y_batch in tqdm(
-                val_loader, desc=f"Val Epoch {epoch + 1}", unit="batch"
-            ):
-                x_batch = x_batch.to(device).float()
-                y_batch = y_batch.to(device).float()
-
-                y_hat = model(x_batch, edge_index, edge_weight)
-                running_val += criterion(y_hat, y_batch).item()
-
-        avg_val = running_val / len(val_loader)
-        history["val_loss"].append(avg_val)
-
-        print(f"Epoch {epoch + 1} — train: {avg_train:.6f}, val: {avg_val:.6f}")
-
-        # ——— Early stopping ———
-        if avg_val < best_val_loss:
-            best_val_loss = avg_val
-            counter = 0
-            best_state = model.state_dict()
+            train_losses.append(loss.item())
+            
+            train_pbar.set_postfix({'train_loss': sum(train_losses) / len(train_losses)})
+            
+        # Validation phase
+        val_loss = validate_model(model, val_loader, criterion, device, edge_index, edge_weight)
+        
+        # Update history
+        avg_train_loss = sum(train_losses) / len(train_losses)
+        history['train_loss'].append(avg_train_loss)
+        history['val_loss'].append(val_loss)
+        history['epochs'].append(epoch)
+        
+        print(f"Epoch {epoch}: Train Loss {avg_train_loss:.6f}, Val Loss {val_loss:.6f}")
+        
+        # Early stopping
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            patience_counter = 0
+            # Save best model if needed
         else:
-            counter += 1
-            print(f"Val did not improve - {counter}/{patience}")
-            if counter >= patience:
-                print(f"Stopping early at epoch {epoch + 1}")
+            patience_counter += 1
+            if patience_counter >= patience:
+                print(f"Early stopping after {epoch} epochs")
                 break
-
-        writer.add_scalars("Loss", {"train": avg_train, "validation": avg_val}, epoch)
-
-    # Load best weights before returning
-    if best_state is not None:
-        model.load_state_dict(best_state)
-
+                
     return model, history
+def validate_model(model, val_loader, criterion, device, edge_index, edge_weight):
+    """Run validation and return average loss"""
+    model.eval()
+    val_losses = []
+    edge_index, edge_weight = edge_index.to(device), edge_weight.to(device)
+
+    with torch.no_grad():
+        for x_batch, y_batch in val_loader:
+            x_batch, y_batch = x_batch.to(device).float(), y_batch.to(device).float()
+
+            y_hat = model(x_batch, edge_index, edge_weight)
+
+            if y_batch.shape[2] != y_hat.shape[2]:
+                # Reshape to get just NO2 values for each node
+                B, H, NF = y_batch.shape
+                num_nodes = 3
+                num_vars = 7
+
+                y_batch_reshaped = y_batch.view(B, H, num_nodes, num_vars)
+                y_batch_no2 = y_batch_reshaped[:, :, :, 0]
+
+                loss = criterion(y_hat, y_batch_no2)
+            else:
+                loss = criterion(y_hat, y_batch)
+
+            val_losses.append(loss.item())
+
+    return sum(val_losses) / len(val_losses)
 
 
 def evaluate_index(
@@ -104,8 +138,7 @@ def evaluate_index(
     cities=["amsterdam", "rotterdam", "utrecht"],
 ):
     model.eval()
-    edge_index = edge_index.to(device)
-    edge_weight = edge_weight.to(device)
+    edge_index, edge_weight = edge_index.to(device), edge_weight.to(device)
     criterion = torch.nn.MSELoss()
 
     total_loss = 0.0
@@ -113,14 +146,28 @@ def evaluate_index(
 
     with torch.no_grad():
         for x_batch, y_batch in test_loader:
-            x_batch = x_batch.to(device).float()
-            y_batch = y_batch.to(device).float()
+            x_batch, y_batch = x_batch.to(device).float(), y_batch.to(device).float()
 
             y_hat = model(x_batch, edge_index, edge_weight)
-            total_loss += criterion(y_hat, y_batch).item()
 
-            all_preds.append(y_hat.cpu().numpy())
-            all_targets.append(y_batch.cpu().numpy())
+            if y_batch.shape[2] != y_hat.shape[2]:
+                B, H, NF = y_batch.shape
+                num_nodes = 3
+                num_vars = 7
+
+                y_batch_reshaped = y_batch.view(B, H, num_nodes, num_vars)
+                y_batch_no2 = y_batch_reshaped[:, :, :, 0]
+
+                loss = criterion(y_hat, y_batch_no2)
+
+                all_preds.append(y_hat.cpu().numpy())
+                all_targets.append(y_batch_no2.cpu().numpy())
+            else:
+                loss = criterion(y_hat, y_batch)
+                all_preds.append(y_hat.cpu().numpy())
+                all_targets.append(y_batch.cpu().numpy())
+
+            total_loss += loss.item()
 
     avg_loss = total_loss / len(test_loader)
     print(f"Test MSE (scaled): {avg_loss:.6f}")

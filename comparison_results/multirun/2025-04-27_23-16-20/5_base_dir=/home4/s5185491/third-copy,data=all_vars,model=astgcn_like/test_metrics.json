@@ -1,0 +1,9 @@
+{
+    "test_loss": 0.003099711818827523,
+    "test_mse": 0.003099711818827523,
+    "test_rmse": 0.05567505562482648,
+    "test_mae": 0.041716184467077255,
+    "model_name": "ASTGCN_Like_all_vars",
+    "data_mode": "all_vars",
+    "num_vars": 7
+}

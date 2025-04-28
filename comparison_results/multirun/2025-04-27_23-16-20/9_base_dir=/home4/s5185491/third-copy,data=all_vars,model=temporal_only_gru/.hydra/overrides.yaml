@@ -1,0 +1,3 @@
+- model=temporal_only_gru
+- data=all_vars
+- base_dir=/home4/s5185491/third-copy

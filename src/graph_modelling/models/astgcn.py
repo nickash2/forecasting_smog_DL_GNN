@@ -218,17 +218,15 @@ class ASTGCN_Like(nn.Module):
             x = block(x, edge_index, edge_weight, lambda_max)
         # x shape after blocks: (B, T, N, gru_channels)
 
-        # Use only the output from the last time step for prediction
-        x_last_step = x[:, -1:, :, :]  # (B, 1, N, gru_channels)
+        # Instead of only last step, keep ALL steps
+        # Shape: (B, T, N, gru_channels)
 
-        # Apply final convolutions
-        # Need to adjust shape for Conv2d: (B, C, H, W) -> (B, gru_channels, 1, N)
-        x_last_step = x_last_step.permute(0, 3, 1, 2)  # (B, gru_channels, 1, N)
+        x = x.permute(0, 3, 1, 2)  # (B, gru_channels, T, N)
 
-        x_out = F_func.relu(self.final_conv1(x_last_step))  # (B, 128, 1, N)
-        x_out = self.final_conv2(x_out)  # (B, horizon, 1, N)
+        x_out = F_func.relu(self.final_conv1(x))  # (B, 128, T, N)
+        x_out = self.final_conv2(x_out)           # (B, horizon, T, N)
 
-        # Reshape to final output: (B, horizon, N)
-        y_pred = x_out.squeeze(dim=2)  # Remove the H dimension (which was 1)
+        # Now, pool over T dimension (aggregate over time!)
+        x_out = x_out.mean(dim=2)  # (B, horizon, N)
 
-        return y_pred
+        return x_out

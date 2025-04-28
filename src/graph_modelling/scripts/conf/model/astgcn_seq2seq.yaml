@@ -1,0 +1,5 @@
+_target_: src.graph_modelling.models.astgcn_seq2seq.ASTGCN_Seq2Seq
+block_channels: 32
+gru_channels: 32
+K: 1
+num_blocks: 2

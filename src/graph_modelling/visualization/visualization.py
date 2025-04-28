@@ -1,9 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
+import datetime
+import json
+import os
 
 # Base directory path - will be set from main file
 BASE_DIR = None
+# Timestamp for file naming - automatically generated when module is imported
+TIMESTAMP = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
 
 def set_base_dir(path):
@@ -11,9 +16,40 @@ def set_base_dir(path):
     global BASE_DIR
     BASE_DIR = path
 
+    # Create results directory if it doesn't exist
+    results_dir = BASE_DIR / "results"
+    if not results_dir.exists():
+        results_dir.mkdir(parents=True)
 
-def plot_training_history(history):
-    """Plot training and validation loss"""
+
+def get_file_name(base_name, model_name=None):
+    """
+    Generate filename with timestamp and optional model name
+    Returns None if model_name is "unknown" or None to prevent file creation
+
+    Args:
+        base_name: Base filename (e.g., 'training_history')
+        model_name: Optional model name to include in filename
+
+    Returns:
+        str: Filename with timestamp and model name, or None if model_name is invalid
+    """
+    # If model_name is "unknown" or None, return None to prevent file creation
+    if not model_name or model_name == "unknown":
+        return None
+        
+    # Otherwise, create a filename with the model name
+    return f"{model_name}_{base_name}_{TIMESTAMP}.png"
+
+
+def plot_training_history(history, model_name=None):
+    """
+    Plot training and validation loss
+
+    Args:
+        history: Dictionary containing training and validation loss history
+        model_name: Optional model name for file naming
+    """
     if BASE_DIR is None:
         raise ValueError("BASE_DIR not set. Call set_base_dir() first.")
 
@@ -22,25 +58,35 @@ def plot_training_history(history):
     plt.plot(history["val_loss"], label="Validation Loss")
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
-    plt.title("Training and Validation Loss Over Time")
+    
+    # Only include model name in title if it's valid
+    title_suffix = f" - {model_name}" if model_name and model_name != "unknown" else ""
+    plt.title(f"Training and Validation Loss Over Time{title_suffix}")
     plt.legend()
     plt.grid(True)
+
+    # Generate filename with timestamp
+    filename = get_file_name("training_history", model_name)
     plt.savefig(
-        str(BASE_DIR / "results" / "batched_training_history.png"),
+        str(BASE_DIR / "results" / filename),
         dpi=300,
         bbox_inches="tight",
     )
     plt.close()
 
 
-def plot_predictions(predictions, targets, city_names=None):
+def plot_predictions(
+    predictions, targets, city_names=None, model_name=None, save_metrics=True
+):
     """
-    Plot test predictions against actual values for each city
+    Plot test predictions against actual values for each city and save metrics to log file
 
     Args:
-        predictions: Model predictions (denormalized)
-        targets: Actual target values (denormalized)
+        predictions: Model predictions (denormalized) - shape should be (timesteps, n_cities)
+        targets: Actual target values (denormalized) - shape should be (timesteps, n_cities)
         city_names: Names of cities for the plot labels
+        model_name: Optional model name for file naming
+        save_metrics: Whether to save metrics to a JSON file
     """
     if BASE_DIR is None:
         raise ValueError("BASE_DIR not set. Call set_base_dir() first.")
@@ -48,9 +94,38 @@ def plot_predictions(predictions, targets, city_names=None):
     if city_names is None:
         city_names = ["Amsterdam", "Rotterdam", "Utrecht"]
 
-    # Determine the number of cities (nodes) from the data shape
-    n_cities = predictions.shape[1] if len(predictions.shape) > 1 else 1
-    n_samples = len(predictions) // n_cities if n_cities > 1 else len(predictions)
+    # Debug shape information
+    print(f"Predictions shape: {predictions.shape}, Targets shape: {targets.shape}")
+
+    # Ensure predictions and targets are proper numpy arrays
+    predictions = np.array(predictions)
+    targets = np.array(targets)
+
+    # Check if we need to reshape the arrays - they might be coming in as (timesteps*n_cities,)
+    # or as (timesteps, n_cities) where n_cities=1 for a single city
+    if len(predictions.shape) == 1:
+        # If we have a flat array and know the number of cities
+        n_cities = len(city_names)
+        n_timesteps = len(predictions) // n_cities
+
+        # Reshape to (timesteps, n_cities)
+        predictions = predictions.reshape(n_timesteps, n_cities)
+        targets = targets.reshape(n_timesteps, n_cities)
+        print(f"Reshaped arrays to: {predictions.shape}")
+
+    # Now determine the number of cities from the data shape
+    if len(predictions.shape) == 1:
+        # Still a flat array, assume one city
+        n_cities = 1
+        n_samples = len(predictions)
+        # Reshape to 2D array with one column
+        predictions = predictions.reshape(-1, 1)
+        targets = targets.reshape(-1, 1)
+    else:
+        # 2D array with shape (timesteps, n_cities)
+        n_samples, n_cities = predictions.shape
+
+    print(f"Working with {n_cities} cities, {n_samples} time points")
 
     # Create time steps for x-axis
     time_steps = np.arange(n_samples)
@@ -62,17 +137,16 @@ def plot_predictions(predictions, targets, city_names=None):
     if n_cities == 1:
         axes = [axes]
 
+    # Dictionary to store metrics for each city
+    city_metrics = {}
+
     # Plot predictions vs actual values for each city
     for i in range(n_cities):
         city_name = city_names[i] if i < len(city_names) else f"City {i}"
 
-        if n_cities > 1:
-            # Extract predictions and targets for this city
-            city_preds = predictions[:, i]
-            city_targets = targets[:, i]
-        else:
-            city_preds = predictions
-            city_targets = targets
+        # Extract predictions and targets for this city
+        city_preds = predictions[:, i]
+        city_targets = targets[:, i]
 
         # Plot the data
         axes[i].plot(time_steps, city_targets, "b-", label="Actual")
@@ -83,10 +157,17 @@ def plot_predictions(predictions, targets, city_names=None):
         axes[i].legend()
         axes[i].grid(True, alpha=0.3)
 
-        # Add error metrics in the plot
+        # Calculate error metrics
         mse = np.mean((city_preds - city_targets) ** 2)
         rmse = np.sqrt(mse)
         mae = np.mean(np.abs(city_preds - city_targets))
+
+        # Store metrics for this city
+        city_metrics[city_name] = {
+            "MSE": float(mse),
+            "RMSE": float(rmse),
+            "MAE": float(mae),
+        }
 
         # Display metrics on the plot
         axes[i].text(
@@ -98,50 +179,66 @@ def plot_predictions(predictions, targets, city_names=None):
         )
 
     plt.tight_layout()
+
+    # Generate filename with timestamp - only include valid model name
+    predictions_filename = get_file_name("test_predictions", model_name)
     plt.savefig(
-        str(BASE_DIR / "results" / "batched_test_predictions.png"),
+        str(BASE_DIR / "results" / predictions_filename),
         dpi=300,
         bbox_inches="tight",
     )
     plt.close()
 
-    # Also create a scatter plot of predicted vs actual values
-    plt.figure(figsize=(10, 8))
+    # Save metrics to JSON file
+    if save_metrics:
+        # Calculate overall metrics
+        overall_mse = np.mean((predictions - targets) ** 2)
+        overall_rmse = np.sqrt(overall_mse)
+        overall_mae = np.mean(np.abs(predictions - targets))
 
-    # Different colors for each city
-    colors = ["blue", "red", "green", "orange", "purple"]
+        # Create metrics dictionary with overall and per-city metrics
+        if model_name and model_name != "unknown":
+            metrics = {
+                "timestamp": TIMESTAMP,
+                "model_name": model_name,
+                "overall": {
+                    "MSE": float(overall_mse),
+                    "RMSE": float(overall_rmse),
+                    "MAE": float(overall_mae),
+                },
+                "per_city": city_metrics,
+            }
 
-    for i in range(n_cities):
-        if n_cities > 1:
-            city_preds = predictions[:, i]
-            city_targets = targets[:, i]
-        else:
-            city_preds = predictions
-            city_targets = targets
+            # Save metrics to JSON file
+            metrics_filename = f"{model_name}_metrics_{TIMESTAMP}.json"
+            metrics_path = BASE_DIR / "results" / metrics_filename
 
-        plt.scatter(
-            city_targets,
-            city_preds,
-            alpha=0.5,
-            color=colors[i % len(colors)],
-            label=city_names[i] if i < len(city_names) else f"City {i}",
-        )
+            with open(metrics_path, "w") as f:
+                json.dump(metrics, f, indent=4)
 
-    # Add reference line (perfect predictions)
-    max_val = max(np.max(predictions), np.max(targets))
-    min_val = min(np.min(predictions), np.min(targets))
-    plt.plot([min_val, max_val], [min_val, max_val], "k--", alpha=0.8)
+            print(f"Metrics saved to {metrics_path}")
 
-    plt.xlabel("Actual NO2 (μg/m³)")
-    plt.ylabel("Predicted NO2 (μg/m³)")
-    plt.title("Predicted vs Actual NO2 Values")
-    plt.legend()
-    plt.grid(True, alpha=0.3)
-    plt.axis("equal")
+            # Also save a summary to a common log file for easy comparison across runs
+            log_file = BASE_DIR / "results" / "model_performance_log_.csv"
 
-    plt.savefig(
-        str(BASE_DIR / "results" / "batched_prediction_scatter.png"),
-        dpi=300,
-        bbox_inches="tight",
-    )
-    plt.close()
+            # Create header if file doesn't exist
+            if not log_file.exists():
+                with open(log_file, "w") as f:
+                    f.write("timestamp,model_name,overall_rmse,overall_mae")
+                    for city in city_names:
+                        f.write(f",{city}_rmse")
+                    f.write("\n")
+            
+            # Append metrics to log file (outside the header check)
+            with open(log_file, "a") as f:
+                line = f"{TIMESTAMP},{model_name},{overall_rmse:.4f},{overall_mae:.4f}"
+                for city in city_names:
+                    if city in city_metrics:
+                        line += f",{city_metrics[city]['RMSE']:.4f}"
+                    else:
+                        line += ",NA"
+                f.write(line + "\n")
+
+            return metrics
+
+    return None

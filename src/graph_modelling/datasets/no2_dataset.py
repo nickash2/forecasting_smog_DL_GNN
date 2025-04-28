@@ -414,7 +414,6 @@ class NO2DatasetLoader(object):
 
         return dataset
 
-    # TODO: CHECK THIS IF IT WORKS AND IF CORRECT IMPLEMENTATION
     def get_batched_dataset(
         self,
         lags=24,
@@ -520,7 +519,7 @@ class NO2DatasetLoader(object):
         horizon=None,
         cache=True,
         cache_suffix=None,
-        step_size=1,
+        step_size=24,
     ):
         """
         Returns torch dataloaders using index batching for NO2 forecasting dataset.
@@ -554,6 +553,8 @@ class NO2DatasetLoader(object):
                 suffix += f"_h{horizon}"
             if cache_suffix:
                 suffix += f"_{cache_suffix}"
+
+            suffix += "_no2only" if only_no2 else "_allvars"
 
             index_dataset_cache_file = f"index_dataset{suffix}.pkl"
             index_dataset_cache_path = os.path.join(

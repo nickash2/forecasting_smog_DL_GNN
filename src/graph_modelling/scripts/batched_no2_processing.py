@@ -31,8 +31,8 @@ def main():
     N_HORIZON = 24
     BATCH_SIZE = 16
     N_STEP = 24
-    N_EPOCHS = 150
-    PATIENCE = 10
+    N_EPOCHS = 2
+    PATIENCE = 5
     SAMPLE_SIZE = 1.0
     ONLY_NO2 = True
     ATTENTION = True

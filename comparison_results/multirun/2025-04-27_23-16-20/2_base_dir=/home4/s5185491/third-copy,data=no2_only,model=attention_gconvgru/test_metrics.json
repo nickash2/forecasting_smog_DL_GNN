@@ -1,0 +1,9 @@
+{
+    "test_loss": 0.004185397772946292,
+    "test_mse": 0.004185397772946292,
+    "test_rmse": 0.06469465026527535,
+    "test_mae": 0.053225185722112656,
+    "model_name": "AttentionGConvGRU_no2_only",
+    "data_mode": "no2_only",
+    "num_vars": 1
+}

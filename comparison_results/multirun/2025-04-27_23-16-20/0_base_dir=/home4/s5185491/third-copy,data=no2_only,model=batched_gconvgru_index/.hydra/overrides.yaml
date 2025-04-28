@@ -1,0 +1,3 @@
+- model=batched_gconvgru_index
+- data=no2_only
+- base_dir=/home4/s5185491/third-copy

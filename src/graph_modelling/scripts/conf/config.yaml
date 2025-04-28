@@ -1,11 +1,12 @@
 defaults:
   - data: no2_only          # Default data setting
-  - model: attention_gconvgru # Default model
+  - model: spatial_only_gcn # Default model
   - _self_
+  - override hydra/launcher: submitit_slurm
 
 # --- General Experiment Settings ---
 seed: 34
-base_dir: ??? # Will be set dynamically or use hydra's output dir
+base_dir: third-copy # Will be set dynamically or use hydra's output dir
 results_subdir: "comparison_results" # Subdir within hydra output
 
 # --- Data Loading Parameters ---
@@ -14,7 +15,7 @@ data:
   force_reload: False
   sample_size: 1.0
   shuffle: True
-  ratio: [0.7, 0.1, 0.2] # train, val, test split
+  ratio: [0.7, 0.15, 0.15] # train, val, test split
 
 # --- Training Parameters ---
 training:
@@ -23,13 +24,10 @@ training:
   batch_size: 16
   n_step: 24
   n_epochs: 150 # Adjust as needed for quicker comparison runs initially
-  patience: 10
+  patience: 5
   # Learning rate, optimizer etc. could be added here if needed by train_utils
 
 # --- Model Base Parameters (Specifics in model/*.yaml) ---
-model:
-  K: 2 # Default K for ChebConv, can be overridden in model configs
-  hidden_channels: 32 # Default hidden size
 
 # --- Paths (relative to base_dir or hydra output) ---
 paths:
@@ -46,3 +44,9 @@ hydra:
   sweep:
     dir: ${base_dir}/${results_subdir}/multirun/${now:%Y-%m-%d_%H-%M-%S}
     subdir: ${hydra.job.num}_${hydra.job.override_dirname}
+  launcher:
+    partition: gpu        # change to your GPU partition
+    gpus_per_node: 1      # GPUs per job
+    cpus_per_task: 4      # CPUs per job
+    nodes: 1              # nodes per job
+    timeout_min: 240 #4      # timeout in minutes

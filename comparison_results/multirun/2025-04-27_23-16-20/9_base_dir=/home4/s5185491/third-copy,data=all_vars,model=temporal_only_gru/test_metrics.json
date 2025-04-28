@@ -1,0 +1,9 @@
+{
+    "test_loss": 0.004597449131930868,
+    "test_mse": 0.004597449131930868,
+    "test_rmse": 0.06780449197457988,
+    "test_mae": 0.05592809617519379,
+    "model_name": "TemporalOnlyGRU_all_vars",
+    "data_mode": "all_vars",
+    "num_vars": 7
+}

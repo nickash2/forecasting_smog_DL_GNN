@@ -1,3 +1,2 @@
 _target_: src.graph_modelling.models.temporalonlygnn.TemporalOnlyGRU
-# Inherits hidden_channels
-# Needs: num_nodes, num_vars, lags, horizon (passed dynamically)
+hidden_channels: 32
