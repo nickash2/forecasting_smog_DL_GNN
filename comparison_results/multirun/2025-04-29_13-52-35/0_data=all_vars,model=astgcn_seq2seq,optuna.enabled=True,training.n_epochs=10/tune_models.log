@@ -1,0 +1,53 @@
+[2025-04-29 13:52:36,070][__main__][INFO] - Hydra output directory: /home/nick/bachelor-project/third-copy/comparison_results/multirun/2025-04-29_13-52-35/0_data=all_vars,model=astgcn_seq2seq,optuna.enabled=True,training.n_epochs=10
+[2025-04-29 13:52:36,072][__main__][INFO] - Configuration:
+data:
+  only_no2: false
+  num_vars: 7
+  cache_file: no2_dataset_cache.pkl
+  force_reload: false
+  sample_size: 1.0
+  shuffle: true
+  ratio:
+  - 0.7
+  - 0.15
+  - 0.15
+model:
+  _target_: src.graph_modelling.models.astgcn_seq2seq.ASTGCN_Seq2Seq
+  block_channels: 32
+  gru_channels: 32
+  K: 1
+  num_blocks: 2
+seed: 34
+base_dir: .
+results_subdir: comparison_results
+training:
+  n_lags: 72
+  n_horizon: 24
+  batch_size: 16
+  n_step: 24
+  n_epochs: 10
+  patience: 5
+optuna:
+  enabled: true
+  study_name: no2_model_optimization
+  storage: sqlite:///no2_models_optuna.db
+  n_trials: 50
+  timeout: 72000
+  direction: minimize
+paths:
+  model_save_name: final_model.pt
+  history_save_name: training_history.json
+  metrics_save_name: test_metrics.json
+  tensorboard_subdir: tensorboard_logs
+  plot_subdir: plots
+  optuna_subdir: optuna_results
+
+[2025-04-29 13:52:36,073][__main__][INFO] - Using device: cuda
+[2025-04-29 13:52:36,073][__main__][INFO] - Initializing dataset loader...
+[2025-04-29 13:52:36,084][__main__][INFO] - Loading dataset with lags=72, horizon=24...
+[2025-04-29 13:52:36,087][__main__][INFO] - Train batches: 39, Val batches: 9, Test batches: 9
+[2025-04-29 13:52:36,087][__main__][INFO] - Initializing model: ASTGCN_Seq2Seq with all_vars data
+[2025-04-29 13:52:36,088][__main__][INFO] - Starting Optuna hyperparameter optimization for ASTGCN_Seq2Seq_all_vars
+[2025-04-29 13:52:36,366][src.graph_modelling.training.optuna_utils][INFO] - Study 'no2_model_optimization_ASTGCN_Seq2Seq_all_vars' is ready. Storage: sqlite:///no2_models_optuna.db
+[2025-04-29 13:52:36,366][__main__][INFO] - Running 50 trials for ASTGCN_Seq2Seq_all_vars
+[2025-04-29 13:52:36,409][src.graph_modelling.training.optuna_utils][INFO] - Trial 1: {'lr': 0.0011011580991633222, 'weight_decay': 5.301489488570179e-06}

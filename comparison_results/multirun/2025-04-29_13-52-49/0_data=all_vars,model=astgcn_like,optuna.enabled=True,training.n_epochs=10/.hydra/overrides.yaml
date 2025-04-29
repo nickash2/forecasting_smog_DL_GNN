@@ -1,0 +1,4 @@
+- model=astgcn_like
+- training.n_epochs=10
+- data=all_vars
+- optuna.enabled=True

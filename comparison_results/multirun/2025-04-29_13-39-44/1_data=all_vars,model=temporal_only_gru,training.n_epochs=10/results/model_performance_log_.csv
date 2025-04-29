@@ -1,0 +1,2 @@
+timestamp,model_name,overall_rmse,overall_mae,Amsterdam_rmse,Rotterdam_rmse,Utrecht_rmse
+20250429-133943,TemporalOnlyGRU_all_vars,25.4534,20.4243,24.4902,26.4812,25.3496

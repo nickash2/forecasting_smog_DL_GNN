@@ -1,0 +1,31 @@
+data:
+  only_no2: true
+  num_vars: 1
+  cache_file: no2_dataset_cache.pkl
+  force_reload: false
+  sample_size: 1.0
+  shuffle: true
+  ratio:
+  - 0.7
+  - 0.1
+  - 0.2
+model:
+  _target_: src.graph_modelling.models.spatialonlygnn.SpatialOnlyGCN
+  K: 2
+  hidden_channels: 32
+seed: 34
+base_dir: .
+results_subdir: comparison_results
+training:
+  n_lags: 72
+  n_horizon: 24
+  batch_size: 16
+  n_step: 24
+  n_epochs: 150
+  patience: 10
+paths:
+  model_save_name: final_model.pt
+  history_save_name: training_history.json
+  metrics_save_name: test_metrics.json
+  tensorboard_subdir: tensorboard_logs
+  plot_subdir: plots

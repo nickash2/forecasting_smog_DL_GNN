@@ -1,0 +1,4 @@
+- model=attention_gconvgru
+- training.n_epochs=10
+- data=all_vars
+- optuna.enabled=True

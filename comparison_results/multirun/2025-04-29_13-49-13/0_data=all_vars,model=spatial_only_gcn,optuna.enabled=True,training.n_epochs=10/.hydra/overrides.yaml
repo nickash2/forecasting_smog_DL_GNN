@@ -1,0 +1,4 @@
+- model=spatial_only_gcn
+- data=all_vars
+- training.n_epochs=10
+- optuna.enabled=True

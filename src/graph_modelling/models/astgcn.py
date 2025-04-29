@@ -224,11 +224,11 @@ class ASTGCN_Like(nn.Module):
         x = x.permute(0, 3, 1, 2)  # (B, gru_channels, T, N)
 
         x_out = F_func.relu(self.final_conv1(x))  # (B, 128, T, N)
-        x_out = self.final_conv2(x_out)           # (B, horizon, T, N)
+        x_out = self.final_conv2(x_out)  # (B, horizon, T, N)
 
         # Now, pool over T dimension (aggregate over time!)
-        x_out = x_out.mean(dim=2)  # (B, horizon, N)
+        # x_out = x_out.mean(dim=2)  # (B, horizon, N)
 
-        # add another relu after
+        x_out = x_out[:, :, -1, :]  # (B, horizon, N)
 
         return x_out

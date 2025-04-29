@@ -39,7 +39,7 @@ def get_file_name(base_name, model_name=None):
     # If model_name is "unknown" or None, return None to prevent file creation
     if not model_name or model_name == "unknown":
         return None
-        
+
     # Otherwise, create a filename with the model name
     return f"{model_name}_{base_name}_{TIMESTAMP}.png"
 
@@ -55,27 +55,23 @@ def plot_training_history(history, model_name=None, use_plotly=False):
     """
     if BASE_DIR is None:
         raise ValueError("BASE_DIR not set. Call set_base_dir() first.")
-        
+
     # Only include model name in title if it's valid
     title_suffix = f" - {model_name}" if model_name and model_name != "unknown" else ""
-    
+
     if use_plotly:
         # Create plotly figure
         fig = go.Figure()
-        
+
         # Add traces for training and validation loss
-        fig.add_trace(go.Scatter(
-            y=history["train_loss"],
-            mode='lines',
-            name='Training Loss'
-        ))
-        
-        fig.add_trace(go.Scatter(
-            y=history["val_loss"],
-            mode='lines',
-            name='Validation Loss'
-        ))
-        
+        fig.add_trace(
+            go.Scatter(y=history["train_loss"], mode="lines", name="Training Loss")
+        )
+
+        fig.add_trace(
+            go.Scatter(y=history["val_loss"], mode="lines", name="Validation Loss")
+        )
+
         # Update layout
         fig.update_layout(
             title=f"Training and Validation Loss Over Time{title_suffix}",
@@ -85,17 +81,17 @@ def plot_training_history(history, model_name=None, use_plotly=False):
             template="plotly_white",
             width=800,
             height=500,
-            hovermode="x unified"
+            hovermode="x unified",
         )
-        
+
         # Generate filename with timestamp
         filename = get_file_name("training_history", model_name)
         if filename:
             # Save as HTML for interactive viewing
-            html_filename = filename.replace('.png', '.html')
+            html_filename = filename.replace(".png", ".html")
             html_path = str(BASE_DIR / "results" / html_filename)
             fig.write_html(html_path)
-            
+
             # Also save as PNG for backward compatibility
             fig.write_image(str(BASE_DIR / "results" / filename), scale=2)
             print(f"Interactive plot saved to {html_path}")
@@ -121,7 +117,12 @@ def plot_training_history(history, model_name=None, use_plotly=False):
 
 
 def plot_predictions(
-    predictions, targets, city_names=None, model_name=None, save_metrics=True, use_plotly=False
+    predictions,
+    targets,
+    city_names=None,
+    model_name=None,
+    save_metrics=True,
+    use_plotly=False,
 ):
     """
     Plot test predictions against actual values for each city and save metrics to log file
@@ -175,90 +176,96 @@ def plot_predictions(
 
     # Create time steps for x-axis
     time_steps = np.arange(n_samples)
-    
+
     # Dictionary to store metrics for each city
     city_metrics = {}
-    
+
     # Calculate metrics for each city (for both plotting methods)
     for i in range(n_cities):
         city_name = city_names[i] if i < len(city_names) else f"City {i}"
-        
+
         # Extract predictions and targets for this city
         city_preds = predictions[:, i]
         city_targets = targets[:, i]
-        
+
         # Calculate error metrics
         mse = np.mean((city_preds - city_targets) ** 2)
         rmse = np.sqrt(mse)
         mae = np.mean(np.abs(city_preds - city_targets))
-        
+
         # Store metrics for this city
         city_metrics[city_name] = {
             "MSE": float(mse),
             "RMSE": float(rmse),
             "MAE": float(mae),
         }
-    
     if use_plotly:
+        print("Using plotly")
         # Create interactive plotly figure
         fig = sp.make_subplots(
-            rows=n_cities, 
+            rows=n_cities,
             cols=1,
-            subplot_titles=[f"NO2 Predictions for {city_names[i] if i < len(city_names) else f'City {i}'}" 
-                           for i in range(n_cities)],
-            vertical_spacing=0.1
+            subplot_titles=[
+                f"NO2 Predictions for {city_names[i] if i < len(city_names) else f'City {i}'}"
+                for i in range(n_cities)
+            ],
+            vertical_spacing=0.1,
         )
-        
+
         # Add traces for each city
         for i in range(n_cities):
             city_name = city_names[i] if i < len(city_names) else f"City {i}"
-            
+
             # Extract predictions and targets for this city
             city_preds = predictions[:, i]
             city_targets = targets[:, i]
-            
+
             # Get metrics for this city
             rmse = city_metrics[city_name]["RMSE"]
             mae = city_metrics[city_name]["MAE"]
-            
+
             # Add actual values
             fig.add_trace(
                 go.Scatter(
                     x=time_steps,
                     y=city_targets,
-                    mode='lines',
-                    name=f'Actual ({city_name})',
-                    line=dict(color='blue'),
-                    legendgroup=city_name
+                    mode="lines",
+                    name=f"Actual ({city_name})",
+                    line=dict(color="blue"),
+                    legendgroup=city_name,
                 ),
-                row=i+1, col=1
+                row=i + 1,
+                col=1,
             )
-            
+
             # Add predicted values
             fig.add_trace(
                 go.Scatter(
                     x=time_steps,
                     y=city_preds,
-                    mode='lines',
-                    name=f'Predicted ({city_name})',
-                    line=dict(color='red', dash='dash'),
-                    legendgroup=city_name
+                    mode="lines",
+                    name=f"Predicted ({city_name})",
+                    line=dict(color="red", dash="dash"),
+                    legendgroup=city_name,
                 ),
-                row=i+1, col=1
+                row=i + 1,
+                col=1,
             )
-            
+
             # Add metrics annotation
             fig.add_annotation(
                 text=f"RMSE: {rmse:.2f} μg/m³<br>MAE: {mae:.2f} μg/m³",
-                xref=f"x{i+1}", yref=f"y{i+1}",
-                x=0.02, y=0.95,
+                xref=f"x{i + 1}",
+                yref=f"y{i + 1}",
+                x=0.02,
+                y=0.95,
                 showarrow=False,
                 bgcolor="white",
                 opacity=0.8,
                 xanchor="left",
-                yanchor="top"
+                yanchor="top",
             )
-        
+
         # Update layout
         fig.update_layout(
             height=300 * n_cities,
@@ -266,28 +273,29 @@ def plot_predictions(
             title_text=f"NO2 Prediction Results{' - ' + model_name if model_name and model_name != 'unknown' else ''}",
             template="plotly_white",
             hovermode="x unified",
-            legend_tracegroupgap=10
+            legend_tracegroupgap=10,
         )
-        
+
         # Update x and y axis titles
         for i in range(n_cities):
-            fig.update_xaxes(title_text="Time (hours)", row=i+1, col=1)
-            fig.update_yaxes(title_text="NO2 (μg/m³)", row=i+1, col=1)
-        
+            fig.update_xaxes(title_text="Time (hours)", row=i + 1, col=1)
+            fig.update_yaxes(title_text="NO2 (μg/m³)", row=i + 1, col=1)
+
         # Generate filename with timestamp - only include valid model name
         predictions_filename = get_file_name("test_predictions", model_name)
         if predictions_filename:
             # Save as HTML for interactive viewing
-            html_filename = predictions_filename.replace('.png', '.html')
+            print("before html filename")
+            html_filename = predictions_filename.replace(".png", ".html")
 
             html_path = str(BASE_DIR / "results" / html_filename)
-            fig.write_html(html_path, include_plotlyjs='cdn')
-            
+            fig.write_html(html_path, include_plotlyjs="cdn")
+
             # Also save as PNG for backward compatibility
             fig.write_image(str(BASE_DIR / "results" / predictions_filename), scale=2)
             print(f"Interactive plot saved to {html_path}")
         else:
-            return # ignore unknown file name
+            return  # ignore unknown file name
     else:
         # Original matplotlib code
         # Create subplots - one for each city
@@ -304,8 +312,8 @@ def plot_predictions(
             # Extract predictions and targets for this city
             city_preds = predictions[:, i]
             city_targets = targets[:, i]
-            
-            # Get metrics for this city 
+
+            # Get metrics for this city
             rmse = city_metrics[city_name]["RMSE"]
             mae = city_metrics[city_name]["MAE"]
 
@@ -377,7 +385,7 @@ def plot_predictions(
                     for city in city_names:
                         f.write(f",{city}_rmse")
                     f.write("\n")
-            
+
             # Append metrics to log file (outside the header check)
             with open(log_file, "a") as f:
                 line = f"{TIMESTAMP},{model_name},{overall_rmse:.4f},{overall_mae:.4f}"

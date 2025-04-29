@@ -1,0 +1,4 @@
+- model=temporal_only_gru
+- data=all_vars
+- training.n_epochs=10
+- optuna.enabled=True

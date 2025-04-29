@@ -17,7 +17,7 @@ def train_model_index(
 ):
     """
     Train model using index-based dataloaders
-    
+
     Args:
         model: Model to train
         train_loader, val_loader: DataLoaders with training and validation data
@@ -28,15 +28,15 @@ def train_model_index(
     """
     criterion = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
-    
-    best_val_loss = float('inf')
+
+    best_val_loss = float("inf")
     patience_counter = 0
-    history = {'train_loss': [], 'val_loss': [], 'epochs': []}
-    
+    history = {"train_loss": [], "val_loss": [], "epochs": []}
+
     for epoch in range(1, epochs + 1):
         model.train()
         train_losses = []
-        
+
         # Training loop with progress bar
         train_pbar = tqdm(train_loader, desc=f"Train Epoch {epoch}")
         for x_batch, y_batch in train_pbar:
@@ -44,59 +44,69 @@ def train_model_index(
             x_batch, y_batch = x_batch.to(device).float(), y_batch.to(device).float()
 
             edge_index, edge_weight = edge_index.to(device), edge_weight.to(device)
-            
+
             optimizer.zero_grad()
             y_hat = model(x_batch, edge_index, edge_weight)
-            
+
             # Extract only NO2 values as targets when using all variables
             if y_batch.shape[2] != y_hat.shape[2]:
                 # Model is expecting (B, horizon, num_nodes=3)
                 # Target is (B, horizon, num_nodes*num_vars=21)
-                
+
                 # Reshape to (B, horizon, num_nodes=3, num_vars=7)
                 B, H, NF = y_batch.shape
                 num_nodes = 3  # Assuming 3 cities
                 num_vars = NF // num_nodes  # Calculate based on actual dimensions
-                
+
                 # Reshape and extract just NO2 (first variable) for each node
                 y_batch_reshaped = y_batch.view(B, H, num_nodes, num_vars)
                 # Take only NO2 (index 0) for all nodes
                 y_batch_no2 = y_batch_reshaped[:, :, :, 0]
-                
+
                 # Calculate loss using only NO2 values
                 loss = criterion(y_hat, y_batch_no2)
-                
+
             loss.backward()
             optimizer.step()
             train_losses.append(loss.item())
-            
-            train_pbar.set_postfix({'train_loss': sum(train_losses) / len(train_losses)})
-            
+
+            train_pbar.set_postfix(
+                {"train_loss": sum(train_losses) / len(train_losses)}
+            )
+
         # Validation phase
-        val_loss = validate_model(model, val_loader, criterion, device, edge_index, edge_weight)
-        
+        val_loss = validate_model(
+            model, val_loader, criterion, device, edge_index, edge_weight
+        )
+
         # Update history
         avg_train_loss = sum(train_losses) / len(train_losses)
-        history['train_loss'].append(avg_train_loss)
-        history['val_loss'].append(val_loss)
-        history['epochs'].append(epoch)
+        history["train_loss"].append(avg_train_loss)
+        history["val_loss"].append(val_loss)
+        history["epochs"].append(epoch)
 
-        writer.add_scalars('Loss', {'train': avg_train_loss, 'val': val_loss}, epoch)
-        
-        print(f"Epoch {epoch}: Train Loss {avg_train_loss:.6f}, Val Loss {val_loss:.6f}")
-        
+        writer.add_scalars("Loss", {"train": avg_train_loss, "val": val_loss}, epoch)
+
+        print(
+            f"Epoch {epoch}: Train Loss {avg_train_loss:.6f}, Val Loss {val_loss:.6f}"
+        )
+
         # Early stopping
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             patience_counter = 0
             # Save best model if needed
+            best_model_state = model.state_dict()
         else:
             patience_counter += 1
             if patience_counter >= patience:
                 print(f"Early stopping after {epoch} epochs")
+                model.load_state_dict(best_model_state)
                 break
-                
+
     return model, history
+
+
 def validate_model(model, val_loader, criterion, device, edge_index, edge_weight):
     """Run validation and return average loss"""
     model.eval()

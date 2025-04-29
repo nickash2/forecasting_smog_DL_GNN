@@ -34,6 +34,8 @@ class NO2DatasetLoader(object):
         only_no2=False,
         cache_file="no2_dataset_cache.pkl",
         force_reload=False,
+        smooth_data=False,
+        smooth_window=5,
     ):
         self.cities = ["amsterdam", "utrecht", "rotterdam"]
         self.index = index
@@ -42,6 +44,8 @@ class NO2DatasetLoader(object):
         self.scalers = {}  # Dictionary to store MinMaxScalers for each feature
         self.cache_file = cache_file
         self.force_reload = force_reload
+        self.smooth_data = smooth_data
+        self.smooth_window = smooth_window
 
         # Set default data directory if not provided
         if self.data_dir is None:
@@ -54,6 +58,29 @@ class NO2DatasetLoader(object):
 
         if index:
             self.IndexDataset = IndexDataset
+
+    def _apply_smoothing(self, variables=None):
+        """Apply moving average smoothing to specified variables."""
+        if variables is None:
+            # Only smooth NO2 by default
+            variables = ["NO2"]
+
+        print(f"Applying smoothing with window size {self.smooth_window}...")
+
+        # Apply smoothing to each city's data separately
+        for var in variables:
+            for city in self.cities:
+                col_name = f"{city}_{var}"
+                if col_name in self._data.columns:
+                    # Apply moving average smoothing
+                    self._data[col_name] = (
+                        self._data[col_name]
+                        .rolling(window=self.smooth_window, center=True)
+                        .mean()
+                        .fillna(method="bfill")
+                        .fillna(method="ffill")  # Handle edges
+                    )
+                    print(f"Applied smoothing to {col_name}")
 
     def _read_data(self):
         """Read the data from CSV files and combine them for lagged feature approach."""
@@ -71,7 +98,7 @@ class NO2DatasetLoader(object):
         print("Processing dataset from source files...")
         x_path = os.path.join(self.data_dir, "X.csv")
 
-        self._data = pd.read_csv(x_path, sep=',')
+        self._data = pd.read_csv(x_path, sep=",")
 
         # Ensure data is sorted by datetime
         self._data = self._data.sort_values(by=["DateTime"])
@@ -82,6 +109,8 @@ class NO2DatasetLoader(object):
         # Apply normalization for each feature across all cities
         self._normalize_data()
 
+        if self.smooth_data:
+            self._apply_smoothing()
         # Save scalers for later denormalization
         self._save_scalers()
 
@@ -233,14 +262,9 @@ class NO2DatasetLoader(object):
         """
         # List of variables to include as features
         if self.only_no2:
-            variables = [
-                "NO2"
-            ]
+            variables = ["NO2"]
         else:
-            variables = [
-                "NO2", "P", "SQ", "WD", "Wvh", "dewP", "temp"
-            ]
-
+            variables = ["NO2", "P", "SQ", "WD", "Wvh", "dewP", "temp"]
 
         # Process data organized by city_name column (your current data format)
         stacked_data_by_variable = {var: [] for var in variables}
@@ -579,13 +603,9 @@ class NO2DatasetLoader(object):
             self.only_no2 = only_no2
 
         if self.only_no2:
-            variables = [
-                "NO2"
-            ]
+            variables = ["NO2"]
         else:
-            variables = [
-                "NO2", "P", "SQ", "WD", "Wvh", "dewP", "temp"
-            ]
+            variables = ["NO2", "P", "SQ", "WD", "Wvh", "dewP", "temp"]
 
         self._get_edges()
         self._get_edge_weights()

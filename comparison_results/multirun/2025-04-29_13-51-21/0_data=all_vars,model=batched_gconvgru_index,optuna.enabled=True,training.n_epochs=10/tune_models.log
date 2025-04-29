@@ -1,0 +1,50 @@
+[2025-04-29 13:51:22,164][__main__][INFO] - Hydra output directory: /home/nick/bachelor-project/third-copy/comparison_results/multirun/2025-04-29_13-51-21/0_data=all_vars,model=batched_gconvgru_index,optuna.enabled=True,training.n_epochs=10
+[2025-04-29 13:51:22,165][__main__][INFO] - Configuration:
+data:
+  only_no2: false
+  num_vars: 7
+  cache_file: no2_dataset_cache.pkl
+  force_reload: false
+  sample_size: 1.0
+  shuffle: true
+  ratio:
+  - 0.7
+  - 0.15
+  - 0.15
+model:
+  _target_: src.graph_modelling.models.batched_gconvgru.BatchedGConvGRUIndex
+  K: 1
+seed: 34
+base_dir: .
+results_subdir: comparison_results
+training:
+  n_lags: 72
+  n_horizon: 24
+  batch_size: 16
+  n_step: 24
+  n_epochs: 10
+  patience: 5
+optuna:
+  enabled: true
+  study_name: no2_model_optimization
+  storage: sqlite:///no2_models_optuna.db
+  n_trials: 50
+  timeout: 72000
+  direction: minimize
+paths:
+  model_save_name: final_model.pt
+  history_save_name: training_history.json
+  metrics_save_name: test_metrics.json
+  tensorboard_subdir: tensorboard_logs
+  plot_subdir: plots
+  optuna_subdir: optuna_results
+
+[2025-04-29 13:51:22,167][__main__][INFO] - Using device: cuda
+[2025-04-29 13:51:22,167][__main__][INFO] - Initializing dataset loader...
+[2025-04-29 13:51:22,178][__main__][INFO] - Loading dataset with lags=72, horizon=24...
+[2025-04-29 13:51:22,181][__main__][INFO] - Train batches: 39, Val batches: 9, Test batches: 9
+[2025-04-29 13:51:22,181][__main__][INFO] - Initializing model: BatchedGConvGRUIndex with all_vars data
+[2025-04-29 13:51:22,183][__main__][INFO] - Starting Optuna hyperparameter optimization for BatchedGConvGRUIndex_all_vars
+[2025-04-29 13:51:22,464][src.graph_modelling.training.optuna_utils][INFO] - Study 'no2_model_optimization_BatchedGConvGRUIndex_all_vars' is ready. Storage: sqlite:///no2_models_optuna.db
+[2025-04-29 13:51:22,464][__main__][INFO] - Running 50 trials for BatchedGConvGRUIndex_all_vars
+[2025-04-29 13:51:22,504][src.graph_modelling.training.optuna_utils][INFO] - Trial 0: {'lr': 0.0006719180923988532, 'weight_decay': 7.568850757031939e-05}

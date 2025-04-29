@@ -16,6 +16,8 @@ data:
   sample_size: 1.0
   shuffle: True
   ratio: [0.7, 0.15, 0.15] # train, val, test split
+  smooth_data: False
+  smooth_window: 5
 
 # --- Training Parameters ---
 training:
@@ -23,7 +25,7 @@ training:
   n_horizon: 24
   batch_size: 16
   n_step: 24
-  n_epochs: 150 # Adjust as needed for quicker comparison runs initially
+  n_epochs: 200
   patience: 5
   # Learning rate, optimizer etc. could be added here if needed by train_utils
 

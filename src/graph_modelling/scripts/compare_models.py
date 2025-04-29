@@ -35,14 +35,16 @@ log = logging.getLogger(__name__)
 def run_experiment(cfg: DictConfig) -> float:
     """Runs a single experiment configuration."""
     # Check if model config loaded correctly
-    if cfg.model is None or '_target_' not in cfg.model:
-        log.error(f"Failed to load model configuration. Available config: {OmegaConf.to_yaml(cfg)}")
-        if hasattr(cfg, 'model') and cfg.model is not None:
+    if cfg.model is None or "_target_" not in cfg.model:
+        log.error(
+            f"Failed to load model configuration. Available config: {OmegaConf.to_yaml(cfg)}"
+        )
+        if hasattr(cfg, "model") and cfg.model is not None:
             log.error(f"Model config exists but doesn't contain _target_: {cfg.model}")
         else:
             log.error("Model config is None")
         raise ValueError("Model configuration not found or invalid")
-    
+
     # --- Setup ---
     hydra_cfg = hydra.core.hydra_config.HydraConfig.get()
     output_dir = Path(hydra_cfg.runtime.output_dir)
@@ -65,6 +67,8 @@ def run_experiment(cfg: DictConfig) -> float:
         only_no2=cfg.data.only_no2,
         force_reload=cfg.data.force_reload,
         cache_file=str(cache_path),
+        smooth_data=cfg.data.smooth_data,
+        smooth_window=cfg.data.smooth_window,
     )
 
     log.info(
@@ -105,17 +109,17 @@ def run_experiment(cfg: DictConfig) -> float:
         # Get model class to inspect its parameters
         model_class = hydra.utils.get_class(cfg.model._target_)
         import inspect
-        
+
         # Get the parameters accepted by the model's __init__ method
         valid_params = list(inspect.signature(model_class.__init__).parameters.keys())
-        if 'self' in valid_params:
-            valid_params.remove('self')
-        
+        if "self" in valid_params:
+            valid_params.remove("self")
+
         # Make sure num_vars matches your data configuration
-        num_nodes = 3 
+        num_nodes = 3
         num_vars = 1 if cfg.data.only_no2 else 7
         print("num_vars", num_vars)
-        
+
         # Create dictionary with common parameters
         model_params = {
             "num_nodes": num_nodes,
@@ -123,15 +127,15 @@ def run_experiment(cfg: DictConfig) -> float:
             "lags": cfg.training.n_lags,
             "horizon": cfg.training.n_horizon,
         }
-        
+
         # Add parameters from cfg.model (like K, hidden_channels) ONLY if the model accepts them
         for k, v in cfg.model.items():
             if k != "_target_" and k in valid_params:
                 model_params[k] = v
-        
+
         # Filter to only include parameters this model accepts
         model_params = {k: v for k, v in model_params.items() if k in valid_params}
-        
+
         # Instantiate with only the parameters this model accepts
         model = hydra.utils.instantiate(
             cfg.model,
@@ -156,24 +160,25 @@ def run_experiment(cfg: DictConfig) -> float:
     tb_log_dir.mkdir(parents=True, exist_ok=True)
     writer = SummaryWriter(log_dir=str(tb_log_dir))
 
-
     try:
         model, history = train_model_index(
             model=model,
             train_loader=train_loader,
             val_loader=val_loader,
             edge_index=edges.long().to(device),  # Ensure long dtype
-            edge_weight=edge_weights.float().to(device) if edge_weights is not None else None,  # Ensure float dtype
+            edge_weight=edge_weights.float().to(device)
+            if edge_weights is not None
+            else None,  # Ensure float dtype
             device=device,
             epochs=cfg.training.n_epochs,
             patience=cfg.training.patience,
             writer=writer,
         )
         # Save training history
-        history_path = output_dir / cfg.paths.history_save_name
-        with open(history_path, "w") as f:
-            json.dump(history, f, indent=4)
-        log.info(f"Training history saved to {history_path}")
+        # history_path = output_dir / cfg.paths.history_save_name
+        # with open(history_path, "w") as f:
+        #     json.dump(history, f, indent=4)
+        # log.info(f"Training history saved to {history_path}")
 
         # Plot training history with model name
         plots_dir = output_dir / cfg.paths.plot_subdir
@@ -215,7 +220,6 @@ def run_experiment(cfg: DictConfig) -> float:
         f"Test metrics for {friendly_model_name} - MSE: {mse:.4f}, RMSE: {rmse:.4f}, MAE: {mae:.4f}"
     )
 
-
     # Create prediction plots with model name and city-specific metrics
     if hasattr(loader, "denormalize_no2"):
         try:
@@ -231,6 +235,7 @@ def run_experiment(cfg: DictConfig) -> float:
                 city_names=city_names,
                 model_name=friendly_model_name,
                 save_metrics=True,
+                use_plotly=True,
             )
 
             if plot_metrics:

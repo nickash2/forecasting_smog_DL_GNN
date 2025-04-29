@@ -1,0 +1,67 @@
+[2025-04-29 13:49:13,556][__main__][INFO] - Hydra output directory: /home/nick/bachelor-project/third-copy/comparison_results/multirun/2025-04-29_13-49-13/0_data=all_vars,model=spatial_only_gcn,optuna.enabled=True,training.n_epochs=10
+[2025-04-29 13:49:13,558][__main__][INFO] - Configuration:
+data:
+  only_no2: false
+  num_vars: 7
+  cache_file: no2_dataset_cache.pkl
+  force_reload: false
+  sample_size: 1.0
+  shuffle: true
+  ratio:
+  - 0.7
+  - 0.15
+  - 0.15
+model:
+  _target_: src.graph_modelling.models.spatialonlygnn.SpatialOnlyGCN
+  K: 1
+  hidden_channels: 32
+seed: 34
+base_dir: .
+results_subdir: comparison_results
+training:
+  n_lags: 72
+  n_horizon: 24
+  batch_size: 16
+  n_step: 24
+  n_epochs: 10
+  patience: 5
+optuna:
+  enabled: true
+  study_name: no2_model_optimization
+  storage: sqlite:///no2_models_optuna.db
+  n_trials: 50
+  timeout: 72000
+  direction: minimize
+paths:
+  model_save_name: final_model.pt
+  history_save_name: training_history.json
+  metrics_save_name: test_metrics.json
+  tensorboard_subdir: tensorboard_logs
+  plot_subdir: plots
+  optuna_subdir: optuna_results
+
+[2025-04-29 13:49:13,559][__main__][INFO] - Using device: cuda
+[2025-04-29 13:49:13,559][__main__][INFO] - Initializing dataset loader...
+[2025-04-29 13:49:13,571][__main__][INFO] - Loading dataset with lags=72, horizon=24...
+[2025-04-29 13:49:13,574][__main__][INFO] - Train batches: 39, Val batches: 9, Test batches: 9
+[2025-04-29 13:49:13,574][__main__][INFO] - Initializing model: SpatialOnlyGCN with all_vars data
+[2025-04-29 13:49:13,575][__main__][INFO] - Starting Optuna hyperparameter optimization for SpatialOnlyGCN_all_vars
+[2025-04-29 13:49:13,960][src.graph_modelling.training.optuna_utils][INFO] - Study 'no2_model_optimization_SpatialOnlyGCN_all_vars' is ready. Storage: sqlite:///no2_models_optuna.db
+[2025-04-29 13:49:13,960][__main__][INFO] - Running 50 trials for SpatialOnlyGCN_all_vars
+[2025-04-29 13:49:13,997][src.graph_modelling.training.optuna_utils][INFO] - Trial 0: {'lr': 4.364586483955947e-06, 'weight_decay': 1.525595926392095e-08}
+[2025-04-29 13:49:17,111][src.graph_modelling.training.optuna_utils][INFO] - Trial 1: {'lr': 1.556447645718344e-06, 'weight_decay': 2.6961160064385205e-08}
+[2025-04-29 13:49:20,035][src.graph_modelling.training.optuna_utils][INFO] - Trial 2: {'lr': 8.952746270486732e-06, 'weight_decay': 7.559681156997122e-05}
+[2025-04-29 13:49:23,068][src.graph_modelling.training.optuna_utils][INFO] - Trial 3: {'lr': 1.5644661505773886e-05, 'weight_decay': 2.6290829774838815e-06}
+[2025-04-29 13:49:26,185][src.graph_modelling.training.optuna_utils][INFO] - Trial 4: {'lr': 0.0012152937523644367, 'weight_decay': 2.9028470740123766e-07}
+[2025-04-29 13:49:29,424][src.graph_modelling.training.optuna_utils][INFO] - Trial 5: {'lr': 2.1757240458309707e-06, 'weight_decay': 0.00030969356536880157}
+[2025-04-29 13:49:30,874][src.graph_modelling.training.optuna_utils][ERROR] - Error in trial 5: 
+[2025-04-29 13:49:30,920][src.graph_modelling.training.optuna_utils][INFO] - Trial 6: {'lr': 2.4501772159646667e-06, 'weight_decay': 1.588944712628647e-05}
+[2025-04-29 13:49:32,386][src.graph_modelling.training.optuna_utils][ERROR] - Error in trial 6: 
+[2025-04-29 13:49:32,427][src.graph_modelling.training.optuna_utils][INFO] - Trial 7: {'lr': 9.187727823094362e-05, 'weight_decay': 0.0009263411489240422}
+[2025-04-29 13:49:35,472][src.graph_modelling.training.optuna_utils][INFO] - Trial 8: {'lr': 0.0010191506582422586, 'weight_decay': 5.9258492532520566e-08}
+[2025-04-29 13:49:38,525][src.graph_modelling.training.optuna_utils][INFO] - Trial 9: {'lr': 0.0007336991947818635, 'weight_decay': 9.400699878038441e-07}
+[2025-04-29 13:49:41,634][src.graph_modelling.training.optuna_utils][INFO] - Trial 10: {'lr': 0.006839731003236211, 'weight_decay': 3.8857563864470204e-07}
+[2025-04-29 13:49:44,548][src.graph_modelling.training.optuna_utils][INFO] - Trial 11: {'lr': 0.0061491491272606625, 'weight_decay': 3.065186968645561e-07}
+[2025-04-29 13:49:47,604][src.graph_modelling.training.optuna_utils][INFO] - Trial 12: {'lr': 0.007847904784019592, 'weight_decay': 1.7997017656382186e-07}
+[2025-04-29 13:49:50,651][src.graph_modelling.training.optuna_utils][INFO] - Trial 13: {'lr': 0.009598169396159425, 'weight_decay': 7.875925576995192e-07}
+[2025-04-29 13:49:53,719][src.graph_modelling.training.optuna_utils][INFO] - Trial 14: {'lr': 0.003009746472768118, 'weight_decay': 8.551193060873896e-06}

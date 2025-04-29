@@ -1,0 +1,57 @@
+[2025-04-29 13:16:55,504][__main__][INFO] - Hydra output directory: /home/nick/bachelor-project/third-copy/comparison_results/multirun/2025-04-29_13-16-10/1_data=all_vars,model=temporal_only_gru
+[2025-04-29 13:16:55,506][__main__][INFO] - Configuration:
+data:
+  only_no2: false
+  num_vars: 7
+  cache_file: no2_dataset_cache.pkl
+  force_reload: false
+  sample_size: 1.0
+  shuffle: true
+  ratio:
+  - 0.7
+  - 0.15
+  - 0.15
+model:
+  _target_: src.graph_modelling.models.temporalonlygnn.TemporalOnlyGRU
+  hidden_channels: 32
+seed: 34
+base_dir: .
+results_subdir: comparison_results
+training:
+  n_lags: 72
+  n_horizon: 24
+  batch_size: 16
+  n_step: 24
+  n_epochs: 150
+  patience: 5
+optuna:
+  enabled: false
+  study_name: no2_model_optimization
+  storage: sqlite:///no2_models_optuna.db
+  n_trials: 50
+  timeout: 72000
+  direction: minimize
+paths:
+  model_save_name: final_model.pt
+  history_save_name: training_history.json
+  metrics_save_name: test_metrics.json
+  tensorboard_subdir: tensorboard_logs
+  plot_subdir: plots
+  optuna_subdir: optuna_results
+
+[2025-04-29 13:16:55,507][__main__][INFO] - Using device: cuda
+[2025-04-29 13:16:55,507][__main__][INFO] - Initializing dataset loader...
+[2025-04-29 13:16:55,513][__main__][INFO] - Loading dataset with lags=72, horizon=24...
+[2025-04-29 13:16:55,515][__main__][INFO] - Train batches: 39, Val batches: 9, Test batches: 9
+[2025-04-29 13:16:55,515][__main__][INFO] - Initializing model: TemporalOnlyGRU with all_vars data
+[2025-04-29 13:16:55,539][__main__][INFO] - Model:
+TemporalOnlyGRU(
+  (gru): GRU(7, 32, batch_first=True)
+  (output_layer): Linear(in_features=32, out_features=24, bias=True)
+)
+[2025-04-29 13:16:55,539][__main__][INFO] - Starting training for TemporalOnlyGRU_all_vars...
+[2025-04-29 13:16:58,553][__main__][WARNING] - Training interrupted by user.
+[2025-04-29 13:16:58,554][__main__][INFO] - Starting evaluation for TemporalOnlyGRU_all_vars...
+[2025-04-29 13:16:58,684][__main__][INFO] - Test Loss for TemporalOnlyGRU_all_vars: 0.0176
+[2025-04-29 13:16:58,684][__main__][INFO] - Test metrics for TemporalOnlyGRU_all_vars - MSE: 0.0176, RMSE: 0.1328, MAE: 0.1022
+[2025-04-29 13:16:58,684][__main__][INFO] - Successfully denormalized predictions and targets

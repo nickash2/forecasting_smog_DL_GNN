@@ -1,0 +1,2 @@
+timestamp,model_name,overall_rmse,overall_mae,Amsterdam_rmse,Rotterdam_rmse,Utrecht_rmse
+20250429-134530,SpatialOnlyGCN_all_vars,29.8123,24.6717,28.7143,31.0240,29.6534
