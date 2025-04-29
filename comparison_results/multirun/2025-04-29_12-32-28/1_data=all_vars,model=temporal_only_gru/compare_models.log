@@ -1,0 +1,43 @@
+[2025-04-29 12:32:28,649][__main__][INFO] - Hydra output directory: /home4/s5185491/third-copy/comparison_results/multirun/2025-04-29_12-32-28/1_data=all_vars,model=temporal_only_gru
+[2025-04-29 12:32:28,652][__main__][INFO] - Configuration:
+data:
+  only_no2: false
+  num_vars: 7
+  cache_file: no2_dataset_cache.pkl
+  force_reload: false
+  sample_size: 1.0
+  shuffle: true
+  ratio:
+  - 0.7
+  - 0.15
+  - 0.15
+model:
+  _target_: src.graph_modelling.models.temporalonlygnn.TemporalOnlyGRU
+  hidden_channels: 32
+seed: 34
+base_dir: .
+results_subdir: comparison_results
+training:
+  n_lags: 72
+  n_horizon: 24
+  batch_size: 16
+  n_step: 24
+  n_epochs: 150
+  patience: 5
+optuna:
+  enabled: false
+  study_name: no2_model_optimization
+  storage: sqlite:///no2_models_optuna.db
+  n_trials: 50
+  timeout: 72000
+  direction: minimize
+paths:
+  model_save_name: final_model.pt
+  history_save_name: training_history.json
+  metrics_save_name: test_metrics.json
+  tensorboard_subdir: tensorboard_logs
+  plot_subdir: plots
+  optuna_subdir: optuna_results
+
+[2025-04-29 12:32:28,652][__main__][INFO] - Using device: cuda
+[2025-04-29 12:32:28,652][__main__][INFO] - Initializing dataset loader...

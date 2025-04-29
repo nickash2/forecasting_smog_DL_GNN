@@ -1,0 +1,9 @@
+{
+    "test_loss": 0.005741670520769225,
+    "test_mse": 0.005741670520769225,
+    "test_rmse": 0.07577381157609286,
+    "test_mae": 0.06172184646129608,
+    "model_name": "SpatialOnlyGCN_all_vars",
+    "data_mode": "all_vars",
+    "num_vars": 13
+}

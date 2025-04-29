@@ -2,11 +2,11 @@ defaults:
   - data: no2_only          # Default data setting
   - model: spatial_only_gcn # Default model
   - _self_
-  - override hydra/launcher: submitit_slurm
+  # - override hydra/launcher: submitit_slurm
 
 # --- General Experiment Settings ---
 seed: 34
-base_dir: third-copy # Will be set dynamically or use hydra's output dir
+base_dir: . # Will be set dynamically or use hydra's output dir
 results_subdir: "comparison_results" # Subdir within hydra output
 
 # --- Data Loading Parameters ---
@@ -27,6 +27,15 @@ training:
   patience: 5
   # Learning rate, optimizer etc. could be added here if needed by train_utils
 
+# --- Optuna Hyperparameter Optimization ---
+optuna:
+  enabled: false  # Set to true to run optimization
+  study_name: "no2_model_optimization"
+  storage: "sqlite:///no2_models_optuna.db"
+  n_trials: 50
+  timeout: 72000  # 20 hours in seconds
+  direction: "minimize"  # minimize validation loss
+
 # --- Model Base Parameters (Specifics in model/*.yaml) ---
 
 # --- Paths (relative to base_dir or hydra output) ---
@@ -36,6 +45,7 @@ paths:
   metrics_save_name: "test_metrics.json"
   tensorboard_subdir: "tensorboard_logs"
   plot_subdir: "plots"
+  optuna_subdir: "optuna_results"
 
 # --- Hydra Settings ---
 hydra:
@@ -44,9 +54,10 @@ hydra:
   sweep:
     dir: ${base_dir}/${results_subdir}/multirun/${now:%Y-%m-%d_%H-%M-%S}
     subdir: ${hydra.job.num}_${hydra.job.override_dirname}
-  launcher:
-    partition: gpu        # change to your GPU partition
-    gpus_per_node: 1      # GPUs per job
-    cpus_per_task: 4      # CPUs per job
-    nodes: 1              # nodes per job
-    timeout_min: 240 #4      # timeout in minutes
+  # launcher:
+  #   partition: gpu        # change to your GPU partition
+  #   gpus_per_node: 1      # GPUs per job
+  #   cpus_per_task: 4      # CPUs per job
+  #   tasks_per_node: 1
+  #   nodes: 5              # nodes per job
+  #   timeout_min: 240 #4      # timeout in minutes

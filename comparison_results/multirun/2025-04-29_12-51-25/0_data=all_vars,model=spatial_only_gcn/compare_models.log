@@ -1,0 +1,62 @@
+[2025-04-29 12:51:26,210][__main__][INFO] - Hydra output directory: /home4/s5185491/third-copy/comparison_results/multirun/2025-04-29_12-51-25/0_data=all_vars,model=spatial_only_gcn
+[2025-04-29 12:51:26,213][__main__][INFO] - Configuration:
+data:
+  only_no2: false
+  num_vars: 7
+  cache_file: no2_dataset_cache.pkl
+  force_reload: false
+  sample_size: 1.0
+  shuffle: true
+  ratio:
+  - 0.7
+  - 0.15
+  - 0.15
+model:
+  _target_: src.graph_modelling.models.spatialonlygnn.SpatialOnlyGCN
+  K: 1
+  hidden_channels: 32
+seed: 34
+base_dir: .
+results_subdir: comparison_results
+training:
+  n_lags: 72
+  n_horizon: 24
+  batch_size: 16
+  n_step: 24
+  n_epochs: 150
+  patience: 5
+optuna:
+  enabled: false
+  study_name: no2_model_optimization
+  storage: sqlite:///no2_models_optuna.db
+  n_trials: 50
+  timeout: 72000
+  direction: minimize
+paths:
+  model_save_name: final_model.pt
+  history_save_name: training_history.json
+  metrics_save_name: test_metrics.json
+  tensorboard_subdir: tensorboard_logs
+  plot_subdir: plots
+  optuna_subdir: optuna_results
+
+[2025-04-29 12:51:26,221][__main__][INFO] - Using device: cuda
+[2025-04-29 12:51:26,221][__main__][INFO] - Initializing dataset loader...
+[2025-04-29 12:51:26,243][__main__][INFO] - Loading dataset with lags=72, horizon=24...
+[2025-04-29 12:51:26,250][__main__][INFO] - Train batches: 39, Val batches: 9, Test batches: 9
+[2025-04-29 12:51:26,251][__main__][INFO] - Initializing model: SpatialOnlyGCN with all_vars data
+[2025-04-29 12:51:27,282][__main__][INFO] - Model:
+SpatialOnlyGCN(
+  (gcn1): ChebConv(7, 32, K=1, normalization=sym)
+  (gcn2): ChebConv(32, 32, K=1, normalization=sym)
+  (output_layer): Linear(in_features=32, out_features=24, bias=True)
+)
+[2025-04-29 12:51:27,282][__main__][INFO] - Starting training for SpatialOnlyGCN_all_vars...
+[2025-04-29 12:51:46,249][__main__][INFO] - Training history saved to /home4/s5185491/third-copy/comparison_results/multirun/2025-04-29_12-51-25/0_data=all_vars,model=spatial_only_gcn/training_history.json
+[2025-04-29 12:51:46,665][__main__][INFO] - Training history plot created for SpatialOnlyGCN_all_vars
+[2025-04-29 12:51:46,666][__main__][INFO] - Starting evaluation for SpatialOnlyGCN_all_vars...
+[2025-04-29 12:51:46,805][__main__][INFO] - Test Loss for SpatialOnlyGCN_all_vars: 0.0054
+[2025-04-29 12:51:46,806][__main__][INFO] - Test metrics for SpatialOnlyGCN_all_vars - MSE: 0.0054, RMSE: 0.0734, MAE: 0.0590
+[2025-04-29 12:51:46,806][__main__][INFO] - Successfully denormalized predictions and targets
+[2025-04-29 12:51:48,187][__main__][INFO] - Prediction plots and detailed metrics created with per-city RMSE
+[2025-04-29 12:51:48,195][__main__][INFO] - Final model saved to /home4/s5185491/third-copy/comparison_results/multirun/2025-04-29_12-51-25/0_data=all_vars,model=spatial_only_gcn/final_model.pt

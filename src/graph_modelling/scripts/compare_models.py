@@ -90,9 +90,6 @@ def run_experiment(cfg: DictConfig) -> float:
 
     # --- Model Initialization ---
     # Assuming 3 nodes for this specific dataset (Amsterdam, Rotterdam, Utrecht)
-    num_nodes = 3
-    num_vars = 1 if cfg.data.only_no2 else 7
-    print("num_vars", num_vars)
 
     # Find out which model we're creating for better logging
     model_name = cfg.model._target_.split(".")[-1]
@@ -115,7 +112,9 @@ def run_experiment(cfg: DictConfig) -> float:
             valid_params.remove('self')
         
         # Make sure num_vars matches your data configuration
-        num_vars = 1 if cfg.data.only_no2 else 7  # Or whatever your full var count is
+        num_nodes = 3 
+        num_vars = 1 if cfg.data.only_no2 else 7
+        print("num_vars", num_vars)
         
         # Create dictionary with common parameters
         model_params = {
@@ -216,22 +215,6 @@ def run_experiment(cfg: DictConfig) -> float:
         f"Test metrics for {friendly_model_name} - MSE: {mse:.4f}, RMSE: {rmse:.4f}, MAE: {mae:.4f}"
     )
 
-    # --- Save Results ---
-    # Save test metrics
-    metrics = {
-        "test_loss": float(test_loss),
-        "test_mse": float(mse),
-        "test_rmse": float(rmse),
-        "test_mae": float(mae),
-        "model_name": friendly_model_name,
-        "data_mode": data_mode,
-        "num_vars": int(num_vars),
-    }
-
-    metrics_path = output_dir / cfg.paths.metrics_save_name
-    with open(metrics_path, "w") as f:
-        json.dump(metrics, f, indent=4)
-    log.info(f"Test metrics saved to {metrics_path}")
 
     # Create prediction plots with model name and city-specific metrics
     if hasattr(loader, "denormalize_no2"):

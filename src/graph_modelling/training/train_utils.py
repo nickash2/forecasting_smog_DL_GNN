@@ -56,7 +56,7 @@ def train_model_index(
                 # Reshape to (B, horizon, num_nodes=3, num_vars=7)
                 B, H, NF = y_batch.shape
                 num_nodes = 3  # Assuming 3 cities
-                num_vars = 7   # Assuming 7 variables when all_vars is set
+                num_vars = NF // num_nodes  # Calculate based on actual dimensions
                 
                 # Reshape and extract just NO2 (first variable) for each node
                 y_batch_reshaped = y_batch.view(B, H, num_nodes, num_vars)
@@ -65,9 +65,6 @@ def train_model_index(
                 
                 # Calculate loss using only NO2 values
                 loss = criterion(y_hat, y_batch_no2)
-            else:
-                # Normal case when only_no2=True
-                loss = criterion(y_hat, y_batch)
                 
             loss.backward()
             optimizer.step()
@@ -83,6 +80,8 @@ def train_model_index(
         history['train_loss'].append(avg_train_loss)
         history['val_loss'].append(val_loss)
         history['epochs'].append(epoch)
+
+        writer.add_scalars('Loss', {'train': avg_train_loss, 'val': val_loss}, epoch)
         
         print(f"Epoch {epoch}: Train Loss {avg_train_loss:.6f}, Val Loss {val_loss:.6f}")
         
@@ -114,14 +113,12 @@ def validate_model(model, val_loader, criterion, device, edge_index, edge_weight
                 # Reshape to get just NO2 values for each node
                 B, H, NF = y_batch.shape
                 num_nodes = 3
-                num_vars = 7
+                num_vars = NF // num_nodes  # Calculate based on actual dimensions
 
                 y_batch_reshaped = y_batch.view(B, H, num_nodes, num_vars)
                 y_batch_no2 = y_batch_reshaped[:, :, :, 0]
 
                 loss = criterion(y_hat, y_batch_no2)
-            else:
-                loss = criterion(y_hat, y_batch)
 
             val_losses.append(loss.item())
 
@@ -153,7 +150,7 @@ def evaluate_index(
             if y_batch.shape[2] != y_hat.shape[2]:
                 B, H, NF = y_batch.shape
                 num_nodes = 3
-                num_vars = 7
+                num_vars = NF // num_nodes  # Calculate based on actual dimensions
 
                 y_batch_reshaped = y_batch.view(B, H, num_nodes, num_vars)
                 y_batch_no2 = y_batch_reshaped[:, :, :, 0]
@@ -162,10 +159,6 @@ def evaluate_index(
 
                 all_preds.append(y_hat.cpu().numpy())
                 all_targets.append(y_batch_no2.cpu().numpy())
-            else:
-                loss = criterion(y_hat, y_batch)
-                all_preds.append(y_hat.cpu().numpy())
-                all_targets.append(y_batch.cpu().numpy())
 
             total_loss += loss.item()
 

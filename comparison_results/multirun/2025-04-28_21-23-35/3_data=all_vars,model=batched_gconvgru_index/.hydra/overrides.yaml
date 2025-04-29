@@ -1,0 +1,2 @@
+- model=batched_gconvgru_index
+- data=all_vars

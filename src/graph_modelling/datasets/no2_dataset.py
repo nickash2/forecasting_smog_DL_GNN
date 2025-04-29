@@ -71,8 +71,7 @@ class NO2DatasetLoader(object):
         print("Processing dataset from source files...")
         x_path = os.path.join(self.data_dir, "X.csv")
 
-        # We're only reading X.csv now - we'll use lagged features instead of separate y.csv
-        self._data = pd.read_csv(x_path, index_col=0)
+        self._data = pd.read_csv(x_path, sep=',')
 
         # Ensure data is sorted by datetime
         self._data = self._data.sort_values(by=["DateTime"])
@@ -234,17 +233,14 @@ class NO2DatasetLoader(object):
         """
         # List of variables to include as features
         if self.only_no2:
-            variables = ["NO2"]  # Only use NO2 as a feature
+            variables = [
+                "NO2"
+            ]
         else:
             variables = [
-                "NO2",
-                "P",
-                "SQ",
-                "WD",
-                "Wvh",
-                "dewP",
-                "temp",
-            ]  # Use all variables
+                "NO2", "P", "SQ", "WD", "Wvh", "dewP", "temp"
+            ]
+
 
         # Process data organized by city_name column (your current data format)
         stacked_data_by_variable = {var: [] for var in variables}
@@ -583,17 +579,13 @@ class NO2DatasetLoader(object):
             self.only_no2 = only_no2
 
         if self.only_no2:
-            variables = ["NO2"]  # Only use NO2 as a feature
+            variables = [
+                "NO2"
+            ]
         else:
             variables = [
-                "NO2",
-                "P",
-                "SQ",
-                "WD",
-                "Wvh",
-                "dewP",
-                "temp",
-            ]  # Use all variables
+                "NO2", "P", "SQ", "WD", "Wvh", "dewP", "temp"
+            ]
 
         self._get_edges()
         self._get_edge_weights()
