@@ -2,6 +2,7 @@ import torch
 import numpy as np
 from tqdm import tqdm
 from ..visualization.visualization import plot_predictions
+from codecarbon import EmissionsTracker
 
 
 def train_model_index(

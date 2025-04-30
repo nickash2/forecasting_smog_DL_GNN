@@ -3,3 +3,4 @@ block_channels: 32
 gru_channels: 32
 K: 1
 num_blocks: 2
+d_k: 32

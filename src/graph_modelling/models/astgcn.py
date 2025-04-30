@@ -156,6 +156,37 @@ class SpatioTemporalBlock(nn.Module):
         return output
 
 
+class FinalTemporalAttention(nn.Module):
+    def __init__(self, d_model, d_k):
+        super().__init__()
+        self.W_q = nn.Linear(d_model, d_k)
+        self.W_k = nn.Linear(d_model, d_k)
+        self.W_v = nn.Linear(d_model, d_model)
+        self.scale = d_k**0.5
+
+    def forward(self, x):
+        """
+        x: (B, T, N, F)
+        returns: (B, N, F) - aggregated over T using attention
+        """
+        B, T, N, F = x.shape
+        x_reshaped = x.permute(0, 2, 1, 3).reshape(B * N, T, F)  # (B*N, T, F)
+
+        Q = self.W_q(x_reshaped)
+        K = self.W_k(x_reshaped)
+        V = self.W_v(x_reshaped)
+
+        scores = torch.matmul(Q, K.transpose(-2, -1)) / self.scale  # (B*N, T, T)
+        attn = torch.softmax(scores, dim=-1)  # (B*N, T, T)
+        out = torch.matmul(attn, V)  # (B*N, T, F)
+
+        # Aggregate over time: weighted sum of T dimension
+        out = out.sum(dim=1)  # (B*N, F)
+
+        out = out.view(B, N, F)  # (B, N, F)
+        return out
+
+
 class ASTGCN_Like(nn.Module):
     """Simplified ASTGCN-like model."""
 
@@ -169,6 +200,7 @@ class ASTGCN_Like(nn.Module):
         gru_channels=32,
         K=2,
         num_blocks=1,
+        d_k=32,
     ):
         super().__init__()
         self.num_nodes = num_nodes
@@ -198,6 +230,8 @@ class ASTGCN_Like(nn.Module):
             in_channels=128, out_channels=horizon, kernel_size=(1, 1)
         )
 
+        self.final_temporal_attn = FinalTemporalAttention(d_model=horizon, d_k=d_k)
+
     def forward(self, x, edge_index, edge_weight=None, lambda_max=None):
         """
         Args:
@@ -226,9 +260,16 @@ class ASTGCN_Like(nn.Module):
         x_out = F_func.relu(self.final_conv1(x))  # (B, 128, T, N)
         x_out = self.final_conv2(x_out)  # (B, horizon, T, N)
 
-        # Now, pool over T dimension (aggregate over time!)
-        # x_out = x_out.mean(dim=2)  # (B, horizon, N)
+        # normally would just return x_out from ^
+        # adding attention to experiment
 
-        x_out = x_out[:, :, -1, :]  # (B, horizon, N)
+        # x_out: (B, horizon, T, N)
+        x_out = x_out.permute(0, 2, 3, 1)  # (B, T, N, horizon)
+
+        # Apply final temporal attention
+        x_out = self.final_temporal_attn(x_out)  # (B, N, horizon)
+
+        # Transpose to match original return shape (B, horizon, N)
+        x_out = x_out.permute(0, 2, 1)
 
         return x_out

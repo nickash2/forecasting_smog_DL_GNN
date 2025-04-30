@@ -2,14 +2,12 @@ import torch
 import hydra
 from omegaconf import DictConfig, OmegaConf
 import os
-import sys
 from pathlib import Path
-import json
 import logging
 from torch.utils.tensorboard import SummaryWriter
-import datetime
-import matplotlib.pyplot as plt
 import numpy as np
+from codecarbon import EmissionsTracker
+import time
 
 # --- Add project root to sys.path ---
 BASE_DIR = Path.cwd()
@@ -161,24 +159,20 @@ def run_experiment(cfg: DictConfig) -> float:
     writer = SummaryWriter(log_dir=str(tb_log_dir))
 
     try:
-        model, history = train_model_index(
-            model=model,
-            train_loader=train_loader,
-            val_loader=val_loader,
-            edge_index=edges.long().to(device),  # Ensure long dtype
-            edge_weight=edge_weights.float().to(device)
-            if edge_weights is not None
-            else None,  # Ensure float dtype
-            device=device,
-            epochs=cfg.training.n_epochs,
-            patience=cfg.training.patience,
-            writer=writer,
-        )
-        # Save training history
-        # history_path = output_dir / cfg.paths.history_save_name
-        # with open(history_path, "w") as f:
-        #     json.dump(history, f, indent=4)
-        # log.info(f"Training history saved to {history_path}")
+        with EmissionsTracker(log_level="error") as train_tracker:
+            model, history = train_model_index(
+                model=model,
+                train_loader=train_loader,
+                val_loader=val_loader,
+                edge_index=edges.long().to(device),  # Ensure long dtype
+                edge_weight=edge_weights.float().to(device)
+                if edge_weights is not None
+                else None,  # Ensure float dtype
+                device=device,
+                epochs=cfg.training.n_epochs,
+                patience=cfg.training.patience,
+                writer=writer,
+            )
 
         # Plot training history with model name
         plots_dir = output_dir / cfg.paths.plot_subdir
@@ -199,22 +193,35 @@ def run_experiment(cfg: DictConfig) -> float:
     # --- Evaluation ---
     log.info(f"Starting evaluation for {friendly_model_name}...")
     city_names = ["Amsterdam", "Rotterdam", "Utrecht"]
-
-    test_loss, predictions, targets = evaluate_index(
-        model=model,
-        test_loader=test_loader,
-        edge_index=edges.to(device),
-        edge_weight=edge_weights.to(device) if edge_weights is not None else None,
-        device=device,
-        loader=loader,
-        cities=city_names,
-    )
+    start_time = time.time()
+    with EmissionsTracker(log_level="error") as eval_tracker:
+        test_loss, predictions, targets = evaluate_index(
+            model=model,
+            test_loader=test_loader,
+            edge_index=edges.to(device),
+            edge_weight=edge_weights.to(device) if edge_weights is not None else None,
+            device=device,
+            loader=loader,
+            cities=city_names,
+        )
+    end_time = time.time()
+    inference_time = end_time - start_time
     log.info(f"Test Loss for {friendly_model_name}: {test_loss:.4f}")
 
     # Calculate additional metrics
     mse = test_loss  # Already MSE
     rmse = np.sqrt(mse)
     mae = np.mean(np.abs(predictions - targets))
+    train_emissions = train_tracker.final_emissions_data
+    eval_emissions = eval_tracker.final_emissions_data
+
+    metrics = {
+        "inference_time_s": inference_time,
+        "inference_energy_kWh": eval_emissions.energy_consumed,
+        "inference_emissions_gCO2": eval_emissions.emissions,
+        "training_energy_kWh": train_emissions.energy_consumed,
+        "training_emissions_gCO2": train_emissions.emissions,
+    }
 
     log.info(
         f"Test metrics for {friendly_model_name} - MSE: {mse:.4f}, RMSE: {rmse:.4f}, MAE: {mae:.4f}"
@@ -236,6 +243,7 @@ def run_experiment(cfg: DictConfig) -> float:
                 model_name=friendly_model_name,
                 save_metrics=True,
                 use_plotly=True,
+                energy_metrics=metrics,  # Pass the energy metrics here
             )
 
             if plot_metrics:

@@ -23,10 +23,14 @@ class ASTGCN_Encoder(nn.Module):
         for _ in range(num_blocks):
             block = nn.ModuleDict(
                 {
-                    "spatial_attn": SpatialAttentionLayer(num_nodes, current_channels),
+                    "spatial_attn": SpatialAttentionLayer(
+                        num_nodes, current_channels, block_channels
+                    ),
                     "graph_conv": ChebConv(current_channels, block_channels, K=K),
                     "layer_norm1": nn.LayerNorm([lags, num_nodes, block_channels]),
-                    "temporal_attn": TemporalAttentionLayer(lags, block_channels),
+                    "temporal_attn": TemporalAttentionLayer(
+                        lags, block_channels, block_channels
+                    ),
                     "temporal_gru": nn.GRU(
                         block_channels, gru_channels, batch_first=True
                     ),
@@ -45,11 +49,11 @@ class ASTGCN_Encoder(nn.Module):
             Output (B, T, N, H)
         """
         B, T, NF = x.shape
-        N, F = self.num_nodes, self.num_vars
-        assert T == self.lags and NF == N * F
+        N, F_dim = self.num_nodes, self.num_vars
+        assert T == self.lags and NF == N * F_dim
 
         # Reshape and embed
-        x = x.view(B, T, N, F)
+        x = x.view(B, T, N, F_dim)
         x = self.input_embedding(x)  # (B, T, N, block_channels)
         x = F.relu(x)  # Add ReLU activation
 

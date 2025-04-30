@@ -123,6 +123,7 @@ def plot_predictions(
     model_name=None,
     save_metrics=True,
     use_plotly=False,
+    energy_metrics=None,
 ):
     """
     Plot test predictions against actual values for each city and save metrics to log file
@@ -134,6 +135,7 @@ def plot_predictions(
         model_name: Optional model name for file naming
         save_metrics: Whether to save metrics to a JSON file
         use_plotly: Whether to use Plotly for interactive plots instead of matplotlib
+        energy_metrics: Optional dictionary with energy consumption and inference time metrics
     """
     if BASE_DIR is None:
         raise ValueError("BASE_DIR not set. Call set_base_dir() first.")
@@ -200,7 +202,6 @@ def plot_predictions(
             "MAE": float(mae),
         }
     if use_plotly:
-        print("Using plotly")
         # Create interactive plotly figure
         fig = sp.make_subplots(
             rows=n_cities,
@@ -285,7 +286,6 @@ def plot_predictions(
         predictions_filename = get_file_name("test_predictions", model_name)
         if predictions_filename:
             # Save as HTML for interactive viewing
-            print("before html filename")
             html_filename = predictions_filename.replace(".png", ".html")
 
             html_path = str(BASE_DIR / "results" / html_filename)
@@ -366,6 +366,10 @@ def plot_predictions(
                 "per_city": city_metrics,
             }
 
+            # Add energy metrics if provided
+            if energy_metrics:
+                metrics["energy"] = energy_metrics
+
             # Save metrics to JSON file
             metrics_filename = f"{model_name}_metrics_{TIMESTAMP}.json"
             metrics_path = BASE_DIR / "results" / metrics_filename
@@ -381,19 +385,70 @@ def plot_predictions(
             # Create header if file doesn't exist
             if not log_file.exists():
                 with open(log_file, "w") as f:
-                    f.write("timestamp,model_name,overall_rmse,overall_mae")
+                    header = "timestamp,model_name,overall_rmse,overall_mae"
                     for city in city_names:
-                        f.write(f",{city}_rmse")
-                    f.write("\n")
+                        header += f",{city}_rmse"
+                    # Add energy metrics columns to header
+                    header += (
+                        ",inference_time_s,inference_energy_kWh,training_energy_kWh"
+                    )
+                    # Add new CO2 and GPU metrics
+                    header += ",training_co2_kg,inference_co2_kg"
+                    f.write(header + "\n")
 
             # Append metrics to log file (outside the header check)
             with open(log_file, "a") as f:
-                line = f"{TIMESTAMP},{model_name},{overall_rmse:.4f},{overall_mae:.4f}"
+                line = f"{TIMESTAMP},{model_name},{overall_rmse:.4f},"
                 for city in city_names:
                     if city in city_metrics:
                         line += f",{city_metrics[city]['RMSE']:.4f}"
                     else:
                         line += ",NA"
+
+                # Add energy metrics if available, rounded to 4 decimal places
+                if energy_metrics:
+                    # Format existing energy metrics
+                    inference_time = energy_metrics.get("inference_time_s")
+                    inference_time_str = (
+                        f"{inference_time:.4g}"
+                        if isinstance(inference_time, (float, int))
+                        else "NA"
+                    )
+
+                    inference_energy = energy_metrics.get("inference_energy_kWh")
+                    inference_energy_str = (
+                        f"{inference_energy:.4g}"
+                        if isinstance(inference_energy, (float, int))
+                        else "NA"
+                    )
+
+                    training_energy = energy_metrics.get("training_energy_kWh")
+                    training_energy_str = (
+                        f"{training_energy:.4g}"
+                        if isinstance(training_energy, (float, int))
+                        else "NA"
+                    )
+
+                    # Format new CO2 and GPU metrics
+                    training_co2 = energy_metrics.get("training_emissions_gCO2")
+                    training_co2_str = (
+                        f"{training_co2:.4g}"
+                        if isinstance(training_co2, (float, int))
+                        else "NA"
+                    )
+
+                    inference_co2 = energy_metrics.get("inference_emissions_gCO2")
+                    inference_co2_str = (
+                        f"{inference_co2:.4g}"
+                        if isinstance(inference_co2, (float, int))
+                        else "NA"
+                    )
+
+                    line += f",{inference_time_str},{inference_energy_str},{training_energy_str}"
+                    line += f",{training_co2_str},{inference_co2_str},"
+                else:
+                    line += ",NA,NA,NA,NA,NA"  # Add NA for all missing metrics
+
                 f.write(line + "\n")
 
             return metrics

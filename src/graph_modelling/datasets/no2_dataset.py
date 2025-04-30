@@ -576,6 +576,11 @@ class NO2DatasetLoader(object):
 
             suffix += "_no2only" if only_no2 else "_allvars"
 
+            if self.smooth_data and cache_suffix:
+                cache_suffix = f"{cache_suffix}_smooth{self.smooth_window}"
+            elif self.smooth_data:
+                suffix = f"smooth{self.smooth_window}"
+
             index_dataset_cache_file = f"index_dataset{suffix}.pkl"
             index_dataset_cache_path = os.path.join(
                 self.data_dir, index_dataset_cache_file

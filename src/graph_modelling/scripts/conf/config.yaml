@@ -28,6 +28,7 @@ training:
   n_epochs: 200
   patience: 5
   # Learning rate, optimizer etc. could be added here if needed by train_utils
+track_energy: true
 
 # --- Optuna Hyperparameter Optimization ---
 optuna:

@@ -75,7 +75,6 @@ def define_model_param_space(trial, model_name: str) -> Dict[str, Any]:
                 "hidden_channels": trial.suggest_int(
                     "hidden_channels", 16, 128, step=16
                 ),
-                "K": trial.suggest_int("K", 1, 3),
             }
         )
 
@@ -106,7 +105,6 @@ def define_model_param_space(trial, model_name: str) -> Dict[str, Any]:
                 "hidden_channels": trial.suggest_int(
                     "hidden_channels", 32, 128, step=16
                 ),
-                "K": trial.suggest_int("K", 1, 3),
             }
         )
 
@@ -115,9 +113,20 @@ def define_model_param_space(trial, model_name: str) -> Dict[str, Any]:
             {
                 "block_channels": trial.suggest_int("block_channels", 16, 64, step=16),
                 "gru_channels": trial.suggest_int("gru_channels", 16, 64, step=16),
-                "K": trial.suggest_int("K", 1, 3),
+                "num_blocks": trial.suggest_int("num_blocks", 1, 3),
+                "d_k": trial.suggest_int("d_k", 16, 64, step=16),
             }
         )
+
+    # elif "astgcn_seq2seq" in model_name.lower():
+    #     params.update(
+    #         {
+    #             "block_channels": trial.suggest_int("block_channels", 16, 64, step=16),
+    #             "gru_channels": trial.suggest_int("gru_channels", 16, 64, step=16),
+    #             "num_blocks": trial.suggest_int("num_blocks", 1, 3),
+    #             "dropout": trial.suggest_float("dropout", 0.0, 0.5, step=0.1),
+    #         }
+    #     )
 
     return params
 
@@ -286,21 +295,6 @@ def create_objective(
                 edge_weight=edge_weight.to(device),
                 device=device,
             )
-
-            # Save trial results
-            trial_dir = output_dir / f"trial_{trial.number}"
-            trial_dir.mkdir(parents=True, exist_ok=True)
-
-            # Save model
-            torch.save(model.state_dict(), trial_dir / "model.pt")
-
-            # Save history
-            with open(trial_dir / "history.json", "w") as f:
-                json.dump(history, f)
-
-            # Save parameters
-            with open(trial_dir / "params.yaml", "w") as f:
-                yaml.dump(params, f)
 
             # Return validation loss as the objective value
             writer.close()
