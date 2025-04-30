@@ -1,3 +1,0 @@
-- model=spatial_only_gcn
-- data=all_vars
-- optuna.enabled=True

@@ -1,9 +1,0 @@
-{
-    "test_loss": 0.005805212849130233,
-    "test_mse": 0.005805212849130233,
-    "test_rmse": 0.07619194740345094,
-    "test_mae": 0.061927430331707,
-    "model_name": "BatchedGConvGRUIndex_all_vars",
-    "data_mode": "all_vars",
-    "num_vars": 7
-}

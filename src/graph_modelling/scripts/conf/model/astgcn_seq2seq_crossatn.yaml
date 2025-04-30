@@ -1,6 +1,0 @@
-_target_: src.graph_modelling.models.astgcn_seq2seq_crossatn.ASTGCN_Seq2Seq_CrossAttention
-block_channels: 64
-gru_channels: 64
-K: 1
-num_blocks: 2
-dropout: 0.2

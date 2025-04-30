@@ -64,7 +64,7 @@ def define_model_param_space(trial, model_name: str) -> Dict[str, Any]:
     """
     # Base parameters for all models
     params = {
-        "lr": trial.suggest_float("lr", 1e-6, 1e-2, log=True),
+        "lr": trial.suggest_float("lr", 1e-7, 1e-4, log=True),
         "weight_decay": trial.suggest_float("weight_decay", 1e-8, 1e-3, log=True),
     }
 
@@ -112,9 +112,8 @@ def define_model_param_space(trial, model_name: str) -> Dict[str, Any]:
         params.update(
             {
                 "block_channels": trial.suggest_int("block_channels", 16, 64, step=16),
-                "gru_channels": trial.suggest_int("gru_channels", 16, 64, step=16),
+                # "gru_channels": trial.suggest_int("gru_channels", 16, 64, step=16),
                 "num_blocks": trial.suggest_int("num_blocks", 1, 3),
-                "d_k": trial.suggest_int("d_k", 16, 64, step=16),
             }
         )
 

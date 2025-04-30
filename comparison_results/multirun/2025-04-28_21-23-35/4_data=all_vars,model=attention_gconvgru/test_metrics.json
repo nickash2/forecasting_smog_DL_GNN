@@ -1,9 +1,0 @@
-{
-    "test_loss": 0.0064496357097393936,
-    "test_mse": 0.0064496357097393936,
-    "test_rmse": 0.08030962401692211,
-    "test_mae": 0.06593862920999527,
-    "model_name": "AttentionGConvGRU_all_vars",
-    "data_mode": "all_vars",
-    "num_vars": 13
-}

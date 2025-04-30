@@ -2,7 +2,7 @@ defaults:
   - data: no2_only          # Default data setting
   - model: spatial_only_gcn # Default model
   - _self_
-  # - override hydra/launcher: submitit_slurm
+  - override hydra/launcher: submitit_slurm
 
 # --- General Experiment Settings ---
 seed: 34
@@ -36,7 +36,7 @@ optuna:
   study_name: "no2_model_optimization"
   storage: "sqlite:///no2_models_optuna.db"
   n_trials: 50
-  timeout: 72000  # 20 hours in seconds
+  timeout: 7200  # 2 hours in seconds
   direction: "minimize"  # minimize validation loss
 
 # --- Model Base Parameters (Specifics in model/*.yaml) ---
@@ -57,10 +57,10 @@ hydra:
   sweep:
     dir: ${base_dir}/${results_subdir}/multirun/${now:%Y-%m-%d_%H-%M-%S}
     subdir: ${hydra.job.num}_${hydra.job.override_dirname}
-  # launcher:
-  #   partition: gpu        # change to your GPU partition
-  #   gpus_per_node: 1      # GPUs per job
-  #   cpus_per_task: 4      # CPUs per job
-  #   tasks_per_node: 1
-  #   nodes: 5              # nodes per job
-  #   timeout_min: 240 #4      # timeout in minutes
+  launcher:
+    partition: gpu        # change to your GPU partition
+    gpus_per_node: 1      # GPUs per job
+    cpus_per_task: 4      # CPUs per job
+    tasks_per_node: 1
+    nodes: 5              # nodes per job
+    timeout_min: 130 # 2.16667 hrs      # timeout in minutes

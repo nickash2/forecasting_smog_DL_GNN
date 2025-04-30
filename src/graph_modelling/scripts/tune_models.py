@@ -11,6 +11,7 @@ import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 import optuna
+from tqdm.auto import tqdm
 
 # --- Add project root to sys.path ---
 BASE_DIR = Path.cwd()
@@ -41,14 +42,16 @@ log = logging.getLogger(__name__)
 def run_experiment(cfg: DictConfig) -> float:
     """Runs a single experiment configuration."""
     # Check if model config loaded correctly
-    if cfg.model is None or '_target_' not in cfg.model:
-        log.error(f"Failed to load model configuration. Available config: {OmegaConf.to_yaml(cfg)}")
-        if hasattr(cfg, 'model') and cfg.model is not None:
+    if cfg.model is None or "_target_" not in cfg.model:
+        log.error(
+            f"Failed to load model configuration. Available config: {OmegaConf.to_yaml(cfg)}"
+        )
+        if hasattr(cfg, "model") and cfg.model is not None:
             log.error(f"Model config exists but doesn't contain _target_: {cfg.model}")
         else:
             log.error("Model config is None")
         raise ValueError("Model configuration not found or invalid")
-    
+
     # --- Setup ---
     hydra_cfg = hydra.core.hydra_config.HydraConfig.get()
     output_dir = Path(hydra_cfg.runtime.output_dir)
@@ -111,17 +114,17 @@ def run_experiment(cfg: DictConfig) -> float:
         # Get model class to inspect its parameters
         model_class = hydra.utils.get_class(cfg.model._target_)
         import inspect
-        
+
         # Get the parameters accepted by the model's __init__ method
         valid_params = list(inspect.signature(model_class.__init__).parameters.keys())
-        if 'self' in valid_params:
-            valid_params.remove('self')
-        
+        if "self" in valid_params:
+            valid_params.remove("self")
+
         # Make sure num_vars matches your data configuration
-        num_nodes = 3 
+        num_nodes = 3
         num_vars = 1 if cfg.data.only_no2 else 7
         print("num_vars", num_vars)
-        
+
         # Create dictionary with common parameters
         model_params = {
             "num_nodes": num_nodes,
@@ -129,56 +132,60 @@ def run_experiment(cfg: DictConfig) -> float:
             "lags": cfg.training.n_lags,
             "horizon": cfg.training.n_horizon,
         }
-        
+
         # Add parameters from cfg.model (like K, hidden_channels) ONLY if the model accepts them
         for k, v in cfg.model.items():
             if k != "_target_" and k in valid_params:
                 model_params[k] = v
-        
+
         # Filter to only include parameters this model accepts
         model_params = {k: v for k, v in model_params.items() if k in valid_params}
-        
+
         # Store model creation parameters for optuna if needed
         model_creator_fn = lambda **params: hydra.utils.instantiate(
             cfg.model,
             **params,
             _recursive_=False,
         )
-        
+
         edges = edges.long()
         if edge_weights is not None:
             edge_weights = edge_weights.float()  # Edge weights should be float32
 
         # Check if we should run Optuna optimization
-        if hasattr(cfg, 'optuna') and cfg.optuna.get('enabled', False):
-            log.info(f"Starting Optuna hyperparameter optimization for {friendly_model_name}")
-            
+        if hasattr(cfg, "optuna") and cfg.optuna.get("enabled", False):
+            log.info(
+                f"Starting Optuna hyperparameter optimization for {friendly_model_name}"
+            )
+
             # Create study dir
             optuna_dir = output_dir / cfg.paths.optuna_subdir
             optuna_dir.mkdir(parents=True, exist_ok=True)
-            
+
             # Ensure storage path is absolute
             storage_path = cfg.optuna.storage
-            if not storage_path.startswith(('sqlite:///', 'mysql://', 'postgresql:///')):
+            if not storage_path.startswith(
+                ("sqlite:///", "mysql://", "postgresql:///")
+            ):
                 storage_path = f"sqlite:///{output_dir / storage_path}"
-            
+
             # Set up study
             study = setup_optuna_study(
                 study_name=f"{cfg.optuna.study_name}_{friendly_model_name}",
                 storage=storage_path,
                 direction=cfg.optuna.direction,
-                load_if_exists=True
+                load_if_exists=True,
             )
-            
+
             # Create objective function
             base_config = {
                 "model_params": model_params,
                 "training": {
                     "n_epochs": cfg.training.n_epochs,
-                    "patience": cfg.training.patience
-                }
+                    "patience": cfg.training.patience,
+                },
             }
-            
+
             objective = create_objective(
                 model_fn=model_creator_fn,
                 train_loader=train_loader,
@@ -189,39 +196,52 @@ def run_experiment(cfg: DictConfig) -> float:
                 device=device,
                 model_name=friendly_model_name,
                 base_cfg=base_config,
-                output_dir=optuna_dir
+                output_dir=optuna_dir,
             )
-            
-            # Run optimization
+
             log.info(f"Running {cfg.optuna.n_trials} trials for {friendly_model_name}")
-            study.optimize(
-                objective,
-                n_trials=cfg.optuna.n_trials,
-                timeout=cfg.optuna.timeout
-            )
-            
+
+            # Create a tqdm progress bar for Optuna trials
+            with tqdm(
+                total=cfg.optuna.n_trials,
+                desc=f"Optuna trials for {friendly_model_name}",
+            ) as pbar:
+                # Define callback to update progress bar after each trial
+                def tqdm_callback(study, trial):
+                    pbar.update(1)
+                    if (
+                        trial.number > 0
+                    ):  # After first trial, we have some results to show
+                        pbar.set_postfix({"best_value": study.best_value})
+
+                # Run optimization with the callback
+                study.optimize(
+                    objective,
+                    n_trials=cfg.optuna.n_trials,
+                    timeout=cfg.optuna.timeout,
+                    callbacks=[tqdm_callback],
+                )
+
             # Save results
             best_params = save_study_results(
-                study=study,
-                output_dir=output_dir,
-                model_name=friendly_model_name
+                study=study, output_dir=output_dir, model_name=friendly_model_name
             )
-            
+
             log.info(f"Best params for {friendly_model_name}: {best_params}")
-            
+
             # Update model parameters with best found params
             for k, v in study.best_params.items():
                 if k in model_params:
                     model_params[k] = v
-            
+
             log.info(f"Using best parameters from Optuna for final model training")
-        
+
         # Instantiate the model (with best params if optuna was run)
         model = model_creator_fn(**model_params).to(device)
         model = model.float()
 
         log.info(f"Model:\n{model}")
-        
+
     except Exception as e:
         log.error(f"Error instantiating model: {e}")
         raise e
@@ -238,7 +258,9 @@ def run_experiment(cfg: DictConfig) -> float:
             train_loader=train_loader,
             val_loader=val_loader,
             edge_index=edges.long().to(device),  # Ensure long dtype
-            edge_weight=edge_weights.float().to(device) if edge_weights is not None else None,  # Ensure float dtype
+            edge_weight=edge_weights.float().to(device)
+            if edge_weights is not None
+            else None,  # Ensure float dtype
             device=device,
             epochs=cfg.training.n_epochs,
             patience=cfg.training.patience,
@@ -305,7 +327,7 @@ def run_experiment(cfg: DictConfig) -> float:
                 city_names=city_names,
                 model_name=friendly_model_name,
                 save_metrics=True,
-                use_plotly=False
+                use_plotly=False,
             )
 
             if plot_metrics:

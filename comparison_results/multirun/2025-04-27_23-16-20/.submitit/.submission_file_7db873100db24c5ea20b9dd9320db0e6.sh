@@ -1,1 +1,0 @@
-/home4/s5185491/third-copy/comparison_results/multirun/2025-04-27_23-16-20/.submitit/16861498/16861498_submission.sh

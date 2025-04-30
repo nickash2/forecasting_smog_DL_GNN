@@ -1,9 +1,0 @@
-{
-    "test_loss": 0.0035908747360938126,
-    "test_mse": 0.0035908747360938126,
-    "test_rmse": 0.05992390788403083,
-    "test_mae": 0.04512140154838562,
-    "model_name": "ASTGCN_Seq2Seq_all_vars",
-    "data_mode": "all_vars",
-    "num_vars": 13
-}

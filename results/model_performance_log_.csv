@@ -1,0 +1,3 @@
+timestamp,model_name,overall_rmse,overall_mae,Amsterdam_rmse,Rotterdam_rmse,Utrecht_rmse,inference_time_s,inference_energy_kWh,training_energy_kWh,training_co2_kg,inference_co2_kg
+20250430-164230,ASTGCN_all_vars,14.1281,,14.3753,14.7216,13.2452,8.023,2.357e-05,0.003354,0.0008975,6.309e-06,
+20250430-170041,ASTGCN_all_vars,29.7253,,30.4222,29.2650,29.4760,7.29,1.721e-05,0.006027,0.001613,4.605e-06,
