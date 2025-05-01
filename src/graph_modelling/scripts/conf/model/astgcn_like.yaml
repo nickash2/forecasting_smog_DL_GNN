@@ -1,4 +1,4 @@
-_target_: src.graph_modelling.models.astgcn.ASTGCN_Like
+_target_: src.graph_modelling.models.astgcn_like.ASTGCN_Like
 block_channels: 32
 gru_channels: 32
 K: 1

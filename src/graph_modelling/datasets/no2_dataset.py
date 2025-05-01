@@ -251,9 +251,15 @@ class NO2DatasetLoader(object):
             (2, 1): 47,  # utrecht -> rotterdam
         }
 
-        self._edge_weights = np.array(
+        raw_distances = np.array(
             [distances[edge] for edge in zip(self._edges[0], self._edges[1])]
         )
+        # Normalize edge weights
+        # Inverse distance with small epsilon to avoid division by zero
+        inv_distances = 1.0 / (raw_distances + 1e-6)
+
+        # Normalize to [0, 1]
+        self._edge_weights = inv_distances / inv_distances.max()
 
     def _get_targets_and_features(self):
         """

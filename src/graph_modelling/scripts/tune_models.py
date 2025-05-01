@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import optuna
 from tqdm.auto import tqdm
+import sqlite3
 
 # --- Add project root to sys.path ---
 BASE_DIR = Path.cwd()
@@ -235,6 +236,63 @@ def run_experiment(cfg: DictConfig) -> float:
                     model_params[k] = v
 
             log.info(f"Using best parameters from Optuna for final model training")
+        else:
+            # Load best parameters from existing study database
+            try:
+                # Path to the existing database
+                db_path = BASE_DIR / "no2_models_optuna_4hrs.db"
+                storage_path = f"sqlite:///{db_path}"
+
+                # Import sqlite3 for direct database query
+                import sqlite3
+                import re
+
+                # Connect to the database to list available studies
+                conn = sqlite3.connect(str(db_path))
+                cursor = conn.cursor()
+                cursor.execute("SELECT study_name FROM studies")
+                available_studies = [row[0] for row in cursor.fetchall()]
+                conn.close()
+
+                # Pattern to match the study name format
+                # For example: no2_model_optimization_ASTGCN_Like_all_vars_20250430_200522
+                model_pattern = f"no2_model_optimization_{model_name}_{data_mode}"
+                matching_studies = [
+                    s for s in available_studies if s.startswith(model_pattern)
+                ]
+
+                if matching_studies:
+                    # Use the most recent study (assuming timestamp is at the end)
+                    study_name = sorted(matching_studies)[-1]
+                    log.info(f"Found matching study: {study_name}")
+
+                    # Load the study
+                    study = optuna.load_study(
+                        study_name=study_name, storage=storage_path
+                    )
+
+                    if study.best_params:
+                        # Update model parameters with best found params
+                        log.info(
+                            f"Found saved best parameters for {friendly_model_name}"
+                        )
+                        for k, v in study.best_params.items():
+                            if k in model_params:
+                                model_params[k] = v
+                        log.info(
+                            f"Using best parameters from saved study: {study.best_params}"
+                        )
+                    else:
+                        log.info(
+                            f"No best parameters found for {friendly_model_name}, using defaults"
+                        )
+                else:
+                    log.info(f"No matching study found for pattern: {model_pattern}")
+                    log.info(f"Available studies: {available_studies}")
+                    log.info("Using default parameters from configuration")
+            except Exception as e:
+                log.info(f"Could not load parameters from study database: {e}")
+                log.info("Using default parameters from configuration")
 
         # Instantiate the model (with best params if optuna was run)
         model = model_creator_fn(**model_params).to(device)
@@ -252,6 +310,17 @@ def run_experiment(cfg: DictConfig) -> float:
     tb_log_dir.mkdir(parents=True, exist_ok=True)
     writer = SummaryWriter(log_dir=str(tb_log_dir))
 
+    # Extract learning rate and weight decay - use values from study if available,
+    # otherwise fall back to config
+    learning_rate = study.best_params.get("lr")
+    weight_decay = study.best_params.get(
+        "weight_decay", cfg.training.get("weight_decay")
+    )
+
+    log.info(
+        f"Training with learning_rate={learning_rate}, weight_decay={weight_decay}"
+    )
+
     try:
         model, history = train_model_index(
             model=model,
@@ -265,6 +334,8 @@ def run_experiment(cfg: DictConfig) -> float:
             epochs=cfg.training.n_epochs,
             patience=cfg.training.patience,
             writer=writer,
+            learning_rate=learning_rate,
+            weight_decay=weight_decay,
         )
         # Save training history
         history_path = output_dir / cfg.paths.history_save_name
@@ -327,7 +398,7 @@ def run_experiment(cfg: DictConfig) -> float:
                 city_names=city_names,
                 model_name=friendly_model_name,
                 save_metrics=True,
-                use_plotly=False,
+                use_plotly=True,
             )
 
             if plot_metrics:

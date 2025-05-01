@@ -1,5 +1,6 @@
 _target_: src.graph_modelling.models.spatialonlygnn.SpatialOnlyGCN
 K: 1
-hidden_channels: 32
+hidden_channels: 16
+num_layers: 1
 # Inherits K, hidden_channels
 # Needs: num_nodes, num_vars, horizon (passed dynamically)

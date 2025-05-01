@@ -1,0 +1,4 @@
+- model=a3tgcn
+- training.n_epochs=500
+- data=all_vars
+- optuna.enabled=False

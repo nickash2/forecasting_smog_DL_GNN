@@ -1,2 +1,11 @@
-_target_: src.graph_modelling.models.temporalonlygnn.TemporalOnlyGRU
-hidden_channels: 32
+_target_: src.graph_modelling.models.temporalonlygnn.STGCN
+# hidden_channels: 32
+# num_cheb_layers: 1
+
+num_vars: 7         # your num_vars
+K: 1                  # ChebConv order
+spatial_channels: 16   # spatial features
+out_channels: 32       # output of each temporal conv
+num_nodes: 3         # 3 nodes
+horizon: 24             # predict 24 steps
+dilation: 1           # kernel size

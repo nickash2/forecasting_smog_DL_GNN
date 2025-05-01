@@ -15,6 +15,8 @@ def train_model_index(
     epochs=50,
     patience=5,
     writer=None,
+    learning_rate=1e-4,
+    weight_decay=1e-6,
 ):
     """
     Train model using index-based dataloaders
@@ -28,11 +30,20 @@ def train_model_index(
         only_no2: Whether only NO2 values should be used as targets
     """
     criterion = torch.nn.MSELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
 
+    optimizer = torch.optim.Adam(
+        model.parameters(), lr=learning_rate, weight_decay=weight_decay
+    )
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer,
+        mode="min",
+        factor=0.5,
+        patience=5,
+        min_lr=1e-8,
+    )
     best_val_loss = float("inf")
     patience_counter = 0
-    history = {"train_loss": [], "val_loss": [], "epochs": []}
+    history = {"train_loss": [], "val_loss": [], "epochs": [], "lr": []}
 
     for epoch in range(1, epochs + 1):
         model.train()
@@ -79,6 +90,13 @@ def train_model_index(
         val_loss = validate_model(
             model, val_loader, criterion, device, edge_index, edge_weight
         )
+        # Update learning rate scheduler
+        if scheduler is not None:
+            scheduler.step(val_loss)
+
+        # Track current learning rate
+        current_lr = optimizer.param_groups[0]["lr"]
+        history["lr"].append(current_lr)
 
         # Update history
         avg_train_loss = sum(train_losses) / len(train_losses)
@@ -89,7 +107,7 @@ def train_model_index(
         writer.add_scalars("Loss", {"train": avg_train_loss, "val": val_loss}, epoch)
 
         print(
-            f"Epoch {epoch}: Train Loss {avg_train_loss:.6f}, Val Loss {val_loss:.6f}"
+            f"Epoch {epoch}: Train Loss {avg_train_loss:.6f}, Val Loss {val_loss:.6f} - LR {current_lr:.3g}"
         )
 
         # Early stopping
@@ -100,6 +118,7 @@ def train_model_index(
             best_model_state = model.state_dict()
         else:
             patience_counter += 1
+            print(f"Validation loss did not improve {patience_counter}/{patience}")
             if patience_counter >= patience:
                 print(f"Early stopping after {epoch} epochs")
                 model.load_state_dict(best_model_state)

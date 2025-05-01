@@ -116,6 +116,15 @@ def plot_training_history(history, model_name=None, use_plotly=False):
         plt.close()
 
 
+def _calculate_smape(actual, predicted, epsilon=1e-8):
+    """Helper function to calculate SMAPE, handling potential division by zero."""
+    numerator = np.abs(predicted - actual)
+    denominator = (np.abs(actual) + np.abs(predicted)) / 2
+    # Handle cases where denominator is close to zero
+    smape_values = np.where(denominator < epsilon, 0, numerator / denominator)
+    return np.mean(smape_values) * 100
+
+
 def plot_predictions(
     predictions,
     targets,
@@ -194,12 +203,14 @@ def plot_predictions(
         mse = np.mean((city_preds - city_targets) ** 2)
         rmse = np.sqrt(mse)
         mae = np.mean(np.abs(city_preds - city_targets))
+        smape = _calculate_smape(city_targets, city_preds)
 
         # Store metrics for this city
         city_metrics[city_name] = {
             "MSE": float(mse),
             "RMSE": float(rmse),
             "MAE": float(mae),
+            "SMAPE": float(smape),
         }
     if use_plotly:
         # Create interactive plotly figure
@@ -224,6 +235,7 @@ def plot_predictions(
             # Get metrics for this city
             rmse = city_metrics[city_name]["RMSE"]
             mae = city_metrics[city_name]["MAE"]
+            smape = city_metrics[city_name]["SMAPE"]
 
             # Add actual values
             fig.add_trace(
@@ -255,7 +267,7 @@ def plot_predictions(
 
             # Add metrics annotation
             fig.add_annotation(
-                text=f"RMSE: {rmse:.2f} μg/m³<br>MAE: {mae:.2f} μg/m³",
+                text=f"RMSE: {rmse:.2f} μg/m³<br>MAE: {mae:.2f} μg/m³<br>SMAPE: {smape:.2f}%",
                 xref=f"x{i + 1}",
                 yref=f"y{i + 1}",
                 x=0.02,
@@ -362,6 +374,7 @@ def plot_predictions(
                     "MSE": float(overall_mse),
                     "RMSE": float(overall_rmse),
                     "MAE": float(overall_mae),
+                    "SMAPE": float(_calculate_smape(targets, predictions)),
                 },
                 "per_city": city_metrics,
             }

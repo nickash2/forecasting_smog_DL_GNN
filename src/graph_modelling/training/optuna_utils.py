@@ -72,9 +72,7 @@ def define_model_param_space(trial, model_name: str) -> Dict[str, Any]:
     if "spatial_only_gcn" in model_name.lower():
         params.update(
             {
-                "hidden_channels": trial.suggest_int(
-                    "hidden_channels", 16, 128, step=16
-                ),
+                "hidden_channels": trial.suggest_int("hidden_channels", 8, 32, step=8),
             }
         )
 

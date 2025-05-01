@@ -49,7 +49,13 @@ def run_experiment(cfg: DictConfig) -> float:
     log.info(f"Hydra output directory: {output_dir}")
     log.info("Configuration:\n" + OmegaConf.to_yaml(cfg))
 
+    # Set random seed
+    torch.cuda.manual_seed(cfg.seed)
     torch.manual_seed(cfg.seed)
+    np.random.seed(cfg.seed)
+
+    log.info(f"Random seed set to {cfg.seed}")
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     log.info(f"Using device: {device}")
 
