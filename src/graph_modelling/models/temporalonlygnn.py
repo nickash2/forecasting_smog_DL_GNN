@@ -281,10 +281,10 @@ class STGCN(nn.Module):
         self.block1 = STGCNBlock(
             num_vars, spatial_channels, out_channels, K, num_nodes, dilation
         )
-        self.block1 = STGCNBlock(
+        self.block2 = STGCNBlock(
             num_vars, spatial_channels, out_channels, K, num_nodes, dilation + 1
         )
-        self.block1 = STGCNBlock(
+        self.block3 = STGCNBlock(
             num_vars, spatial_channels, out_channels, K, num_nodes, dilation + 2
         )
         self.final_temporal = nn.Conv2d(
@@ -305,6 +305,8 @@ class STGCN(nn.Module):
 
         # Apply the ST-GCN blocks (process the spatio-temporal data)
         x = self.block1(x, edge_index, edge_weight)
+        x = self.block2(x, edge_index, edge_weight)
+        x = self.block3(x, edge_index, edge_weight)
 
         # Apply the final temporal layer
         x = F.relu(self.final_temporal(x))
