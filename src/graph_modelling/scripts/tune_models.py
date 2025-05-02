@@ -199,6 +199,7 @@ def run_experiment(cfg: DictConfig) -> float:
                 model_name=friendly_model_name,
                 base_cfg=base_config,
                 output_dir=optuna_dir,
+                n_epochs=cfg.training.n_epochs,
             )
 
             log.info(f"Running {cfg.optuna.n_trials} trials for {friendly_model_name}")

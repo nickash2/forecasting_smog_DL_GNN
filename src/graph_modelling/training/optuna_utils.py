@@ -116,6 +116,7 @@ def create_objective(
     model_name: str,
     base_cfg: Dict[str, Any],
     output_dir: Path,
+    n_epochs: int = 150,
 ):
     """
     Create an objective function for Optuna optimization.
@@ -150,7 +151,6 @@ def create_objective(
             model_params.update(params)
             model = model_fn(**model_params).to(device)
             model = model.float()
-            n_epochs = base_cfg["n_epochs"]
 
             # Optimizer parameters
             optimizer = torch.optim.Adam(
@@ -161,7 +161,6 @@ def create_objective(
                 mode="min",
                 factor=0.5,
                 patience=patience_scheduler,
-                verbose=True,
             )
 
             # Custom train function with Optuna pruning
