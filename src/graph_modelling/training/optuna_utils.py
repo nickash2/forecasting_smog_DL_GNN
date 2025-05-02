@@ -20,6 +20,7 @@ def setup_optuna_study(
     load_if_exists: bool = True,
     pruner: Optional[optuna.pruners.BasePruner] = None,
     epochs: int = 150,
+    seed: int = 42,
 ):
     """
     Set up an Optuna study with the specified name and storage.
@@ -46,6 +47,7 @@ def setup_optuna_study(
             direction=direction,
             load_if_exists=load_if_exists,
             pruner=pruner,
+            sampler=optuna.samplers.TPESampler(seed=seed),  # Set the seed here
         )
         logger.info(f"Study '{study_name}' is ready. Storage: {storage}")
         return study

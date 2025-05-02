@@ -34,6 +34,7 @@ from src.graph_modelling.training.optuna_utils import (
     create_objective,
     save_study_results,
 )
+import random
 
 # A logger for this file
 log = logging.getLogger(__name__)
@@ -59,7 +60,6 @@ def run_experiment(cfg: DictConfig) -> float:
     log.info(f"Hydra output directory: {output_dir}")
     log.info("Configuration:\n" + OmegaConf.to_yaml(cfg))
 
-    torch.manual_seed(cfg.seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     log.info(f"Using device: {device}")
 
@@ -76,6 +76,20 @@ def run_experiment(cfg: DictConfig) -> float:
         force_reload=cfg.data.force_reload,
         cache_file=str(cache_path),
     )
+
+    # Set all random seeds
+    torch.cuda.manual_seed(cfg.seed)
+    torch.manual_seed(cfg.seed)
+    np.random.seed(cfg.seed)
+    random.seed(cfg.seed)  # Python's built-in random
+    os.environ["PYTHONHASHSEED"] = str(cfg.seed)  # Python hash seed
+
+    # For reproducible CUDA operations (if available)
+    if torch.cuda.is_available():
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+
+    log.info(f"Setting random seed to {cfg.seed}")
 
     log.info(
         f"Loading dataset with lags={cfg.training.n_lags}, horizon={cfg.training.n_horizon}..."
@@ -177,6 +191,7 @@ def run_experiment(cfg: DictConfig) -> float:
                 direction=cfg.optuna.direction,
                 load_if_exists=True,
                 epochs=cfg.training.n_epochs,
+                seed=cfg.seed,
             )
 
             # Create objective function
