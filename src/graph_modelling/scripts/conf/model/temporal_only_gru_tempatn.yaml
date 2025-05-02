@@ -1,0 +1,4 @@
+_target_: src.graph_modelling.models.attentiontemporalonlygnn.SimpleChebGRUWithTemporalAttention
+hidden_channels: 64
+# num_cheb_layers: 1
+

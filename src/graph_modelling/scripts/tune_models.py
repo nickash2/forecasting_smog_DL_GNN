@@ -176,6 +176,7 @@ def run_experiment(cfg: DictConfig) -> float:
                 storage=storage_path,
                 direction=cfg.optuna.direction,
                 load_if_exists=True,
+                epochs=cfg.training.n_epochs,
             )
 
             # Create objective function

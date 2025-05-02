@@ -1,6 +1,6 @@
 import optuna
 import logging
-from optuna.pruners import MedianPruner
+from optuna.pruners import MedianPruner, HyperbandPruner
 from pathlib import Path
 import torch
 import yaml
@@ -19,6 +19,7 @@ def setup_optuna_study(
     direction: str = "minimize",
     load_if_exists: bool = True,
     pruner: Optional[optuna.pruners.BasePruner] = None,
+    epochs: int = 150,
 ):
     """
     Set up an Optuna study with the specified name and storage.
@@ -34,7 +35,9 @@ def setup_optuna_study(
         optuna.Study: The created or loaded study
     """
     if pruner is None:
-        pruner = MedianPruner(n_startup_trials=5, n_warmup_steps=5)
+        pruner = HyperbandPruner(
+            min_resource=25, reduction_factor=2, max_resource=epochs
+        )
 
     try:
         study = optuna.create_study(
@@ -64,8 +67,9 @@ def define_model_param_space(trial, model_name: str) -> Dict[str, Any]:
     """
     # Base parameters for all models
     params = {
-        "lr": trial.suggest_float("lr", 1e-6, 1e-2, log=True),
+        "lr": trial.suggest_float("lr", 1e-7, 1e-4, log=True),
         "weight_decay": trial.suggest_float("weight_decay", 1e-8, 1e-3, log=True),
+        "patience": trial.suggest_int("patience", 5, 20, step=5),
     }
 
     # Model-specific parameters
@@ -79,52 +83,24 @@ def define_model_param_space(trial, model_name: str) -> Dict[str, Any]:
     elif "temporal_only_gru" in model_name.lower():
         params.update(
             {
-                "hidden_channels": trial.suggest_int(
-                    "hidden_channels", 16, 128, step=16
-                ),
+                "hidden_channels": trial.suggest_int("hidden_channels", 8, 128, step=8),
             }
         )
 
-    elif "attention_gconvgru" in model_name.lower():
+    elif "spatiotemporalattn" in model_name.lower():
         params.update(
             {
-                "hidden_channels": trial.suggest_int(
-                    "hidden_channels", 32, 128, step=16
-                ),
-                "attention_mlp_hidden": trial.suggest_int(
-                    "attention_mlp_hidden", 8, 64, step=8
-                ),
+                "hidden_channels": trial.suggest_int("hidden_channels", 8, 128, step=8),
+                "heads": trial.suggest_int("heads", 1, 4),
             }
         )
 
-    elif "batched_gconvgru_index" in model_name.lower():
+    elif "temporal_only_gru_tempatn" in model_name.lower():
         params.update(
             {
-                "hidden_channels": trial.suggest_int(
-                    "hidden_channels", 32, 128, step=16
-                ),
+                "hidden_channels": trial.suggest_int("hidden_channels", 8, 128, step=8),
             }
         )
-
-    elif "astgcn_like" in model_name.lower():
-        params.update(
-            {
-                "block_channels": trial.suggest_int("block_channels", 16, 64, step=16),
-                "gru_channels": trial.suggest_int("gru_channels", 16, 64, step=16),
-                "num_blocks": trial.suggest_int("num_blocks", 1, 3),
-                "d_k": trial.suggest_int("d_k", 16, 64, step=16),
-            }
-        )
-
-    # elif "astgcn_seq2seq" in model_name.lower():
-    #     params.update(
-    #         {
-    #             "block_channels": trial.suggest_int("block_channels", 16, 64, step=16),
-    #             "gru_channels": trial.suggest_int("gru_channels", 16, 64, step=16),
-    #             "num_blocks": trial.suggest_int("num_blocks", 1, 3),
-    #             "dropout": trial.suggest_float("dropout", 0.0, 0.5, step=0.1),
-    #         }
-    #     )
 
     return params
 
@@ -155,6 +131,7 @@ def create_objective(
         tb_log_dir = output_dir / f"tensorboard_logs/trial_{trial.number}"
         tb_log_dir.mkdir(parents=True, exist_ok=True)
         writer = SummaryWriter(log_dir=str(tb_log_dir))
+        patience_scheduler = trial.suggest_int("patience_scheduler", 5, 20, step=5)
 
         try:
             # Get hyperparameters for this trial
@@ -168,18 +145,23 @@ def create_objective(
             # Remove lr and weight_decay from model params
             lr = params.pop("lr")
             weight_decay = params.pop("weight_decay")
+            patience = params.pop("patience")
 
             model_params.update(params)
             model = model_fn(**model_params).to(device)
             model = model.float()
-
-            # Training parameters
-            n_epochs = base_cfg.get("training", {}).get("n_epochs", 150)
-            patience = base_cfg.get("training", {}).get("patience", 5)
+            n_epochs = base_cfg["n_epochs"]
 
             # Optimizer parameters
             optimizer = torch.optim.Adam(
                 model.parameters(), lr=lr, weight_decay=weight_decay
+            )
+            scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+                optimizer,
+                mode="min",
+                factor=0.5,
+                patience=patience_scheduler,
+                verbose=True,
             )
 
             # Custom train function with Optuna pruning
@@ -251,6 +233,7 @@ def create_objective(
 
                 avg_train_loss = sum(train_losses) / len(train_losses)
                 avg_val_loss = sum(val_losses) / len(val_losses)
+                scheduler.step(avg_val_loss)
 
                 # Update history
                 history["train_loss"].append(avg_train_loss)

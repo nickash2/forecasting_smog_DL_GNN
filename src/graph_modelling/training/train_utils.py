@@ -38,7 +38,7 @@ def train_model_index(
         optimizer,
         mode="min",
         factor=0.5,
-        patience=5,
+        patience=3,
         min_lr=1e-8,
     )
     best_val_loss = float("inf")
