@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import torch
 import pickle
+import hashlib
 from torch.utils.data import DataLoader
 from sklearn.preprocessing import MinMaxScaler
 
@@ -11,7 +12,7 @@ from ..utils.index_dataset import IndexDataset
 from torch_geometric_temporal.signal import StaticGraphTemporalSignalBatch
 
 
-class NO2DatasetLoader(object):
+class NO2DatasetLoader:
     """A dataset for NO2 forecasting across three Dutch cities: Amsterdam, Rotterdam, and Utrecht.
     The underlying graph is static - vertices are cities and edges represent geographical connections.
     Edge weights are the distances between cities. Node features are lagged hourly NO2 measurements and weather variables.
@@ -26,6 +27,9 @@ class NO2DatasetLoader(object):
             Defaults to "no2_dataset_cache.pkl".
         force_reload (bool, optional): If True, recompute the dataset even if cache exists. Defaults to False.
     """
+
+    # Set a version for cache compatibility checks
+    CACHE_VERSION = 1
 
     def __init__(
         self,
@@ -54,46 +58,101 @@ class NO2DatasetLoader(object):
             base_dir = pathlib.Path(__file__).parent.parent.parent.parent
             self.data_dir = base_dir / "data" / "data_gnn"
 
+        # Set up cache directory
+        self.cache_dir = os.path.join(self.data_dir, "cache")
+        os.makedirs(self.cache_dir, exist_ok=True)
+
         self._read_data()
 
         if index:
             self.IndexDataset = IndexDataset
 
-    def _apply_smoothing(self, variables=None):
-        """Apply moving average smoothing to specified variables."""
-        if variables is None:
-            # Only smooth NO2 by default
-            variables = ["NO2"]
+    def _get_cache_path(self, cache_name, params=None):
+        """Generate a standardized cache file path based on parameters.
 
-        print(f"Applying smoothing with window size {self.smooth_window}...")
+        Args:
+            cache_name (str): Base name for the cache file
+            params (dict, optional): Dictionary of parameters to include in the cache key
 
-        # Apply smoothing to each city's data separately
-        for var in variables:
-            for city in self.cities:
-                col_name = f"{city}_{var}"
-                if col_name in self._data.columns:
-                    # Apply moving average smoothing
-                    self._data[col_name] = (
-                        self._data[col_name]
-                        .rolling(window=self.smooth_window, center=True)
-                        .mean()
-                        .fillna(method="bfill")
-                        .fillna(method="ffill")  # Handle edges
-                    )
-                    print(f"Applied smoothing to {col_name}")
+        Returns:
+            str: Full path to the cache file
+        """
+        if not self.cache_file:
+            return None
+
+        # Start with base name
+        filename = cache_name
+
+        # Add parameter hash if provided
+        if params:
+            # Convert params to a string and hash it
+            param_str = str(sorted(params.items()))
+            param_hash = hashlib.md5(param_str.encode()).hexdigest()[:8]
+            filename = f"{filename}_{param_hash}"
+
+        # Add version to prevent using incompatible caches
+        filename = f"{filename}_v{self.CACHE_VERSION}.pkl"
+
+        return os.path.join(self.cache_dir, filename)
+
+    def _load_cache(self, cache_path):
+        """Load data from cache file.
+
+        Args:
+            cache_path (str): Path to the cache file
+
+        Returns:
+            object or None: Cached data if successful, None otherwise
+        """
+        if not cache_path or not os.path.exists(cache_path) or self.force_reload:
+            return None
+
+        try:
+            with open(cache_path, "rb") as f:
+                cache_data = pickle.load(f)
+            print(f"Loaded from cache: {cache_path}")
+            return cache_data
+        except Exception as e:
+            print(f"Failed to load cache ({cache_path}): {e}")
+            return None
+
+    def _save_cache(self, cache_path, data):
+        """Save data to cache file.
+
+        Args:
+            cache_path (str): Path to the cache file
+            data: Data to be cached
+
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        if not cache_path:
+            return False
+
+        try:
+            # Ensure directory exists
+            os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+
+            with open(cache_path, "wb") as f:
+                pickle.dump(data, f)
+            print(f"Saved to cache: {cache_path}")
+            return True
+        except Exception as e:
+            print(f"Failed to save cache ({cache_path}): {e}")
+            return False
 
     def _read_data(self):
         """Read the data from CSV files and combine them for lagged feature approach."""
-        # Check if cached dataset exists
-        if self.cache_file and not self.force_reload:
-            cache_path = os.path.join(self.data_dir, self.cache_file)
-            if os.path.exists(cache_path):
-                print(f"Loading cached dataset from {cache_path}")
-                if self._load_cached_dataset(cache_path):
-                    print("Successfully loaded cached dataset")
-                    return
-                else:
-                    print("Failed to load cached dataset. Processing from scratch.")
+        # Get cache path for raw data
+        cache_path = self._get_cache_path("raw_data")
+
+        # Try to load from cache
+        cache_data = self._load_cache(cache_path)
+        if cache_data is not None:
+            self._data = cache_data["data"]
+            self._data_original = cache_data["data_original"]
+            self.scalers = cache_data["scalers"]
+            return
 
         print("Processing dataset from source files...")
         x_path = os.path.join(self.data_dir, "X.csv")
@@ -109,52 +168,30 @@ class NO2DatasetLoader(object):
         # Apply normalization for each feature across all cities
         self._normalize_data()
 
-        if self.smooth_data:
-            self._apply_smoothing()
         # Save scalers for later denormalization
         self._save_scalers()
 
-        # Save processed dataset to cache if enabled
-        if self.cache_file:
-            cache_path = os.path.join(self.data_dir, self.cache_file)
-            self._save_cached_dataset(cache_path)
+        # Save processed dataset to cache
+        cache_data = {
+            "data": self._data,
+            "data_original": self._data_original,
+            "scalers": self.scalers,
+        }
+        self._save_cache(cache_path, cache_data)
 
-    def _save_cached_dataset(self, cache_path):
-        """Save the processed dataset to disk."""
-        try:
-            cache_dir = os.path.dirname(cache_path)
-            os.makedirs(cache_dir, exist_ok=True)
+    def _save_scalers(self):
+        """Save the MinMaxScaler parameters for later denormalization."""
+        # Create a directory for scalers if it doesn't exist
+        scalers_dir = os.path.join(self.data_dir, "scalers")
+        os.makedirs(scalers_dir, exist_ok=True)
 
-            cache_data = {
-                "data": self._data,
-                "data_original": self._data_original,
-                "scalers": self.scalers,
-            }
+        # Save each scaler
+        for var, scaler in self.scalers.items():
+            scaler_path = os.path.join(scalers_dir, f"{var}_scaler.pkl")
+            with open(scaler_path, "wb") as f:
+                pickle.dump(scaler, f)
 
-            with open(cache_path, "wb") as f:
-                pickle.dump(cache_data, f)
-
-            print(f"Dataset cached to {cache_path}")
-            return True
-        except Exception as e:
-            print(f"Failed to cache dataset: {e}")
-            return False
-
-    def _load_cached_dataset(self, cache_path):
-        """Load the processed dataset from disk."""
-        try:
-            with open(cache_path, "rb") as f:
-                cache_data = pickle.load(f)
-
-            self._data = cache_data["data"]
-            self._data_original = cache_data["data_original"]
-            self.scalers = cache_data["scalers"]
-
-            print("Cached dataset loaded successfully")
-            return True
-        except Exception as e:
-            print(f"Error loading cached dataset: {e}")
-            return False
+        print(f"Saved scalers to {scalers_dir}")
 
     def _normalize_data(self):
         """Normalize the data using MinMaxScaler for all features."""
@@ -374,45 +411,24 @@ class NO2DatasetLoader(object):
     def get_dataset(
         self, lags=24, only_no2=None, sample_size=None, cache=True, cache_suffix=None
     ) -> StaticGraphTemporalSignal:
-        """Return the NO2 forecasting dataset with lagged features.
+        """Return the NO2 forecasting dataset with lagged features."""
+        # Create parameters dictionary for cache key
+        params = {
+            "lags": lags,
+            "only_no2": self.only_no2 if only_no2 is None else only_no2,
+            "sample_size": sample_size,
+            "cache_suffix": cache_suffix,
+        }
 
-        Args:
-            lags (int, optional): The number of time lags. Defaults to 24.
-            only_no2 (bool, optional): If provided, overrides the instance setting for using only NO2 as features.
-            sample_size (int or float, optional): If int, use only that many samples.
-                                                If float between 0-1, use that fraction of data.
-                                                If None, use all data. Defaults to None.
-            cache (bool, optional): Whether to cache the processed dataset. Defaults to True.
-            cache_suffix (str, optional): Suffix to add to the cache filename to differentiate different parameter sets.
-                                          Defaults to None.
-        """
-        # Create a specific cache file for this parameter set if caching is enabled
-        dataset_cache_file = None
-        if cache and self.cache_file:
-            # Include sample_size in the cache filename
-            sample_tag = ""
-            if sample_size is not None:
-                if isinstance(sample_size, float):
-                    sample_tag = f"_s{int(sample_size * 100)}"
-                else:
-                    sample_tag = f"_s{sample_size}"
+        # Get cache path
+        cache_path = self._get_cache_path("dataset", params) if cache else None
 
-            suffix = f"_l{lags}{sample_tag}" + (
-                f"_{cache_suffix}" if cache_suffix else ""
-            )
-            dataset_cache_file = f"dataset{suffix}.pkl"
-            dataset_cache_path = os.path.join(self.data_dir, dataset_cache_file)
+        # Try to load from cache
+        cached_result = self._load_cache(cache_path)
+        if cached_result is not None:
+            return cached_result
 
-            # Try to load cached dataset
-            if os.path.exists(dataset_cache_path):
-                try:
-                    with open(dataset_cache_path, "rb") as f:
-                        cached_result = pickle.load(f)
-                    print(f"Loaded cached dataset from {dataset_cache_path}")
-                    return cached_result
-                except Exception as e:
-                    print(f"Failed to load cached dataset: {e}")
-
+        # Process the dataset if not cached
         self.lags = lags
         if only_no2 is not None:
             self.only_no2 = only_no2
@@ -422,21 +438,16 @@ class NO2DatasetLoader(object):
         # Store sample_size for use in _get_targets_and_features
         self.sample_size = sample_size
 
-        # Now _get_targets_and_features will use the sample_size
+        # Get features and targets
         self._get_targets_and_features()
 
         dataset = StaticGraphTemporalSignal(
             self._edges, self._edge_weights, self.features, self.targets
         )
 
-        # Cache the dataset if requested
-        if cache and dataset_cache_file:
-            try:
-                with open(dataset_cache_path, "wb") as f:
-                    pickle.dump(dataset, f)
-                print(f"Dataset cached to {dataset_cache_path}")
-            except Exception as e:
-                print(f"Failed to cache dataset: {e}")
+        # Cache the result
+        if cache_path:
+            self._save_cache(cache_path, dataset)
 
         return dataset
 
@@ -449,50 +460,25 @@ class NO2DatasetLoader(object):
         cache=True,
         cache_suffix=None,
     ) -> StaticGraphTemporalSignalBatch:
-        """Return batched NO2 forecasting dataset using StaticGraphTemporalSignalBatch.
+        """Return batched NO2 forecasting dataset using StaticGraphTemporalSignalBatch."""
+        # Create parameters dictionary for cache key
+        params = {
+            "lags": lags,
+            "batch_size": batch_size,
+            "only_no2": self.only_no2 if only_no2 is None else only_no2,
+            "sample_size": sample_size,
+            "cache_suffix": cache_suffix,
+        }
 
-        Args:
-            lags (int, optional): The number of time lags. Defaults to 24.
-            batch_size (int, optional): Size of each batch. Defaults to 32.
-            only_no2 (bool, optional): If provided, overrides the instance setting for using only NO2 as features.
-            sample_size (int or float, optional): If int, use only that many samples.
-                                                If float between 0-1, use that fraction of data.
-                                                If None, use all data. Defaults to None.
-            cache (bool, optional): Whether to cache the processed dataset. Defaults to True.
-            cache_suffix (str, optional): Suffix to add to the cache filename. Defaults to None.
+        # Get cache path
+        cache_path = self._get_cache_path("batched_dataset", params) if cache else None
 
-        Returns:
-            StaticGraphTemporalSignalBatch: Batched temporal graph dataset
-        """
-        # Create a specific cache file for this parameter set if caching is enabled
-        batch_cache_file = None
-        if cache and self.cache_file:
-            # Include parameters in the cache filename
-            suffix = f"_l{lags}_b{batch_size}"
-            if sample_size is not None:
-                if isinstance(sample_size, float):
-                    suffix += f"_s{int(sample_size * 100)}"
-                else:
-                    suffix += f"_s{sample_size}"
-            if only_no2:
-                suffix += "_no2only"
-            if cache_suffix:
-                suffix += f"_{cache_suffix}"
+        # Try to load from cache
+        cached_result = self._load_cache(cache_path)
+        if cached_result is not None:
+            return cached_result
 
-            batch_cache_file = f"batched_dataset{suffix}.pkl"
-            batch_cache_path = os.path.join(self.data_dir, batch_cache_file)
-
-            # Try to load cached dataset
-            if os.path.exists(batch_cache_path):
-                try:
-                    with open(batch_cache_path, "rb") as f:
-                        cached_result = pickle.load(f)
-                    print(f"Loaded cached batched dataset from {batch_cache_path}")
-                    return cached_result
-                except Exception as e:
-                    print(f"Failed to load cached batched dataset: {e}")
-
-        # Processing parameters
+        # Process the dataset if not cached
         self.lags = lags
         if only_no2 is not None:
             self.only_no2 = only_no2
@@ -511,8 +497,7 @@ class NO2DatasetLoader(object):
         # Shape: [num_cities]
         batches = np.zeros(num_cities, dtype=np.int64)
 
-        # Create the batched dataset with proper sequencing
-        # We're passing a list of features and targets, where each element represents a timestep
+        # Create the batched dataset
         batched_dataset = StaticGraphTemporalSignalBatch(
             edge_index=self._edges,
             edge_weight=self._edge_weights,
@@ -521,16 +506,72 @@ class NO2DatasetLoader(object):
             batches=batches,  # Each node (city) belongs to the same batch
         )
 
-        # Cache the dataset if requested
-        if cache and batch_cache_file:
-            try:
-                with open(batch_cache_path, "wb") as f:
-                    pickle.dump(batched_dataset, f)
-                print(f"Batched dataset cached to {batch_cache_path}")
-            except Exception as e:
-                print(f"Failed to cache batched dataset: {e}")
+        # Cache the result
+        if cache_path:
+            self._save_cache(cache_path, batched_dataset)
 
         return batched_dataset
+
+    def _split_by_time(self, timestamps, horizon, split_dates=None):
+        """Split data based on specific time points rather than percentages.
+
+        Args:
+            timestamps: Array of timestamps for all data points
+            horizon: Prediction horizon
+            split_dates: Tuple of (train_end, val_end) dates as strings in 'YYYY-MM-DD' format
+                         If None, defaults to splitting the last year as test
+
+        Returns:
+            Tuple of (x_train, x_val, x_test) indices
+        """
+        # Convert timestamps to datetime objects if they're strings
+        if isinstance(timestamps[0], str):
+            timestamps = pd.to_datetime(timestamps)
+
+        # If no split dates provided, use the last year as test data
+        if split_dates is None:
+            # Identify the last full year in the dataset
+            last_date = timestamps[-1]
+            test_start = pd.Timestamp(f"{last_date.year}-01-01")
+
+            # If test_start is before the dataset starts, adjust
+            if test_start < timestamps[0]:
+                test_start = timestamps[0]
+
+            # Find the year before for validation
+            val_start = test_start - pd.DateOffset(months=4)
+
+            # Everything before validation start is training
+            train_end = val_start - pd.DateOffset(days=1)
+            val_end = test_start - pd.DateOffset(days=1)
+        else:
+            train_end, val_end = pd.to_datetime(split_dates)
+            val_start = train_end + pd.DateOffset(days=1)
+            test_start = val_end + pd.DateOffset(days=1)
+
+        # Get indices for each split
+        x_train = np.where(timestamps <= train_end)[0]
+        x_val = np.where((timestamps > train_end) & (timestamps <= val_end))[0]
+        x_test = np.where(timestamps > val_end)[0]
+
+        # Log the split periods
+        print(f"Training period: {timestamps[x_train[0]]} to {timestamps[x_train[-1]]}")
+        print(f"Validation period: {timestamps[x_val[0]]} to {timestamps[x_val[-1]]}")
+        print(f"Test period: {timestamps[x_test[0]]} to {timestamps[x_test[-1]]}")
+
+        # Check that there's enough data in each split
+        for split_name, split_indices in [
+            ("Training", x_train),
+            ("Validation", x_val),
+            ("Test", x_test),
+        ]:
+            if len(split_indices) < horizon:
+                raise ValueError(
+                    f"{split_name} set has {len(split_indices)} samples, "
+                    f"which is less than the horizon {horizon}"
+                )
+
+        return x_train, x_val, x_test
 
     def get_index_dataset(
         self,
@@ -546,70 +587,46 @@ class NO2DatasetLoader(object):
         cache=True,
         cache_suffix=None,
         step_size=24,
+        split_dates=None,
+        use_time_split=False,
     ):
-        """
-        Returns torch dataloaders using index batching for NO2 forecasting dataset.
+        """Returns torch dataloaders using index batching for NO2 forecasting dataset.
 
         Args:
-            lags (int, optional): The number of time lags. Defaults to 24.
-            batch_size (int, optional): Batch size. Defaults to 4.
-            shuffle (bool, optional): If the data should be shuffled. Defaults to False.
-            allGPU (int, optional): GPU device ID for preprocessing. If -1, uses CPU. Defaults to -1.
-            ratio (tuple of float, optional): Train, validation, test split ratios. Defaults to (0.7, 0.1, 0.2).
-            dask_batching (bool, optional): Whether to use dask for lazy loading. Defaults to False.
-            only_no2 (bool, optional): If provided, overrides the instance setting for features.
-            sample_size (int or float, optional): If int, use that many samples.
-                                                 If float between 0-1, use that fraction.
-                                                 If None, use all data. Defaults to None.
-            horizon (int, optional): Prediction horizon. Defaults to None.
-            cache (bool, optional): Whether to cache the processed dataset. Defaults to True.
-            cache_suffix (str, optional): Suffix for cache filename. Defaults to None.
-
-        Returns:
-            Tuple: (train_dataloader, val_dataloader, test_dataloader, edges, edge_weights)
+            # ...existing arguments...
+            split_dates: Tuple of (train_end, val_end) dates as strings in 'YYYY-MM-DD' format
+            use_time_split: If True, split by time periods rather than percentages
         """
-        # Create a specific cache file for this parameter set if caching is enabled
-        self.lags = lags
-        index_dataset_cache_file = None
-        if cache and self.cache_file:
-            suffix = f"_l{lags}_b{batch_size}_r{ratio[0]}-{ratio[1]}-{ratio[2]}"
-            if sample_size:
-                suffix += f"_s{sample_size}"
-            if horizon:
-                suffix += f"_h{horizon}"
-            if cache_suffix:
-                suffix += f"_{cache_suffix}"
+        # Create parameters dictionary for cache key
+        params = {
+            "lags": lags,
+            "batch_size": batch_size,
+            "shuffle": shuffle,
+            "ratio": ratio if not use_time_split else None,
+            "only_no2": self.only_no2 if only_no2 is None else only_no2,
+            "sample_size": sample_size,
+            "horizon": horizon,
+            "cache_suffix": cache_suffix,
+            "step_size": step_size,
+            "split_dates": split_dates,
+            "use_time_split": use_time_split,
+        }
 
-            suffix += "_no2only" if only_no2 else "_allvars"
+        # Get cache path
+        cache_path = self._get_cache_path("index_dataset", params) if cache else None
 
-            if self.smooth_data and cache_suffix:
-                cache_suffix = f"{cache_suffix}_smooth{self.smooth_window}"
-            elif self.smooth_data:
-                suffix = f"smooth{self.smooth_window}"
-
-            index_dataset_cache_file = f"index_dataset{suffix}.pkl"
-            index_dataset_cache_path = os.path.join(
-                self.data_dir, index_dataset_cache_file
-            )
-
-            # Try to load cached index dataset
-            if os.path.exists(index_dataset_cache_path):
-                try:
-                    with open(index_dataset_cache_path, "rb") as f:
-                        train_dl, val_dl, test_dl, edges, edge_weights = pickle.load(f)
-                    print(
-                        f"Loaded cached index dataset from {index_dataset_cache_path}"
-                    )
-                    return train_dl, val_dl, test_dl, edges, edge_weights
-                except Exception as e:
-                    print(f"Failed to load cached index dataset: {e}")
+        # Try to load from cache
+        cached_result = self._load_cache(cache_path)
+        if cached_result is not None:
+            return cached_result
 
         if not self.index:
             raise ValueError(
                 "get_index_dataset requires 'index=True' in the constructor."
             )
 
-        # Define which variables to include
+        # Set parameters for data processing
+        self.lags = lags
         if only_no2 is not None:
             self.only_no2 = only_no2
 
@@ -709,33 +726,116 @@ class NO2DatasetLoader(object):
         edges = torch.tensor(self._edges, dtype=torch.int64)
         edge_weights = torch.tensor(self._edge_weights, dtype=torch.float)
 
+        # Get timestamps
+        if has_city_prefix:
+            # Store the corresponding timestamps
+            timestamps = (
+                self._data.index.values
+                if self._data.index.name == "DateTime"
+                else self._data["DateTime"].values
+            )
+        else:
+            # Get unique datetimes that were used in the data
+            timestamps = np.array(unique_datetimes)
+
         # Now create indices for train/val/test split
-        # Note: x_i should account for lags and horizon
-        print("x_i lags", lags)
         x_i = np.arange(0, num_samples - lags - horizon, step=step_size)
 
-        # Recalculate number of samples after adjustments
-        num_samples = x_i.shape[0]
+        # Split based on time or percentages
+        if use_time_split:
+            # First filter x_i to only include valid indices for the horizon
+            valid_timestamps = timestamps[x_i]
+            x_train, x_val, x_test = self._split_by_time(
+                valid_timestamps, horizon, split_dates
+            )
 
-        # Recalculate split sizes
-        num_train = round(num_samples * ratio[0])
-        num_val = round(num_samples * ratio[1])
-        num_test = num_samples - num_train - num_val
+            # Map back to original indices
+            x_train = x_i[x_train]
+            x_val = x_i[x_val]
+            x_test = x_i[x_test]
+        else:
+            # Use the original percentage-based split
+            # Recalculate number of samples after adjustments
+            num_samples = x_i.shape[0]
 
-        # Split indices
-        x_train = x_i[:num_train]
-        x_val = x_i[num_train : num_train + num_val]
-        x_test = x_i[-num_test:]
+            # Recalculate split sizes
+            num_train = round(num_samples * ratio[0])
+            num_val = round(num_samples * ratio[1])
+            num_test = num_samples - num_train - num_val
 
-        # Create datasets
-        train_dataset = self.IndexDataset(
-            x_train,
-            data,
-            horizon,
-            gpu=(allGPU != -1),
-            lazy=dask_batching,
-            lags=self.lags,
-        )
+            # Split indices
+            x_train = x_i[:num_train]
+            x_val = x_i[num_train : num_train + num_val]
+            x_test = x_i[-num_test:]
+
+        # After splitting indices, also keep track of the corresponding dates
+        train_dates = timestamps[x_train]
+        val_dates = timestamps[x_val]
+        test_dates = timestamps[x_test]
+
+        print(f"Training period: {train_dates[0]} to {train_dates[-1]}")
+        print(f"Validation period: {val_dates[0]} to {val_dates[-1]}")
+        print(f"Test period: {test_dates[0]} to {test_dates[-1]}")
+
+        # If smoothing is enabled, apply it only to training data
+        if self.smooth_data:
+            print("Applying smoothing to training data...")
+            # Create a copy of the data for smoothing to avoid modifying the original
+            train_data = data.copy()
+
+            # Apply smoothing only to training indices
+            # For each variable and city, apply smoothing
+            if has_city_prefix:
+                variables = (
+                    ["NO2"]
+                    if self.only_no2
+                    else ["NO2", "P", "SQ", "WD", "Wvh", "dewP", "temp"]
+                )
+
+                for var in variables:
+                    for city_idx, city in enumerate(self.cities):
+                        col_name = f"{city}_{var}"
+                        if col_name in self._data.columns:
+                            # Extract only the training portion
+                            train_indices = set(x_train)
+
+                            # Apply moving average to just the training data
+                            smooth_values = (
+                                pd.Series(train_data[train_indices, city_idx])
+                                .rolling(window=self.smooth_window, center=True)
+                                .mean()
+                                .fillna(method="bfill")
+                                .fillna(method="ffill")
+                            )
+
+                            # Update only the training indices
+                            for i, idx in enumerate(sorted(train_indices)):
+                                train_data[idx, city_idx] = smooth_values[i]
+
+                            print(
+                                f"Applied smoothing to {col_name} (training data only)"
+                            )
+
+            # Use smoothed data only for training
+            train_dataset = self.IndexDataset(
+                x_train,
+                train_data,  # Smoothed data
+                horizon,
+                gpu=(allGPU != -1),
+                lazy=dask_batching,
+                lags=self.lags,
+            )
+        else:
+            train_dataset = self.IndexDataset(
+                x_train,
+                data,  # Original data
+                horizon,
+                gpu=(allGPU != -1),
+                lazy=dask_batching,
+                lags=self.lags,
+            )
+
+        # Use original data for validation and test
         val_dataset = self.IndexDataset(
             x_val, data, horizon, gpu=(allGPU != -1), lazy=dask_batching, lags=self.lags
         )
@@ -763,12 +863,9 @@ class NO2DatasetLoader(object):
             edges,
             edge_weights,
         )
-        if cache and index_dataset_cache_file:
-            try:
-                with open(index_dataset_cache_path, "wb") as f:
-                    pickle.dump(result, f)
-                print(f"Index dataset cached to {index_dataset_cache_path}")
-            except Exception as e:
-                print(f"Failed to cache index dataset: {e}")
+
+        # Cache the result
+        if cache_path:
+            self._save_cache(cache_path, result)
 
         return result

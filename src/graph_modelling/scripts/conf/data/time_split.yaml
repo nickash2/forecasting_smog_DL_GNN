@@ -1,0 +1,11 @@
+# Configuration for time-based data splitting
+use_time_split: true
+split_dates: ["2021-12-31", "2022-12-31"]  # Train ends 2021-12-31, Val ends 2022-12-31, Test is 2023
+only_no2: ${data.only_no2}  # Inherit from parent config
+force_reload: ${data.force_reload}  # Inherit from parent config
+cache_file: ${data.cache_file}  # Inherit from parent config
+shuffle: ${data.shuffle}  # Inherit from parent config
+sample_size: ${data.sample_size}  # Inherit from parent config
+smooth_data: ${data.smooth_data}  # Inherit from parent config
+smooth_window: ${data.smooth_window}  # Inherit from parent config
+ratio: ${data.ratio}  # Inherited but not used when use_time_split is true

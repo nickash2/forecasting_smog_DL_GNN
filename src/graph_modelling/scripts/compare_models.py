@@ -78,6 +78,20 @@ def run_experiment(cfg: DictConfig) -> float:
     log.info(
         f"Loading dataset with lags={cfg.training.n_lags}, horizon={cfg.training.n_horizon}..."
     )
+
+    # Check if time-based splitting is enabled
+    use_time_split = cfg.data.get("use_time_split", False)
+    split_dates = None
+
+    if use_time_split:
+        # If specific dates are provided, use them
+        if hasattr(cfg.data, "split_dates") and cfg.data.split_dates:
+            split_dates = tuple(cfg.data.split_dates)
+            log.info(f"Using time-based split with dates: {split_dates}")
+        else:
+            # Default to using the last year as test, the year before as validation
+            log.info("Using time-based split with default yearly boundaries")
+
     train_loader, val_loader, test_loader, edges, edge_weights = (
         loader.get_index_dataset(
             lags=cfg.training.n_lags,
@@ -90,8 +104,11 @@ def run_experiment(cfg: DictConfig) -> float:
             horizon=cfg.training.n_horizon,
             cache=True,
             step_size=cfg.training.n_step,
+            use_time_split=use_time_split,
+            split_dates=split_dates,
         )
     )
+
     log.info(
         f"Train batches: {len(train_loader)}, Val batches: {len(val_loader)}, Test batches: {len(test_loader)}"
     )

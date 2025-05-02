@@ -17,7 +17,9 @@ data:
   shuffle: True
   ratio: [0.7, 0.15, 0.15] # train, val, test split
   smooth_data: False
-  smooth_window: 5
+  smooth_window: 12
+  use_time_split: true  # Set to true to use time-based splitting
+  split_dates: ["2021-12-31", "2022-12-31"]  # Train ends 2021-12-31, Val ends 2022-12-31, Test is 2023
 
 # --- Training Parameters ---
 training:
