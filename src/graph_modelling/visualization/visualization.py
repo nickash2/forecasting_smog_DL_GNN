@@ -259,7 +259,7 @@ def plot_predictions(
                     y=city_preds,
                     mode="lines",
                     name=f"Predicted ({city_name})",
-                    line=dict(color="red", dash="dash"),
+                    line=dict(color="black"),
                     legendgroup=city_name,
                 ),
                 row=i + 1,
@@ -329,10 +329,11 @@ def plot_predictions(
             # Get metrics for this city
             rmse = city_metrics[city_name]["RMSE"]
             mae = city_metrics[city_name]["MAE"]
+            smape = city_metrics[city_name]["SMAPE"]
 
             # Plot the data
             axes[i].plot(time_steps, city_targets, "b-", label="Actual")
-            axes[i].plot(time_steps, city_preds, "r--", label="Predicted")
+            axes[i].plot(time_steps, city_preds, "k-", label="Predicted")
             axes[i].set_title(f"NO2 Predictions for {city_name}")
             axes[i].set_xlabel("Time (hours)")
             axes[i].set_ylabel("NO2 (μg/m³)")
@@ -343,7 +344,7 @@ def plot_predictions(
             axes[i].text(
                 0.02,
                 0.92,
-                f"RMSE: {rmse:.2f} μg/m³\nMAE: {mae:.2f} μg/m³",
+                f"RMSE: {rmse:.2f} μg/m³\nMAE: {mae:.2f} μg/m³\nSMAPE: {smape:.2f}%",
                 transform=axes[i].transAxes,
                 bbox=dict(facecolor="white", alpha=0.7),
             )
@@ -359,7 +360,6 @@ def plot_predictions(
         )
         plt.close()
 
-    # Save metrics to JSON file code remains the same
     if save_metrics:
         # Calculate overall metrics
         overall_mse = np.mean((predictions - targets) ** 2)
@@ -399,29 +399,44 @@ def plot_predictions(
             # Create header if file doesn't exist
             if not log_file.exists():
                 with open(log_file, "w") as f:
-                    header = "timestamp,model_name,overall_rmse,overall_mae"
+                    header = "timestamp,model_name,overall_rmse"
                     for city in city_names:
                         header += f",{city}_rmse"
-                    # Add energy metrics columns to header
+                    # Add SMAPE columns for each city
+                    for city in city_names:
+                        header += f",{city}_smape"
+                    # Add all energy and time metrics including standard deviations
                     header += (
-                        ",inference_time_s,inference_energy_kWh,training_energy_kWh"
+                        ",inference_time_s,inference_time_std_s,inference_runs,"
+                        "inference_energy_kWh,inference_energy_std_kWh,"
+                        "inference_emissions_gCO2,inference_emissions_std_gCO2,"
+                        "training_energy_kWh,training_co2_kg"
                     )
-                    # Add new CO2 and GPU metrics
-                    header += ",training_co2_kg,inference_co2_kg"
                     f.write(header + "\n")
 
             # Append metrics to log file (outside the header check)
             with open(log_file, "a") as f:
-                line = f"{TIMESTAMP},{model_name},{overall_rmse:.4f},"
-                for city in city_names:
+                line = f"{TIMESTAMP},{model_name},{overall_rmse:.4f}"
+
+                # Fixed order that matches the header
+                header_city_order = ["Amsterdam", "Utrecht", "Rotterdam"]
+                for city in header_city_order:
                     if city in city_metrics:
                         line += f",{city_metrics[city]['RMSE']:.4f}"
+
                     else:
                         line += ",NA"
 
-                # Add energy metrics if available, rounded to 4 decimal places
+                for city in header_city_order:
+                    if city in city_metrics:
+                        line += f",{city_metrics[city]['SMAPE']:.4f}"
+
+                    else:
+                        line += ",NA"
+
+                # Add energy metrics if available, rounded to 4 significant digits
                 if energy_metrics:
-                    # Format existing energy metrics
+                    # Format time metrics
                     inference_time = energy_metrics.get("inference_time_s")
                     inference_time_str = (
                         f"{inference_time:.4g}"
@@ -429,10 +444,51 @@ def plot_predictions(
                         else "NA"
                     )
 
+                    inference_time_std = energy_metrics.get("inference_time_std_s")
+                    inference_time_std_str = (
+                        f"{inference_time_std:.4g}"
+                        if isinstance(inference_time_std, (float, int))
+                        else "NA"
+                    )
+
+                    inference_runs = energy_metrics.get("inference_runs")
+                    inference_runs_str = (
+                        f"{inference_runs}"
+                        if isinstance(inference_runs, (float, int))
+                        else "NA"
+                    )
+
+                    # Format energy metrics
                     inference_energy = energy_metrics.get("inference_energy_kWh")
                     inference_energy_str = (
                         f"{inference_energy:.4g}"
                         if isinstance(inference_energy, (float, int))
+                        else "NA"
+                    )
+
+                    inference_energy_std = energy_metrics.get(
+                        "inference_energy_std_kWh"
+                    )
+                    inference_energy_std_str = (
+                        f"{inference_energy_std:.4g}"
+                        if isinstance(inference_energy_std, (float, int))
+                        else "NA"
+                    )
+
+                    # Format emissions metrics
+                    inference_emissions = energy_metrics.get("inference_emissions_gCO2")
+                    inference_emissions_str = (
+                        f"{inference_emissions:.4g}"
+                        if isinstance(inference_emissions, (float, int))
+                        else "NA"
+                    )
+
+                    inference_emissions_std = energy_metrics.get(
+                        "inference_emissions_std_gCO2"
+                    )
+                    inference_emissions_std_str = (
+                        f"{inference_emissions_std:.4g}"
+                        if isinstance(inference_emissions_std, (float, int))
                         else "NA"
                     )
 
@@ -443,7 +499,6 @@ def plot_predictions(
                         else "NA"
                     )
 
-                    # Format new CO2 and GPU metrics
                     training_co2 = energy_metrics.get("training_emissions_gCO2")
                     training_co2_str = (
                         f"{training_co2:.4g}"
@@ -451,17 +506,16 @@ def plot_predictions(
                         else "NA"
                     )
 
-                    inference_co2 = energy_metrics.get("inference_emissions_gCO2")
-                    inference_co2_str = (
-                        f"{inference_co2:.4g}"
-                        if isinstance(inference_co2, (float, int))
-                        else "NA"
+                    # Add all metrics to the CSV line
+                    line += (
+                        f",{inference_time_str},{inference_time_std_str},{inference_runs_str},"
+                        f"{inference_energy_str},{inference_energy_std_str},"
+                        f"{inference_emissions_str},{inference_emissions_std_str},"
+                        f"{training_energy_str},{training_co2_str}"
                     )
-
-                    line += f",{inference_time_str},{inference_energy_str},{training_energy_str}"
-                    line += f",{training_co2_str},{inference_co2_str},"
                 else:
-                    line += ",NA,NA,NA,NA,NA"  # Add NA for all missing metrics
+                    # Add NA for all missing metrics (8 new columns)
+                    line += ",NA,NA,NA,NA,NA,NA,NA,NA,NA"
 
                 f.write(line + "\n")
 

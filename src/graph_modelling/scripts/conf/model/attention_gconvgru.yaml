@@ -1,6 +1,0 @@
-_target_: src.graph_modelling.models.batched_gconvgru_atn.AttentionGConvGRU
-attention_mlp_hidden: 16
-K: 1
-
-# Inherits K, hidden_channels
-# Needs: num_nodes, num_vars, lags, horizon (passed dynamically)

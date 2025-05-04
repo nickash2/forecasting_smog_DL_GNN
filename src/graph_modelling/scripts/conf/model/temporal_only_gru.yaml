@@ -2,5 +2,4 @@ _target_: src.graph_modelling.models.temporalonlygnn.SimpleChebGRU
 hidden_channels: 32
 gru_layers: 1
 dropout: 0.2
-# num_cheb_layers: 1
 

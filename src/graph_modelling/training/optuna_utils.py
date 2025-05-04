@@ -79,28 +79,35 @@ def define_model_param_space(trial, model_name: str) -> Dict[str, Any]:
         params.update(
             {
                 "hidden_channels": trial.suggest_int("hidden_channels", 8, 32, step=8),
+                "num_layers": trial.suggest_int("num_layers", 1, 2),
             }
         )
 
     elif "temporal_only_gru" in model_name.lower():
         params.update(
             {
-                "hidden_channels": trial.suggest_int("hidden_channels", 8, 128, step=8),
+                "hidden_channels": trial.suggest_int("hidden_channels", 8, 64, step=8),
+                "gru_layers": trial.suggest_int("gru_layers", 1, 2),
+                "dropout": trial.suggest_float("dropout", 0.0, 0.5),
             }
         )
 
-    elif "spatiotemporalattn" in model_name.lower():
+    elif "astgcn_like" in model_name.lower():
         params.update(
             {
-                "hidden_channels": trial.suggest_int("hidden_channels", 8, 128, step=8),
-                "heads": trial.suggest_int("heads", 1, 4),
+                "block_channels": trial.suggest_int("block_channels", 8, 64, step=8),
+                "gru_channels": trial.suggest_int("gru_channels", 8, 64, step=8),
+                "K": 1,
+                "num_blocks": trial.suggest_int("num_blocks", 1, 3),
             }
         )
 
-    elif "temporal_only_gru_tempatn" in model_name.lower():
+    elif "astgcn" in model_name.lower():
         params.update(
             {
-                "hidden_channels": trial.suggest_int("hidden_channels", 8, 128, step=8),
+                "timesteps": 72,
+                "block_channels": trial.suggest_int("block_channels", 8, 64, step=8),
+                "num_blocks": trial.suggest_int("num_blocks", 1, 3),
             }
         )
 
@@ -119,6 +126,7 @@ def create_objective(
     base_cfg: Dict[str, Any],
     output_dir: Path,
     n_epochs: int = 150,
+    lambda_max=None,
 ):
     """
     Create an objective function for Optuna optimization.
@@ -184,7 +192,10 @@ def create_objective(
                     optimizer.zero_grad()
 
                     y_hat = model(
-                        x_batch, edge_index.to(device), edge_weight.to(device)
+                        x_batch,
+                        edge_index.to(device),
+                        edge_weight.to(device),
+                        lambda_max,
                     )
 
                     # Handle target shape differences
@@ -214,7 +225,10 @@ def create_objective(
                             y_batch.to(device).float(),
                         )
                         y_hat = model(
-                            x_batch, edge_index.to(device), edge_weight.to(device)
+                            x_batch,
+                            edge_index.to(device),
+                            edge_weight.to(device),
+                            lambda_max,
                         )
 
                         # Handle target shape differences
@@ -276,6 +290,7 @@ def create_objective(
                 edge_index=edge_index.to(device),
                 edge_weight=edge_weight.to(device),
                 device=device,
+                lambda_max=lambda_max,
             )
 
             # Save rmse values to optuna

@@ -15,8 +15,9 @@ def train_model_index(
     epochs=50,
     patience=5,
     writer=None,
-    learning_rate=1e-4,
+    learning_rate=1e-5,
     weight_decay=1e-6,
+    lambda_max=None,
 ):
     """
     Train model using index-based dataloaders
@@ -49,7 +50,6 @@ def train_model_index(
         model.train()
         train_losses = []
 
-        # Training loop with progress bar
         train_pbar = tqdm(train_loader, desc=f"Train Epoch {epoch}")
         for x_batch, y_batch in train_pbar:
             # Move data to device
@@ -58,7 +58,7 @@ def train_model_index(
             edge_index, edge_weight = edge_index.to(device), edge_weight.to(device)
 
             optimizer.zero_grad()
-            y_hat = model(x_batch, edge_index, edge_weight)
+            y_hat = model(x_batch, edge_index, edge_weight, lambda_max=lambda_max)
 
             # Extract only NO2 values as targets when using all variables
             if y_batch.shape[2] != y_hat.shape[2]:
@@ -88,7 +88,7 @@ def train_model_index(
 
         # Validation phase
         val_loss = validate_model(
-            model, val_loader, criterion, device, edge_index, edge_weight
+            model, val_loader, criterion, device, edge_index, edge_weight, lambda_max
         )
         # Update learning rate scheduler
         if scheduler is not None:
@@ -127,7 +127,9 @@ def train_model_index(
     return model, history
 
 
-def validate_model(model, val_loader, criterion, device, edge_index, edge_weight):
+def validate_model(
+    model, val_loader, criterion, device, edge_index, edge_weight, lambda_max
+):
     """Run validation and return average loss"""
     model.eval()
     val_losses = []
@@ -137,7 +139,7 @@ def validate_model(model, val_loader, criterion, device, edge_index, edge_weight
         for x_batch, y_batch in val_loader:
             x_batch, y_batch = x_batch.to(device).float(), y_batch.to(device).float()
 
-            y_hat = model(x_batch, edge_index, edge_weight)
+            y_hat = model(x_batch, edge_index, edge_weight, lambda_max=lambda_max)
 
             if y_batch.shape[2] != y_hat.shape[2]:
                 # Reshape to get just NO2 values for each node
@@ -163,6 +165,7 @@ def evaluate_index(
     device,
     loader=None,
     cities=["amsterdam", "rotterdam", "utrecht"],
+    lambda_max=None,
 ):
     model.eval()
     edge_index, edge_weight = edge_index.to(device), edge_weight.to(device)
@@ -175,7 +178,7 @@ def evaluate_index(
         for x_batch, y_batch in test_loader:
             x_batch, y_batch = x_batch.to(device).float(), y_batch.to(device).float()
 
-            y_hat = model(x_batch, edge_index, edge_weight)
+            y_hat = model(x_batch, edge_index, edge_weight, lambda_max=lambda_max)
 
             if y_batch.shape[2] != y_hat.shape[2]:
                 B, H, NF = y_batch.shape
@@ -210,10 +213,6 @@ def evaluate_index(
 
             print(f"Test MSE (unscaled): {unscaled_mse:.4f}")
             print(f"Test RMSE (unscaled): {unscaled_rmse:.4f} μg/m³")
-
-            if cities is not None:
-                plot_predictions(unscaled_preds, unscaled_targets, city_names=cities)
-                print("Prediction plots saved to results directory")
 
         except Exception as e:
             print(f"Error during denormalization or plotting: {e}")

@@ -1,4 +1,0 @@
-timestamp,model_name,overall_rmse,overall_mae,Amsterdam_rmse,Rotterdam_rmse,Utrecht_rmse,inference_time_s,inference_energy_kWh,training_energy_kWh,training_co2_kg,inference_co2_kg
-20250503-174211,SimpleChebGRU_all_vars,6.4960,,6.6212,7.2007,5.5589,6.505,NA,NA,NA,NA
-20250503-205655,AttentionChebGRU_all_vars,6.6142,,6.7152,7.6660,5.2327,6.419,1.194e-05,0.01228,0.003287,3.195e-06,
-20250503-212114,ASTGCN_Like_all_vars,5.6277,,6.0170,5.7379,5.0878,7.912,3.431e-05,0.01876,0.005022,9.183e-06,

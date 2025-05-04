@@ -13,6 +13,8 @@ import numpy as np
 import optuna
 from tqdm.auto import tqdm
 import sqlite3
+from codecarbon import EmissionsTracker
+import time
 
 # --- Add project root to sys.path ---
 BASE_DIR = Path.cwd()
@@ -75,6 +77,7 @@ def run_experiment(cfg: DictConfig) -> float:
         only_no2=cfg.data.only_no2,
         force_reload=cfg.data.force_reload,
         cache_file=str(cache_path),
+        logger=log,
     )
 
     # Set all random seeds
@@ -94,7 +97,7 @@ def run_experiment(cfg: DictConfig) -> float:
     log.info(
         f"Loading dataset with lags={cfg.training.n_lags}, horizon={cfg.training.n_horizon}..."
     )
-    train_loader, val_loader, test_loader, edges, edge_weights = (
+    train_loader, val_loader, test_loader, edges, edge_weights, lambda_max = (
         loader.get_index_dataset(
             lags=cfg.training.n_lags,
             batch_size=cfg.training.batch_size,
@@ -215,6 +218,7 @@ def run_experiment(cfg: DictConfig) -> float:
                 base_cfg=base_config,
                 output_dir=optuna_dir,
                 n_epochs=cfg.training.n_epochs,
+                lambda_max=lambda_max,
             )
 
             log.info(f"Running {cfg.optuna.n_trials} trials for {friendly_model_name}")
@@ -257,8 +261,8 @@ def run_experiment(cfg: DictConfig) -> float:
             # Load best parameters from existing study database
             try:
                 # Path to the existing database
-                db_path = BASE_DIR / "no2_models_optuna_4hrs.db"
-                storage_path = f"sqlite:///{db_path}"
+                db_path = BASE_DIR / cfg.optuna.storage
+                storage_path = cfg.optuna.storage
 
                 # Import sqlite3 for direct database query
                 import sqlite3
@@ -329,7 +333,7 @@ def run_experiment(cfg: DictConfig) -> float:
 
     # Extract learning rate and weight decay - use values from study if available,
     # otherwise fall back to config
-    learning_rate = study.best_params.get("lr")
+    learning_rate = study.best_params.get("lr", cfg.training.get("learning_rate"))
     weight_decay = study.best_params.get(
         "weight_decay", cfg.training.get("weight_decay")
     )
@@ -339,21 +343,24 @@ def run_experiment(cfg: DictConfig) -> float:
     )
 
     try:
-        model, history = train_model_index(
-            model=model,
-            train_loader=train_loader,
-            val_loader=val_loader,
-            edge_index=edges.long().to(device),  # Ensure long dtype
-            edge_weight=edge_weights.float().to(device)
-            if edge_weights is not None
-            else None,  # Ensure float dtype
-            device=device,
-            epochs=cfg.training.n_epochs,
-            patience=cfg.training.patience,
-            writer=writer,
-            learning_rate=learning_rate,
-            weight_decay=weight_decay,
-        )
+        with EmissionsTracker(log_level="error") as train_tracker:
+            model, history = train_model_index(
+                model=model,
+                train_loader=train_loader,
+                val_loader=val_loader,
+                edge_index=edges.long().to(device),  # Ensure long dtype
+                edge_weight=edge_weights.float().to(device)
+                if edge_weights is not None
+                else None,  # Ensure float dtype
+                device=device,
+                epochs=cfg.training.n_epochs,
+                patience=cfg.training.patience,
+                writer=writer,
+                learning_rate=learning_rate,
+                weight_decay=weight_decay,
+                lambda_max=lambda_max,
+            )
+
         # Save training history
         history_path = output_dir / cfg.paths.history_save_name
         with open(history_path, "w") as f:
@@ -377,24 +384,82 @@ def run_experiment(cfg: DictConfig) -> float:
         writer.close()
 
     # --- Evaluation ---
-    log.info(f"Starting evaluation for {friendly_model_name}...")
     city_names = ["Amsterdam", "Rotterdam", "Utrecht"]
 
-    test_loss, predictions, targets = evaluate_index(
-        model=model,
-        test_loader=test_loader,
-        edge_index=edges.to(device),
-        edge_weight=edge_weights.to(device) if edge_weights is not None else None,
-        device=device,
-        loader=loader,
-        cities=city_names,
-    )
-    log.info(f"Test Loss for {friendly_model_name}: {test_loss:.4f}")
+    # Run multiple evaluations for timing and energy statistics
+    n_eval_runs = cfg.optuna.n_eval_runs
+    inference_times = []
+    inference_energies = []
+    inference_emissions = []
 
-    # Calculate additional metrics
-    mse = test_loss  # Already MSE
+    # Store first run results for visualization
+    first_predictions = None
+    first_targets = None
+    first_test_loss = None
+    log.info(f"Starting evaluation for {friendly_model_name} for {n_eval_runs} runs...")
+
+    for run in range(n_eval_runs):
+        with EmissionsTracker(log_level="error") as run_tracker:
+            start_time = time.time()
+            test_loss, predictions, targets = evaluate_index(
+                model=model,
+                test_loader=test_loader,
+                edge_index=edges.to(device),
+                edge_weight=edge_weights.to(device)
+                if edge_weights is not None
+                else None,
+                device=device,
+                loader=loader,
+                cities=city_names,
+                lambda_max=lambda_max,
+            )
+            end_time = time.time()
+
+        # Store timing and energy data
+        run_time = end_time - start_time
+        inference_times.append(run_time)
+        inference_energies.append(run_tracker.final_emissions_data.energy_consumed)
+        inference_emissions.append(run_tracker.final_emissions_data.emissions)
+
+        # Store first run results for metrics and visualization
+        if run == 0:
+            first_predictions = predictions
+            first_targets = targets
+            first_test_loss = test_loss
+
+    # Calculate statistics
+    inference_time_mean = np.mean(inference_times)
+    inference_time_std = np.std(inference_times)
+    inference_energy_mean = np.mean(inference_energies)
+    inference_energy_std = np.std(inference_energies)
+    inference_emissions_mean = np.mean(inference_emissions)
+    inference_emissions_std = np.std(inference_emissions)
+
+    log.info(f"Test Loss for {friendly_model_name}: {first_test_loss:.4f}")
+    log.info(
+        f"Inference time: {inference_time_mean:.4f}s ± {inference_time_std:.4f}s (over {n_eval_runs} runs)"
+    )
+    log.info(
+        f"Inference energy: {inference_energy_mean:.6f}kWh ± {inference_energy_std:.6f}kWh"
+    )
+
+    # Calculate additional metrics using first run results
+    mse = first_test_loss
     rmse = np.sqrt(mse)
-    mae = np.mean(np.abs(predictions - targets))
+    mae = np.mean(np.abs(first_predictions - first_targets))
+
+    # Fix the metrics dictionary with the new statistics
+    metrics = {
+        "inference_time_s": inference_time_mean,
+        "inference_time_std_s": inference_time_std,
+        "inference_runs": n_eval_runs,
+        "inference_energy_kWh": inference_energy_mean,
+        "inference_energy_std_kWh": inference_energy_std,
+        "inference_emissions_gCO2": inference_emissions_mean,
+        "inference_emissions_std_gCO2": inference_emissions_std,
+        "training_energy_kWh": None,
+        "training_emissions_gCO2": None,
+    }
 
     log.info(
         f"Test metrics for {friendly_model_name} - MSE: {mse:.4f}, RMSE: {rmse:.4f}, MAE: {mae:.4f}"
@@ -404,8 +469,8 @@ def run_experiment(cfg: DictConfig) -> float:
     if hasattr(loader, "denormalize_no2"):
         try:
             # Try to denormalize if the loader supports it
-            predictions_orig = loader.denormalize_no2(predictions)
-            targets_orig = loader.denormalize_no2(targets)
+            predictions_orig = loader.denormalize_no2(first_predictions)
+            targets_orig = loader.denormalize_no2(first_targets)
             log.info("Successfully denormalized predictions and targets")
 
             # Use visualization module's plot_predictions with model name
@@ -416,6 +481,8 @@ def run_experiment(cfg: DictConfig) -> float:
                 model_name=friendly_model_name,
                 save_metrics=True,
                 use_plotly=True,
+                energy_metrics=metrics,
+                BASE_DIR=BASE_DIR,
             )
 
             if plot_metrics:

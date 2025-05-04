@@ -2,3 +2,4 @@ __pycache__/
 .pkl
 .env.*
 multirun
+comparison_results

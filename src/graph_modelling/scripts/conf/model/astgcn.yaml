@@ -1,6 +1,4 @@
 _target_: src.graph_modelling.models.astgcn.ASTGCN
-num_nodes: 3
-num_vars: 7
 timesteps: 72
 K: 1
 num_blocks: 1

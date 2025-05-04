@@ -1,5 +1,0 @@
-_target_: src.graph_modelling.models.batched_gconvgru.BatchedGConvGRUIndex
-# Inherits K, hidden_channels from config.yaml unless overridden here
-# Needs: num_nodes, num_vars, lags, horizon (passed dynamically)
-K: 1
-hidden_channels: 8 

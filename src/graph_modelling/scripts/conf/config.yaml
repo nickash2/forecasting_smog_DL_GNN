@@ -1,8 +1,8 @@
 defaults:
-  - data: no2_only          # Default data setting
+  - data: all_vars          # Default data setting
   - model: spatial_only_gcn # Default model
   - _self_
-  # - override hydra/launcher: submitit_slurm
+  - override hydra/launcher: submitit_slurm
 
 # --- General Experiment Settings ---
 seed: 34
@@ -16,10 +16,9 @@ data:
   sample_size: 1.0
   shuffle: True
   ratio: [0.7, 0.15, 0.15] # train, val, test split
-  smooth_data: False
-  smooth_window: 12
   use_time_split: true  # Set to true to use time-based splitting
-  split_dates: ["2021-12-31", "2022-12-31"]  # Train ends 2021-12-31, Val ends 2022-12-31, Test is 2023
+  split_dates: null
+  target_offset: 49 # N_HOURS_IN - N_HOURS_OUT + 1
 
 # --- Training Parameters ---
 training:
@@ -28,9 +27,11 @@ training:
   batch_size: 16
   n_step: 24
   n_epochs: 1000
-  patience: 15
+  patience: 10
   skip_training: false
-  load_model_path: "/home/nick/bachelor-project/third-copy/comparison_results/2025-05-03/17-13-58/chebconvgru.pt"
+  load_model_path: null
+  learning_rate: 0.0001
+  weight_decay: 0.0001
 track_energy: true
 
 # --- Optuna Hyperparameter Optimization ---
@@ -41,8 +42,8 @@ optuna:
   n_trials: 100
   timeout: 21600  # 6 hours in seconds
   direction: "minimize"  # minimize validation loss
+  n_eval_runs: 5
 
-# --- Model Base Parameters (Specifics in model/*.yaml) ---
 
 # --- Paths (relative to base_dir or hydra output) ---
 paths:
@@ -60,10 +61,10 @@ hydra:
   sweep:
     dir: ${base_dir}/${results_subdir}/multirun/${now:%Y-%m-%d_%H-%M-%S}
     subdir: ${hydra.job.num}_${hydra.job.override_dirname}
-  # launcher:
-  #   partition: gpu        # change to your GPU partition
-  #   gpus_per_node: 1      # GPUs per job
-  #   cpus_per_task: 4      # CPUs per job
-  #   tasks_per_node: 1
-  #   nodes: 1            # nodes per job
-  #   timeout_min: 420 # 7 hrs      # timeout in minutes
+  launcher:
+    partition: gpu        # change to your GPU partition
+    gpus_per_node: 1      # GPUs per job
+    cpus_per_task: 4      # CPUs per job
+    tasks_per_node: 1
+    nodes: 1            # nodes per job
+    timeout_min: 420 # 7 hrs      # timeout in minutes

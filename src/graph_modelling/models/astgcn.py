@@ -17,8 +17,6 @@ class ASTGCN(nn.Module):
         num_blocks,
         horizon,
         block_channels,
-        daily_span=24,
-        weekly_span=24 * 7,
     ):
         super().__init__()
         self.num_nodes = num_nodes
@@ -39,7 +37,7 @@ class ASTGCN(nn.Module):
             normalization="sym",
         )
 
-    def forward(self, x, edge_index=None, edge_weight=None, lambda_=None):
+    def forward(self, x, edge_index=None, edge_weight=None, lambda_max=None):
         """
         Args:
             x: Input data of shape (B, T, N*F) where B is batch size, T is timesteps,

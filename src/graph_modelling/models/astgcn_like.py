@@ -97,7 +97,14 @@ class TemporalAttentionLayer(nn.Module):
 class SpatioTemporalBlock(nn.Module):
     """Combines spatial attention, GCN, temporal attention, and TCN (GRU)."""
 
-    def __init__(self, num_nodes, in_channels, hidden_channels, K, gru_hidden_channels):
+    def __init__(
+        self,
+        num_nodes,
+        in_channels,
+        hidden_channels,
+        K,
+        gru_hidden_channels,
+    ):
         super().__init__()
         # Ensure attn_hidden is at least 1, e.g. if hidden_channels is 1
         attn_hidden = max(hidden_channels // 2, 1)
@@ -168,7 +175,7 @@ class ASTGCN_Like(nn.Module):
         horizon,
         block_channels=32,
         gru_channels=32,
-        K=2,
+        K=1,
         num_blocks=1,
     ):
         super().__init__()
@@ -237,10 +244,6 @@ class ASTGCN_Like(nn.Module):
             )
             batched_edge_weight = edge_weight.repeat(B).to(device)
 
-        # Create batch vector mapping each node to its batch index
-        # Shape: (B*N,)
-        batch_vector = torch.arange(B, device=device).repeat_interleave(self.num_nodes)
-
         # Reshape input: (B, T, N*F) -> (B, T, N, F)
         x = x.view(B, T, self.num_nodes, self.num_vars)
         # Apply input embedding: (B, T, N, F) -> (B, T, N, block_channels)
@@ -250,12 +253,9 @@ class ASTGCN_Like(nn.Module):
         # Input to first block: (B, T, N, block_channels)
         for block in self.blocks:
             # --- Pass the batched graph info to each block ---
-            x = block(
-                x, batched_edge_index, batched_edge_weight, batch_vector, lambda_max
-            )
+            x = block(x, batched_edge_index, batched_edge_weight, lambda_max)
         # x shape after last block: (B, T, N, gru_channels) if gru_channels=current_channels
 
-        # Final prediction layers
         # Input needs shape (B, C_in, H, W) for Conv2d
         # Here: (B, T, N, gru_channels) -> permute -> (B, gru_channels, T, N)
         x = x.permute(0, 3, 1, 2)
@@ -268,9 +268,7 @@ class ASTGCN_Like(nn.Module):
 
         # Aggregate over the time dimension (T) to get the final prediction
         # Use mean or sum pooling, or take the last time step output (x_out[:, :, -1, :])
-        # Using mean here: (B, horizon, T, N) -> (B, horizon, N)
         x_out = x_out.mean(dim=2)
         # If predicting only based on the last time step's features:
-        # x_out = x_out[:, :, -1, :] # -> (B, horizon, N) - Uncomment if needed
 
         return x_out

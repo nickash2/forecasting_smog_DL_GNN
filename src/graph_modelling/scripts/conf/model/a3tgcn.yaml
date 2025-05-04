@@ -1,8 +1,0 @@
-_target_: src.graph_modelling.models.a3tgcn.A3TGCN
-num_nodes: 3
-num_vars: 7
-timesteps: 72
-horizon: 24
-gcn_out_channels: 16
-add_self_loops: true
-improved: true

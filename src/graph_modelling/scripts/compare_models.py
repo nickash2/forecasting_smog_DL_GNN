@@ -28,6 +28,7 @@ import inspect
 
 # A logger for this file
 log = logging.getLogger(__name__)
+log.setLevel(logging.INFO)
 
 
 def initialize_model(
@@ -142,8 +143,7 @@ def run_experiment(cfg: DictConfig) -> float:
         only_no2=cfg.data.only_no2,
         force_reload=cfg.data.force_reload,
         cache_file=str(cache_path),
-        smooth_data=cfg.data.smooth_data,
-        smooth_window=cfg.data.smooth_window,
+        logger=log,
     )
 
     log.info(
@@ -153,7 +153,7 @@ def run_experiment(cfg: DictConfig) -> float:
     # Check if time-based splitting is enabled
     use_time_split = cfg.data.get("use_time_split", False)
 
-    train_loader, val_loader, test_loader, edges, edge_weights = (
+    train_loader, val_loader, test_loader, edges, edge_weights, lambda_max = (
         loader.get_index_dataset(
             lags=cfg.training.n_lags,
             batch_size=cfg.training.batch_size,
@@ -166,6 +166,8 @@ def run_experiment(cfg: DictConfig) -> float:
             cache=True,
             step_size=cfg.training.n_step,
             use_time_split=use_time_split,
+            dask_batching=False,
+            target_offset=cfg.data.target_offset,
         )
     )
 
@@ -237,7 +239,6 @@ def run_experiment(cfg: DictConfig) -> float:
             # Make sure num_vars matches your data configuration
             num_nodes = 3
             num_vars = 1 if cfg.data.only_no2 else 7
-            print("num_vars", num_vars)
 
             # Create dictionary with common parameters
             model_params = {
@@ -293,6 +294,7 @@ def run_experiment(cfg: DictConfig) -> float:
                     epochs=cfg.training.n_epochs,
                     patience=cfg.training.patience,
                     writer=writer,
+                    lambda_max=lambda_max,
                 )
 
             # Plot training history with model name
@@ -314,44 +316,93 @@ def run_experiment(cfg: DictConfig) -> float:
             writer.close()
 
     # --- Evaluation ---
-    log.info(f"Starting evaluation for {friendly_model_name}...")
-    city_names = ["Amsterdam", "Rotterdam", "Utrecht"]
-    start_time = time.time()
-    with EmissionsTracker(log_level="error") as eval_tracker:
-        test_loss, predictions, targets = evaluate_index(
-            model=model,
-            test_loader=test_loader,
-            edge_index=edges.to(device),
-            edge_weight=edge_weights.to(device) if edge_weights is not None else None,
-            device=device,
-            loader=loader,
-            cities=city_names,
-        )
-    end_time = time.time()
-    inference_time = end_time - start_time
-    log.info(f"Test Loss for {friendly_model_name}: {test_loss:.4f}")
+    city_names = ["Amsterdam", "Utrecht", "Rotterdam"]
 
-    # Calculate additional metrics
-    mse = test_loss  # Already MSE
+    # Run multiple evaluations for timing and energy statistics
+    n_eval_runs = cfg.optuna.n_eval_runs  # Number of evaluation runs
+    inference_times = []
+    inference_energies = []
+    inference_emissions = []
+
+    # Store first run results for visualization
+    first_predictions = None
+    first_targets = None
+    first_test_loss = None
+    log.info(f"Starting evaluation for {friendly_model_name} for {n_eval_runs} runs...")
+
+    for run in range(n_eval_runs):
+        with EmissionsTracker(log_level="error") as run_tracker:
+            start_time = time.time()
+            test_loss, predictions, targets = evaluate_index(
+                model=model,
+                test_loader=test_loader,
+                edge_index=edges.to(device),
+                edge_weight=edge_weights.to(device)
+                if edge_weights is not None
+                else None,
+                device=device,
+                loader=loader,
+                cities=city_names,
+                lambda_max=lambda_max,
+            )
+            end_time = time.time()
+
+        # Store timing and energy data
+        run_time = end_time - start_time
+        inference_times.append(run_time)
+        inference_energies.append(run_tracker.final_emissions_data.energy_consumed)
+        inference_emissions.append(run_tracker.final_emissions_data.emissions)
+
+        # Store first run results for metrics and visualization
+        if run == 0:
+            first_predictions = predictions
+            first_targets = targets
+            first_test_loss = test_loss
+
+    # Calculate statistics
+    inference_time_mean = np.mean(inference_times)
+    inference_time_std = np.std(inference_times)
+    inference_energy_mean = np.mean(inference_energies)
+    inference_energy_std = np.std(inference_energies)
+    inference_emissions_mean = np.mean(inference_emissions)
+    inference_emissions_std = np.std(inference_emissions)
+
+    log.info(f"Test Loss for {friendly_model_name}: {first_test_loss:.4f}")
+    log.info(
+        f"Inference time: {inference_time_mean:.4f}s ± {inference_time_std:.4f}s (over {n_eval_runs} runs)"
+    )
+    log.info(
+        f"Inference energy: {inference_energy_mean:.6f}kWh ± {inference_energy_std:.6f}kWh"
+    )
+
+    # Calculate additional metrics using first run results
+    mse = first_test_loss
     rmse = np.sqrt(mse)
-    mae = np.mean(np.abs(predictions - targets))
+    mae = np.mean(np.abs(first_predictions - first_targets))
 
     if not skip_training:
         train_emissions = train_tracker.final_emissions_data
-        eval_emissions = eval_tracker.final_emissions_data
 
         metrics = {
-            "inference_time_s": inference_time,
-            "inference_energy_kWh": eval_emissions.energy_consumed,
-            "inference_emissions_gCO2": eval_emissions.emissions,
+            "inference_time_s": inference_time_mean,
+            "inference_time_std_s": inference_time_std,
+            "inference_runs": n_eval_runs,
+            "inference_energy_kWh": inference_energy_mean,
+            "inference_energy_std_kWh": inference_energy_std,
+            "inference_emissions_gCO2": inference_emissions_mean,
+            "inference_emissions_std_gCO2": inference_emissions_std,
             "training_energy_kWh": train_emissions.energy_consumed,
             "training_emissions_gCO2": train_emissions.emissions,
         }
     else:
         metrics = {
-            "inference_time_s": inference_time,
-            "inference_energy_kWh": None,
-            "inference_emissions_gCO2": None,
+            "inference_time_s": inference_time_mean,
+            "inference_time_std_s": inference_time_std,
+            "inference_runs": n_eval_runs,
+            "inference_energy_kWh": inference_energy_mean,
+            "inference_energy_std_kWh": inference_energy_std,
+            "inference_emissions_gCO2": inference_emissions_mean,
+            "inference_emissions_std_gCO2": inference_emissions_std,
             "training_energy_kWh": None,
             "training_emissions_gCO2": None,
         }
@@ -364,8 +415,8 @@ def run_experiment(cfg: DictConfig) -> float:
     if hasattr(loader, "denormalize_no2"):
         try:
             # Try to denormalize if the loader supports it
-            predictions_orig = loader.denormalize_no2(predictions)
-            targets_orig = loader.denormalize_no2(targets)
+            predictions_orig = loader.denormalize_no2(first_predictions)
+            targets_orig = loader.denormalize_no2(first_targets)
             log.info("Successfully denormalized predictions and targets")
 
             # Use visualization module's plot_predictions with model name
@@ -397,14 +448,12 @@ def run_experiment(cfg: DictConfig) -> float:
     torch.save(model.state_dict(), model_path)
     log.info(f"Final model saved to {model_path}")
 
-    # Return primary metric for Hydra sweep comparison
     return rmse
 
 
 if __name__ == "__main__":
     os.environ["HYDRA_CONFIG_PATH"] = str(Path(__file__).parent / "conf")
 
-    # Set base_dir to project root or another appropriate location
     base_dir = BASE_DIR
     OmegaConf.update(OmegaConf.create(), "base_dir", str(base_dir))
 

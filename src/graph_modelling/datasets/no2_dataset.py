@@ -6,10 +6,9 @@ import pickle
 import hashlib
 from torch.utils.data import DataLoader
 from sklearn.preprocessing import MinMaxScaler
-
-from torch_geometric_temporal.signal import StaticGraphTemporalSignal
 from ..utils.index_dataset import IndexDataset
-from torch_geometric_temporal.signal import StaticGraphTemporalSignalBatch
+from torch_geometric.transforms import LaplacianLambdaMax
+from torch_geometric.data import Data
 
 
 class NO2DatasetLoader:
@@ -28,8 +27,7 @@ class NO2DatasetLoader:
         force_reload (bool, optional): If True, recompute the dataset even if cache exists. Defaults to False.
     """
 
-    # Set a version for cache compatibility checks
-    CACHE_VERSION = 72.2449
+    CACHE_VERSION = 65
 
     def __init__(
         self,
@@ -38,500 +36,360 @@ class NO2DatasetLoader:
         only_no2=False,
         cache_file="no2_dataset_cache.pkl",
         force_reload=False,
-        smooth_data=False,
-        smooth_window=5,
+        logger=None,
     ):
         self.cities = ["amsterdam", "utrecht", "rotterdam"]
         self.index = index
         self.data_dir = data_dir
-        self.only_no2 = only_no2  # New parameter to control feature selection
-        self.scalers = {}  # Dictionary to store MinMaxScalers for each feature
+        self._initial_only_no2 = only_no2  # Store initial setting
+        self.only_no2 = only_no2  # Current setting, might be overridden
+        self.scalers = {}  # Scalers will be fitted on train data
         self.cache_file = cache_file
         self.force_reload = force_reload
-        self.smooth_data = smooth_data
-        self.smooth_window = smooth_window
+        self._data_original = None  # Stores raw data ONLY
+        self.logger = logger
+        self._lambda_max = None
 
-        # Set default data directory if not provided
+        self.num_nodes = len(self.cities)
+
         if self.data_dir is None:
             import pathlib
 
-            base_dir = pathlib.Path(__file__).parent.parent.parent.parent
+            try:
+                base_dir = pathlib.Path(__file__).resolve().parent.parent.parent.parent
+            except NameError:
+                base_dir = pathlib.Path(".").resolve()
             self.data_dir = base_dir / "data" / "data_gnn"
 
-        # Set up cache directory
         self.cache_dir = os.path.join(self.data_dir, "cache")
         os.makedirs(self.cache_dir, exist_ok=True)
 
-        self._read_data()
+        self._read_data()  # Reads raw data into self._data_original
 
         if index:
             self.IndexDataset = IndexDataset
 
     def _get_cache_path(self, cache_name, params=None):
-        """Generate a standardized cache file path based on parameters.
-
-        Args:
-            cache_name (str): Base name for the cache file
-            params (dict, optional): Dictionary of parameters to include in the cache key
-
-        Returns:
-            str: Full path to the cache file
-        """
         if not self.cache_file:
             return None
-
-        # Start with base name
         filename = cache_name
-
-        # Add parameter hash if provided
         if params:
-            # Convert params to a string and hash it
-            param_str = str(sorted(params.items()))
+            sanitized_params = {
+                k: str(v) if isinstance(v, (list, tuple)) else v
+                for k, v in params.items()
+            }
+            param_str = str(sorted(sanitized_params.items()))
             param_hash = hashlib.md5(param_str.encode()).hexdigest()[:8]
             filename = f"{filename}_{param_hash}"
-
-        # Add version to prevent using incompatible caches
         filename = f"{filename}_v{self.CACHE_VERSION}.pkl"
-
         return os.path.join(self.cache_dir, filename)
 
     def _load_cache(self, cache_path):
-        """Load data from cache file.
-
-        Args:
-            cache_path (str): Path to the cache file
-
-        Returns:
-            object or None: Cached data if successful, None otherwise
-        """
         if not cache_path or not os.path.exists(cache_path) or self.force_reload:
             return None
-
         try:
             with open(cache_path, "rb") as f:
                 cache_data = pickle.load(f)
-            print(f"Loaded from cache: {cache_path}")
+            self.logger.info(f"Loaded from cache: {cache_path}")
             return cache_data
         except Exception as e:
-            print(f"Failed to load cache ({cache_path}): {e}")
+            self.logger.error(f"Failed to load cache ({cache_path}): {e}")
             return None
 
     def _save_cache(self, cache_path, data):
-        """Save data to cache file.
-
-        Args:
-            cache_path (str): Path to the cache file
-            data: Data to be cached
-
-        Returns:
-            bool: True if successful, False otherwise
-        """
         if not cache_path:
             return False
-
         try:
-            # Ensure directory exists
             os.makedirs(os.path.dirname(cache_path), exist_ok=True)
-
             with open(cache_path, "wb") as f:
                 pickle.dump(data, f)
-            print(f"Saved to cache: {cache_path}")
+            self.logger.info(f"Saved to cache: {cache_path}")
             return True
         except Exception as e:
-            print(f"Failed to save cache ({cache_path}): {e}")
+            self.logger.error(f"Failed to save cache ({cache_path}): {e}")
             return False
 
     def _read_data(self):
-        """Read the data from CSV files and combine them for lagged feature approach."""
-        # Get cache path for raw data
-        cache_path = self._get_cache_path("raw_data")
-
-        # Try to load from cache
-        cache_data = self._load_cache(cache_path)
-        if cache_data is not None:
-            self._data = cache_data["data"]
-            self._data_original = cache_data["data_original"]
-            self.scalers = cache_data["scalers"]
+        """Reads data from CSV and stores it unnormalized in self._data_original."""
+        # Check if already loaded unless forcing reload
+        if self._data_original is not None and not self.force_reload:
+            self.logger.warning("Raw data already loaded in memory.")
             return
 
-        print("Processing dataset from source files...")
+        # Use a specific cache name for just the raw data
+        raw_cache_path = self._get_cache_path("raw_data_unnormalized_v2")
+        cache_data = self._load_cache(raw_cache_path)
+        if cache_data is not None:
+            self._data_original = cache_data["data_original"]
+            self.logger.info("Loaded raw unnormalized data from cache.")
+            return
+
+        self.logger.debug("Reading raw dataset from source files...")
         x_path = os.path.join(self.data_dir, "X.csv")
+        if not os.path.exists(x_path):
+            raise FileNotFoundError(f"Data file not found: {x_path}")
 
-        self._data = pd.read_csv(x_path, sep=",")
+        current_data = pd.read_csv(x_path, sep=",")
+        self.logger.debug(f"Data shape: {current_data.shape}")
 
-        # Ensure data is sorted by datetime
-        self._data = self._data.sort_values(by=["DateTime"])
+        if "DateTime" not in current_data.columns:
+            raise ValueError("'DateTime' column not found.")
+        try:
+            current_data["DateTime"] = pd.to_datetime(current_data["DateTime"])
+        except Exception as e:
+            raise ValueError(f"Could not parse 'DateTime': {e}")
+        current_data = current_data.sort_values(by=["DateTime"]).reset_index(drop=True)
 
-        # Save original data before normalization
-        self._data_original = self._data.copy()
+        self._data_original = current_data
 
-        # Apply normalization for each feature across all cities
-        self._normalize_data()
+        # Cache only the raw data
+        self._save_cache(raw_cache_path, {"data_original": self._data_original})
 
-        # Save scalers for later denormalization
-        self._save_scalers()
+    def _fit_scalers_on_train_data(self, train_data_df):
+        """Fits MinMaxScaler objects using the provided training data subset."""
+        self.logger.debug(f"Current self.only_no2: {self.only_no2}")
 
-        # Save processed dataset to cache
-        cache_data = {
-            "data": self._data,
-            "data_original": self._data_original,
-            "scalers": self.scalers,
-        }
-        self._save_cache(cache_path, cache_data)
+        self.scalers = {}  # Reset scalers
 
-    def _save_scalers(self):
-        """Save the MinMaxScaler parameters for later denormalization."""
-        # Create a directory for scalers if it doesn't exist
-        scalers_dir = os.path.join(self.data_dir, "scalers")
-        os.makedirs(scalers_dir, exist_ok=True)
+        variables = (
+            ["NO2"]
+            if self.only_no2
+            else ["NO2", "P", "SQ", "WD", "Wvh", "dewP", "temp"]
+        )
+        self.logger.debug(f"Variables to process: {variables}")
 
-        # Save each scaler
-        for var, scaler in self.scalers.items():
-            scaler_path = os.path.join(scalers_dir, f"{var}_scaler.pkl")
-            with open(scaler_path, "wb") as f:
-                pickle.dump(scaler, f)
+        has_city_prefix = any(
+            f"city{idx}_{variables[0]}" in train_data_df.columns
+            for idx in range(len(self.cities))
+        )
 
-        print(f"Saved scalers to {scalers_dir}")
+        self.logger.debug(
+            f"Detected city prefix pattern ('city[idx]_var'): {has_city_prefix}"
+        )
 
-    def _normalize_data(self):
-        """Normalize the data using MinMaxScaler for all features."""
-        # List of weather variables to normalize
-        variables = ["NO2", "P", "SQ", "WD", "Wvh", "dewP", "temp"]
+        processed_vars_count = 0
+        for i, var in enumerate(variables):
+            self.logger.debug(f"Processing variable {i + 1}/{len(variables)}: '{var}'")
+            scaler = MinMaxScaler()
+            cols_to_fit = []
+
+            if has_city_prefix:
+                # Look for columns named "city0_var", "city1_var", etc.
+                for idx in range(len(self.cities)):  # Use index 0, 1, 2
+                    col_name = f"city{idx}_{var}"
+                    if col_name in train_data_df.columns:
+                        cols_to_fit.append(col_name)
+            elif var in train_data_df.columns:  # Fallback if no prefix pattern found
+                cols_to_fit.append(var)
+
+            self.logger.debug(f"cols_to_fit for '{var}': {cols_to_fit}")
+
+            if not cols_to_fit:
+                self.logger.debug(f"No columns found for '{var}', skipping.")
+                continue
+
+            try:
+                fitting_values = (
+                    train_data_df[cols_to_fit].values.flatten().reshape(-1, 1)
+                )
+                self.logger.debug(
+                    f"Shape of fitting_values for '{var}': {fitting_values.shape}"
+                )
+                valid_fitting_values = fitting_values[~np.isnan(fitting_values)]
+                self.logger.debug(
+                    f"Shape of valid_fitting_values for '{var}': {valid_fitting_values.shape}"
+                )
+
+                if valid_fitting_values.shape[0] == 0:
+                    self.logger.debug(
+                        f"No non-NaN training data for {var}. Using default [0,1] scaler."
+                    )
+                else:
+                    scaler.fit(valid_fitting_values.reshape(-1, 1))
+                    self.logger.debug(
+                        f"Scaler fitted for '{var}'. Min: {scaler.data_min_}, Max: {scaler.data_max_}"
+                    )
+
+                self.scalers[var] = scaler
+                self.logger.debug(f"Stored scaler for '{var}' in self.scalers")
+                processed_vars_count += 1
+
+            except Exception as e:
+                self.logger.debug(f"ERROR processing/fitting scaler for '{var}': {e}")
+
+        self.logger.debug(f"== Exiting _fit_scalers_on_train_data ==")
+        self.logger.debug(
+            f"Total variables processed and stored: {processed_vars_count}"
+        )
+        self.logger.debug(f"Final self.scalers keys: {list(self.scalers.keys())}")
+
+    def _apply_scalers(self, data_to_transform_df):
+        """Applies the scalers stored in self.scalers to a DataFrame."""
+        self.logger.debug(
+            f"Attempting to apply scalers. Current self.scalers keys: {list(self.scalers.keys())}"
+        )
+        if not self.scalers:
+            raise RuntimeError(
+                "Scalers have not been fitted. Call _fit_scalers_on_train_data first."
+            )
+
+        normalized_df = data_to_transform_df.copy()
+
+        variables = (
+            ["NO2"]
+            if self.only_no2
+            else ["NO2", "P", "SQ", "WD", "Wvh", "dewP", "temp"]
+        )
+
+        has_city_prefix = any(
+            f"city{idx}_{variables[0]}" in normalized_df.columns
+            for idx in range(len(self.cities))
+        )
+        self.logger.debug(
+            f"Applying scalers - Detected city prefix pattern ('city[idx]_var'): {has_city_prefix}"
+        )
 
         for var in variables:
-            # Create a scaler for each variable type
-            scaler = MinMaxScaler()
+            if var not in self.scalers:
+                continue
 
-            # Check if we have the city prefix or just the variable name
-            if any(f"{city}_{var}" in self._data.columns for city in self.cities):
-                # Collect columns for this variable across all cities with city prefix
-                cols = []
-                for city in self.cities:
-                    col_name = f"{city}_{var}"
-                    if col_name in self._data.columns:
-                        cols.append(col_name)
+            scaler = self.scalers[var]
+            cols_to_transform = []
 
-                if not cols:
-                    continue  # Skip if no columns found for this variable
+            if has_city_prefix:
+                # Look for columns named "city0_var", "city1_var", etc.
+                for idx in range(len(self.cities)):  # Use index 0, 1, 2
+                    col_name = f"city{idx}_{var}"
+                    if col_name in normalized_df.columns:
+                        cols_to_transform.append(col_name)
+            elif var in normalized_df.columns:  # Fallback
+                cols_to_transform.append(var)
 
-                # Fit the scaler on all data for this variable
-                all_data = self._data[cols].values.flatten().reshape(-1, 1)
-                scaler.fit(all_data)
+            if not cols_to_transform:
+                continue
 
-                # Store the scaler for later use
-                self.scalers[var] = scaler
+            for col in cols_to_transform:
+                col_data = normalized_df[col].values.reshape(-1, 1)
+                valid_mask_transform = ~np.isnan(col_data).flatten()
+                if np.any(valid_mask_transform):
+                    try:
+                        transformed_values = scaler.transform(
+                            col_data[valid_mask_transform].reshape(-1, 1)
+                        )
+                        normalized_df.loc[valid_mask_transform, col] = (
+                            transformed_values.flatten()
+                        )
+                    except Exception as e:
+                        self.logger.debug(f"ERROR applying scaler for {col}: {e}")
+                        normalized_df.loc[valid_mask_transform, col] = np.nan
 
-                # Apply normalization to data
-                for col in cols:
-                    self._data[col] = scaler.transform(
-                        self._data[col].values.reshape(-1, 1)
-                    ).flatten()
-
-            elif var in self._data.columns:
-                # If column is present without city prefix (e.g., just 'NO2')
-                all_data = self._data[var].values.reshape(-1, 1)
-                scaler.fit(all_data)
-                self.scalers[var] = scaler
-                self._data[var] = scaler.transform(all_data).flatten()
+        return normalized_df
 
     def _save_scalers(self):
-        """Save the MinMaxScaler parameters for later denormalization."""
-        import pickle
-        import os
-
-        # Create a directory for scalers if it doesn't exist
+        """Save the currently active MinMaxScaler parameters (assumed fitted on train)."""
+        if not self.scalers:
+            return
         scalers_dir = os.path.join(self.data_dir, "scalers")
         os.makedirs(scalers_dir, exist_ok=True)
-
-        # Save each scaler
+        # Suffix distinguishes these train-fitted scalers
+        scaler_suffix = "_train_fitted"
         for var, scaler in self.scalers.items():
-            scaler_path = os.path.join(scalers_dir, f"{var}_scaler.pkl")
-            with open(scaler_path, "wb") as f:
-                pickle.dump(scaler, f)
+            scaler_filename = f"{var}_scaler{scaler_suffix}.pkl"
+            scaler_path = os.path.join(scalers_dir, scaler_filename)
+            try:
+                with open(scaler_path, "wb") as f:
+                    pickle.dump(scaler, f)
+            except Exception as e:
+                self.logger.warning(f"Warning: Could not save scaler for {var}: {e}")
 
-        print(f"Saved scalers to {scalers_dir}")
+    def _load_scalers(self):
+        """Load the train-fitted MinMaxScaler parameters."""
+        scalers_dir = os.path.join(self.data_dir, "scalers")
+        loaded_all = True
+        new_scalers = {}
+        scaler_suffix = "_train_fitted"
+        # Determine variables based on current self.only_no2 state
+        variables = (
+            ["NO2"]
+            if self.only_no2
+            else ["NO2", "P", "SQ", "WD", "Wvh", "dewP", "temp"]
+        )
+
+        for var in variables:
+            scaler_filename = f"{var}_scaler{scaler_suffix}.pkl"
+            scaler_path = os.path.join(scalers_dir, scaler_filename)
+            if os.path.exists(scaler_path):
+                try:
+                    with open(scaler_path, "rb") as f:
+                        new_scalers[var] = pickle.load(f)
+                except Exception as e:
+                    self.logger.warning(
+                        f"Warning: Failed to load scaler {scaler_path}: {e}"
+                    )
+                    loaded_all = False
+                    break
+            else:
+                loaded_all = False
+                break
+
+        if loaded_all and new_scalers:
+            self.scalers = new_scalers
+            self.logger.info(f"Successfully loaded train-fitted scalers")
+            return True
+        else:
+            self.scalers = {}  # Reset if loading failed
+            return False
 
     def denormalize_no2(self, normalized_values):
-        """Denormalize NO2 predictions using the saved scaler."""
+        """Denormalize NO2 predictions using the train-fitted scaler."""
         if "NO2" in self.scalers:
-            return (
-                self.scalers["NO2"]
-                .inverse_transform(normalized_values.reshape(-1, 1))
-                .flatten()
-            )
+            if isinstance(normalized_values, torch.Tensor):
+                normalized_values = normalized_values.detach().cpu().numpy()
+            np_values = np.asarray(normalized_values)
+            output = np.full_like(np_values, np.nan, dtype=float)
+            valid_mask = ~np.isnan(np_values)
+            if np.any(valid_mask):
+                output[valid_mask] = (
+                    self.scalers["NO2"]
+                    .inverse_transform(np_values[valid_mask].reshape(-1, 1))
+                    .flatten()
+                )
+            return output.flatten()
         else:
-            print("Warning: NO2 scaler not found. Returning original values.")
+            self.logger.warning(
+                "Warning: NO2 scaler not found (train-fitted scaler expected). Returning original values."
+            )
+            # Ensure self.scalers is checked if loaded, otherwise this error might be misleading
             return normalized_values
 
     def _get_edges(self):
-        """Define the edges between the cities."""
-        # Define connections between the cities (fully connected graph)
-        city_pairs = [
-            (0, 1),  # amsterdam -> rotterdam
-            (1, 0),  # rotterdam -> amsterdam
-            (0, 2),  # amsterdam -> utrecht
-            (2, 0),  # utrecht -> amsterdam
-            (1, 2),  # rotterdam -> utrecht
-            (2, 1),  # utrecht -> rotterdam
-        ]
+        city_pairs = [(0, 1), (1, 0), (0, 2), (2, 0), (1, 2), (2, 1)]
         self._edges = np.array(city_pairs).T
 
     def _get_edge_weights(self):
-        """Define the edge weights as distances between cities (in km)."""
-        # Distances between cities in kilometers
         distances = {
-            (0, 1): 57,  # amsterdam -> rotterdam
-            (1, 0): 57,  # rotterdam -> amsterdam
-            (0, 2): 35,  # amsterdam -> utrecht
-            (2, 0): 35,  # utrecht -> amsterdam
-            (1, 2): 47,  # rotterdam -> utrecht
-            (2, 1): 47,  # utrecht -> rotterdam
+            (0, 1): 57,
+            (1, 0): 57,
+            (0, 2): 35,
+            (2, 0): 35,
+            (1, 2): 47,
+            (2, 1): 47,
         }
-
+        if not hasattr(self, "_edges") or self._edges is None:
+            self._get_edges()
         raw_distances = np.array(
             [distances[edge] for edge in zip(self._edges[0], self._edges[1])]
         )
-        # Normalize edge weights
-        # Inverse distance with small epsilon to avoid division by zero
         inv_distances = 1.0 / (raw_distances + 1e-6)
-
-        # Normalize to [0, 1]
         self._edge_weights = inv_distances / inv_distances.max()
 
-    def _get_targets_and_features(self):
-        """
-        Extract lagged features including all variables and targets from the data.
-        Features are structured to preserve both temporal and variable relationships.
-        """
-        # List of variables to include as features
-        if self.only_no2:
-            variables = ["NO2"]
-        else:
-            variables = ["NO2", "P", "SQ", "WD", "Wvh", "dewP", "temp"]
-
-        # Process data organized by city_name column (your current data format)
-        stacked_data_by_variable = {var: [] for var in variables}
-
-        # Get unique city_ids from the data
-        city_ids = sorted(self._data["city_name"].unique())
-
-        # For each time step, create a row with values for each city
-        unique_datetimes = sorted(self._data["DateTime"].unique())
-
-        # Sample datetimes early to reduce memory usage
-        if hasattr(self, "sample_size") and self.sample_size is not None:
-            if isinstance(self.sample_size, float) and 0 < self.sample_size < 1:
-                # Use a fraction of the datetimes
-                n_samples = int(len(unique_datetimes) * self.sample_size)
-                unique_datetimes = unique_datetimes[:n_samples]
-                print(f"Using {n_samples} timestamps ({self.sample_size:.2%} of data)")
-            elif isinstance(self.sample_size, int) and self.sample_size > 0:
-                # Use specified number of timestamps
-                n_samples = min(self.sample_size, len(unique_datetimes))
-                unique_datetimes = unique_datetimes[:n_samples]
-                print(f"Using {n_samples} timestamps (out of {len(unique_datetimes)})")
-
-            # Continue processing with reduced set of datetimes
-            for dt in unique_datetimes:
-                rows_by_variable = {var: [] for var in variables}
-                valid_data = True
-
-                for city_id in city_ids:
-                    city_data = self._data[
-                        (self._data["DateTime"] == dt)
-                        & (self._data["city_name"] == city_id)
-                    ]
-
-                    if len(city_data) == 0:
-                        valid_data = False
-                        break
-
-                    # Get each variable value
-                    for var in variables:
-                        if var in city_data.columns:
-                            rows_by_variable[var].append(city_data[var].values[0])
-                        else:
-                            valid_data = False
-                            break
-
-                if valid_data:
-                    # Add data for this timestamp
-                    for var in variables:
-                        stacked_data_by_variable[var].append(rows_by_variable[var])
-
-            # Convert lists to numpy arrays
-            for var in variables:
-                stacked_data_by_variable[var] = np.array(stacked_data_by_variable[var])
-
-        # Create features (lagged values for all variables)
-        self.features = []
-        for i in range(len(stacked_data_by_variable["NO2"]) - self.lags):
-            # For each city, create a feature array with all variables and lags
-            city_features = []
-
-            for city_idx in range(
-                len(city_ids if "city_ids" in locals() else self.cities)
-            ):
-                # Extract data for this city across all variables and lags
-                city_var_lags = []
-
-                for var in variables:
-                    # Get lagged data for this variable
-                    var_values = stacked_data_by_variable[var][
-                        i : i + self.lags, city_idx
-                    ]
-                    city_var_lags.extend(var_values)
-
-                # Add features for this city (flattened variables × lags)
-                city_features.append(city_var_lags)
-
-            # Shape: [num_cities, num_variables * lags]
-            self.features.append(np.array(city_features))
-
-        # Create targets (next NO2 value after the lags)
-        self.targets = []
-        for i in range(len(stacked_data_by_variable["NO2"]) - self.lags):
-            # Get NO2 values for the next timestep for all cities
-            target = stacked_data_by_variable["NO2"][i + self.lags, :]
-            self.targets.append(target)
-
-        print(f"Created {len(self.features)} temporal snapshots")
-        print(
-            f"Feature shape: {self.features[0].shape} (num_cities, features_per_city)"
-        )
-        print(f"Target shape: {len(self.targets[0])} (num_cities)")
-
-        # Describe the feature composition
-        num_vars = len(variables)
-        print(
-            f"Each city node has features from {num_vars} variables across {self.lags} time lags"
-        )
-        print(f"Variables used: {', '.join(variables)}")
-
-    def get_dataset(
-        self, lags=24, only_no2=None, sample_size=None, cache=True, cache_suffix=None
-    ) -> StaticGraphTemporalSignal:
-        """Return the NO2 forecasting dataset with lagged features."""
-        # Create parameters dictionary for cache key
-        params = {
-            "lags": lags,
-            "only_no2": self.only_no2 if only_no2 is None else only_no2,
-            "sample_size": sample_size,
-            "cache_suffix": cache_suffix,
-        }
-
-        # Get cache path
-        cache_path = self._get_cache_path("dataset", params) if cache else None
-
-        # Try to load from cache
-        cached_result = self._load_cache(cache_path)
-        if cached_result is not None:
-            return cached_result
-
-        # Process the dataset if not cached
-        self.lags = lags
-        if only_no2 is not None:
-            self.only_no2 = only_no2
-        self._get_edges()
-        self._get_edge_weights()
-
-        # Store sample_size for use in _get_targets_and_features
-        self.sample_size = sample_size
-
-        # Get features and targets
-        self._get_targets_and_features()
-
-        dataset = StaticGraphTemporalSignal(
-            self._edges, self._edge_weights, self.features, self.targets
-        )
-
-        # Cache the result
-        if cache_path:
-            self._save_cache(cache_path, dataset)
-
-        return dataset
-
-    def get_batched_dataset(
-        self,
-        lags=24,
-        batch_size=32,
-        only_no2=None,
-        sample_size=None,
-        cache=True,
-        cache_suffix=None,
-    ) -> StaticGraphTemporalSignalBatch:
-        """Return batched NO2 forecasting dataset using StaticGraphTemporalSignalBatch."""
-        # Create parameters dictionary for cache key
-        params = {
-            "lags": lags,
-            "batch_size": batch_size,
-            "only_no2": self.only_no2 if only_no2 is None else only_no2,
-            "sample_size": sample_size,
-            "cache_suffix": cache_suffix,
-        }
-
-        # Get cache path
-        cache_path = self._get_cache_path("batched_dataset", params) if cache else None
-
-        # Try to load from cache
-        cached_result = self._load_cache(cache_path)
-        if cached_result is not None:
-            return cached_result
-
-        # Process the dataset if not cached
-        self.lags = lags
-        if only_no2 is not None:
-            self.only_no2 = only_no2
-        self._get_edges()
-        self._get_edge_weights()
-
-        # Store sample_size for use in _get_targets_and_features
-        self.sample_size = sample_size
-
-        # Get features and targets
-        self._get_targets_and_features()
-
-        # Get number of cities
-        num_cities = len(self.cities)
-
-        # Shape: [num_cities]
-        batches = np.zeros(num_cities, dtype=np.int64)
-
-        # Create the batched dataset
-        batched_dataset = StaticGraphTemporalSignalBatch(
-            edge_index=self._edges,
-            edge_weight=self._edge_weights,
-            features=self.features,  # Already in right format: list of [num_cities, feature_dim] arrays
-            targets=self.targets,  # Already in right format: list of [num_cities] arrays
-            batches=batches,  # Each node (city) belongs to the same batch
-        )
-
-        # Cache the result
-        if cache_path:
-            self._save_cache(cache_path, batched_dataset)
-
-        return batched_dataset
-
-    def _split_by_time(self, timestamps, original_indices, horizon):
-        """Split data based on specific, potentially non-contiguous time periods.
-
-        Args:
-            timestamps: Array of timestamps corresponding to potential sample start dates.
-            original_indices: The original indices (e.g., from x_i) corresponding to timestamps.
-            horizon: Prediction horizon (used for validation).
-
-        Returns:
-            Tuple of (x_train, x_val, x_test) indices from original_indices.
-        """
+    def _split_by_time(self, timestamps, original_indices):
         if not isinstance(timestamps, pd.DatetimeIndex):
             timestamps = pd.to_datetime(timestamps)
-
-        # Ensure we have a pandas Series for easier boolean indexing
-        ts_series = pd.Series(timestamps)
-
-        # --- Define Date Ranges ---
-        # Training Ranges
-        train_mask = (
+        if len(timestamps) != len(original_indices):
+            raise ValueError("Length mismatch: timestamps vs indices.")
+        ts_series = pd.Series(data=timestamps.values, index=original_indices)
+        train_mask_series = (
             (
                 (ts_series.dt.year == 2017)
                 & (ts_series >= "2017-08-01")
@@ -558,9 +416,7 @@ class NO2DatasetLoader:
                 & (ts_series <= "2022-11-18")
             )
         )
-
-        # Validation Ranges
-        val_mask = (
+        val_mask_series = (
             (
                 (ts_series.dt.year == 2021)
                 & (ts_series >= "2021-11-19")
@@ -577,432 +433,427 @@ class NO2DatasetLoader:
                 & (ts_series <= "2023-10-02")
             )
         )
-
-        # Testing Ranges
-        test_mask = (
+        test_mask_series = (
             (
                 (ts_series.dt.year == 2021)
                 & (ts_series >= "2021-12-10")
                 & (ts_series <= "2021-12-30")
-            )  # Starts after validation ends
+            )
             | (
                 (ts_series.dt.year == 2022)
                 & (ts_series >= "2022-12-10")
                 & (ts_series <= "2022-12-30")
-            )  # Starts after validation ends
+            )
             | (
                 (ts_series.dt.year == 2023)
                 & (ts_series >= "2023-10-03")
                 & (ts_series <= "2023-12-04")
             )
         )
-
-        # --- Get Indices ---
-        x_train = original_indices[train_mask.values]
-        x_val = original_indices[val_mask.values]
-        x_test = original_indices[test_mask.values]
-
-        # --- Validation and Logging ---
-        # Check for overlaps
-        train_set, val_set, test_set = set(x_train), set(x_val), set(x_test)
-        if (
-            train_set.intersection(val_set)
-            or train_set.intersection(test_set)
-            or val_set.intersection(test_set)
-        ):
-            print(
-                "Warning: Overlap detected between train/val/test sets after time splitting."
-            )
-            # You might want to raise an error or investigate further depending on the cause
-
-        # Log the split periods found
-        if len(x_train) > 0:
-            print(
-                f"Training period(s) found: {timestamps[train_mask].min()} to {timestamps[train_mask].max()}"
-            )
-        else:
-            print("Warning: No training data found for the specified ranges.")
-        if len(x_val) > 0:
-            print(
-                f"Validation period(s) found: {timestamps[val_mask].min()} to {timestamps[val_mask].max()}"
-            )
-        else:
-            print("Warning: No validation data found for the specified ranges.")
-        if len(x_test) > 0:
-            print(
-                f"Test period(s) found: {timestamps[test_mask].min()} to {timestamps[test_mask].max()}"
-            )
-        else:
-            print("Warning: No testing data found for the specified ranges.")
-
-        # Check that there's enough data in each split relative to horizon
-        for split_name, split_indices in [
-            ("Training", x_train),
-            ("Validation", x_val),
-            ("Test", x_test),
-        ]:
-            if len(split_indices) == 0:
-                print(f"Warning: {split_name} set is empty.")
-            # The IndexDataset itself handles the check if len < horizon internally,
-            # so we don't strictly need the horizon check here anymore.
-
-        # Calculate and print ratios
-        total_samples = len(x_train) + len(x_val) + len(x_test)
-        if total_samples > 0:
-            train_ratio = len(x_train) / total_samples * 100
-            val_ratio = len(x_val) / total_samples * 100
-            test_ratio = len(x_test) / total_samples * 100
-            print(
-                f"Split Ratios: Train={train_ratio:.1f}% / Val={val_ratio:.1f}% / Test={test_ratio:.1f}%"
-            )
-        else:
-            print("No samples found in any split.")
-
-        return x_train, x_val, x_test
+        # Optional validation/logging can be added here
+        return train_mask_series.values, val_mask_series.values, test_mask_series.values
 
     def get_index_dataset(
         self,
-        lags=24,
-        batch_size=4,
+        lags=72,
+        batch_size=16,
         shuffle=False,
         allGPU=-1,
-        ratio=(0.7, 0.1, 0.2),
+        ratio=(0.7, 0.1, 0.2),  # Used only if use_time_split=False
         dask_batching=False,
         only_no2=None,
         sample_size=None,
-        horizon=None,
+        horizon=24,
         cache=True,
         cache_suffix=None,
         step_size=24,
         split_dates=None,
         use_time_split=False,
-        target_offset=72 - 24 + 1,
+        target_offset=1,
     ):
-        """Returns torch dataloaders using index batching for NO2 forecasting dataset.
+        """ """
 
-        Args:
-            # ...existing arguments...
-            split_dates: Tuple of (train_end, val_end) dates as strings in 'YYYY-MM-DD' format
-            use_time_split: If True, split by time periods rather than percentages
-        """
-        # Create parameters dictionary for cache key
-        params = {
+        if not self.index:
+            raise ValueError("'index=True' required.")
+        if self._data_original is None:
+            raise RuntimeError("Raw data not loaded. Call _read_data.")
+
+        current_only_no2 = self._initial_only_no2 if only_no2 is None else only_no2
+        self.only_no2 = current_only_no2  # Update instance state
+        self.logger.info(
+            f"Processing dataset with features: {'NO2 only' if self.only_no2 else 'All variables'}"
+        )
+
+        params = {  # Define params used in this function call
             "lags": lags,
             "batch_size": batch_size,
             "shuffle": shuffle,
             "ratio": ratio if not use_time_split else None,
-            "only_no2": self.only_no2 if only_no2 is None else only_no2,
+            "only_no2": self.only_no2,
             "sample_size": sample_size,
             "horizon": horizon,
             "cache_suffix": cache_suffix,
             "step_size": step_size,
             "split_dates": split_dates,
             "use_time_split": use_time_split,
+            "target_offset": target_offset,  # normalize_with_train_only is always True now
+            "CACHE_VERSION": self.CACHE_VERSION,
+            "DATA_FORMAT_PIVOTED": True,  # Indicate pivoting happened for cache key
         }
+        cache_name = "index_dataset_norm_train_only"
+        cache_path = self._get_cache_path(cache_name, params) if cache else None
 
-        # Get cache path
-        cache_path = self._get_cache_path("index_dataset", params) if cache else None
+        if not self.force_reload and cache_path and os.path.exists(cache_path):
+            cached_result = self._load_cache(cache_path)
+            if self._load_scalers():  # Load train-fitted scalers
+                if cached_result is not None:
+                    self.logger.info(
+                        "Loaded final dataloaders, train-fitted scalers and lambda_max from cache."
+                    )
+                    edges_t = torch.tensor(cached_result[3], dtype=torch.long)
+                    weights_t = torch.tensor(cached_result[4], dtype=torch.float)
+                    return (
+                        cached_result[0],
+                        cached_result[1],
+                        cached_result[2],
+                        edges_t,
+                        weights_t,
+                        cached_result[5],  # lambda_max
+                    )
+            else:  # Scalers missing
+                self.logger.info(
+                    f"Cache {cache_path} found, but train-fitted scalers not loaded. Recomputing."
+                )
+                self.force_reload = True
 
-        # Try to load from cache
-        cached_result = self._load_cache(cache_path)
-        if cached_result is not None:
-            return cached_result
+        self.lags = lags
 
-        if not self.index:
-            raise ValueError(
-                "get_index_dataset requires 'index=True' in the constructor."
+        working_data_df_raw = self._data_original.copy()  # Start with raw data
+        if sample_size is not None:
+            # ... (sampling logic on working_data_df_raw) ...
+            num_raw = len(working_data_df_raw)  # (rest of sampling logic is unchanged)
+            if isinstance(sample_size, float) and 0 < sample_size <= 1:
+                n_samples = int(num_raw * sample_size)
+            elif isinstance(sample_size, int) and sample_size > 0:
+                n_samples = min(sample_size, num_raw)
+            else:
+                raise ValueError("Invalid sample_size.")
+            min_len_needed = lags + max(0, target_offset - 1) + horizon
+            if n_samples < min_len_needed:
+                raise ValueError(f"Sample size {n_samples} too small.")
+            working_data_df_raw = working_data_df_raw.iloc[:n_samples].copy()
+
+        variables_to_pivot = (
+            ["NO2"]
+            if self.only_no2
+            else ["NO2", "P", "SQ", "WD", "Wvh", "dewP", "temp"]
+        )
+        needs_pivot = "city_name" in working_data_df_raw.columns and not any(
+            f"{city}_{variables_to_pivot[0]}" in working_data_df_raw.columns
+            for city in self.cities
+        )
+
+        if needs_pivot:
+            try:
+                self.logger.debug(
+                    f"Columns before pivot: {working_data_df_raw.columns.tolist()}"
+                )
+                existing_pivot_vars = [
+                    v for v in variables_to_pivot if v in working_data_df_raw.columns
+                ]
+                if not existing_pivot_vars:
+                    raise ValueError("Pivot variables missing.")
+                self.logger.debug(
+                    f"Existing variables used for pivot: {existing_pivot_vars}"
+                )
+
+                working_data_df_wide = pd.pivot_table(
+                    working_data_df_raw,
+                    index="DateTime",
+                    columns="city_name",  # Assumes this contains 0, 1, 2 etc.
+                    values=existing_pivot_vars,
+                )
+
+                self.logger.debug(
+                    f"Columns after pivot_table (MultiIndex): {working_data_df_wide.columns.tolist()}"
+                )
+
+                # Assumes the second level of the MultiIndex is the city index (0, 1, 2)
+                working_data_df_wide.columns = [
+                    f"city{city_idx}_{var}"
+                    for var, city_idx in working_data_df_wide.columns
+                ]
+                self.logger.debug(
+                    f"Columns after flattening: {working_data_df_wide.columns.tolist()}"
+                )
+
+                # Create mapping from city name to its assumed index based on self.cities order
+                city_name_to_idx = {name: idx for idx, name in enumerate(self.cities)}
+
+                desired_order = []
+                for city_name in self.cities:  # Iterate through defined city name order
+                    city_idx = city_name_to_idx[
+                        city_name
+                    ]  # Get the corresponding index (0, 1, or 2)
+                    for (
+                        var
+                    ) in variables_to_pivot:  # Iterate through defined variable order
+                        # Construct the column name using the city *index*
+                        col_name = f"city{city_idx}_{var}"
+                        if (
+                            col_name in working_data_df_wide.columns
+                        ):  # Check if this name exists
+                            desired_order.append(col_name)
+
+                self.logger.debug(f"Columns selected in desired_order: {desired_order}")
+
+                if not desired_order:
+                    raise ValueError(
+                        "Desired order list is empty after pivoting - check column names and mapping."
+                    )
+
+                working_data_df = working_data_df_wide[desired_order]
+
+                working_data_df = (
+                    working_data_df.reset_index()
+                )  # Bring DateTime back as column
+            except Exception as e:
+                import traceback
+
+                traceback.print_exc()
+                raise RuntimeError(f"Failed to pivot data: {e}")
+        else:
+            working_data_df = working_data_df_raw
+            self.logger.debug(
+                f"Columns when pivoting not required: {working_data_df.columns.tolist()}"
             )
 
-        # Set parameters for data processing
-        self.lags = lags
-        if only_no2 is not None:
-            self.only_no2 = only_no2
+        self.logger.debug(
+            f"Columns in working_data_df BEFORE split mask application: {working_data_df.columns.tolist()}"
+        )
 
-        if self.only_no2:
-            variables = ["NO2"]
+        all_timestamps = pd.to_datetime(working_data_df["DateTime"])
+        # Use the index of the dataframe *after* potential pivoting
+        all_indices = working_data_df.index.values
+
+        #  Step 2: Determine Train/Val/Test split MASKS (on the potentially pivoted data)
+        if use_time_split:
+            # Pass timestamps and indices from the potentially pivoted df
+            train_mask, val_mask, test_mask = self._split_by_time(
+                all_timestamps, all_indices
+            )
         else:
-            variables = ["NO2", "P", "SQ", "WD", "Wvh", "dewP", "temp"]
+            num_samples = len(working_data_df)
+            num_train = round(num_samples * ratio[0])
+            num_val = round(num_samples * ratio[1])
+            train_mask = np.zeros(num_samples, dtype=bool)
+            val_mask = np.zeros(num_samples, dtype=bool)
+            test_mask = np.zeros(num_samples, dtype=bool)
+            train_mask[:num_train] = True
+            val_mask[num_train : num_train + num_val] = True
+            test_mask[num_train + num_val :] = True
+
+        if train_mask.sum() == 0:
+            raise ValueError("Training split is empty.")
+
+        #  Step 3: Fit Scalers on Training Data Subset
+        # Use the potentially pivoted dataframe and the corresponding mask
+        train_data_subset_df = working_data_df.loc[train_mask]
+        self._fit_scalers_on_train_data(train_data_subset_df)
+        self._save_scalers()  # Save train-fitted scalers
+
+        #  Step 4: Apply Scalers to the Entire Working Data
+        normalized_data_df = self._apply_scalers(working_data_df)
+        #  Step 5: Prepare data array for sequence generation
+        # Feature selection now correctly assumes the wide format after pivoting
+        variables = (
+            ["NO2"]
+            if self.only_no2
+            else ["NO2", "P", "SQ", "WD", "Wvh", "dewP", "temp"]
+        )
+
+        # Check for the pattern 'city{idx}_var' in the *normalized* data
+        has_city_prefix_pattern = any(
+            f"city{idx}_{variables[0]}" in normalized_data_df.columns
+            for idx in range(len(self.cities))
+        )
+        self.logger.debug(
+            f"Checking for features - Detected city prefix pattern ('city[idx]_var'): {has_city_prefix_pattern}"
+        )
+
+        feature_columns = []
+        if has_city_prefix_pattern:
+            # Build list using the 'city{idx}_var' pattern
+            for city_idx in range(len(self.cities)):  # Use index 0, 1, 2
+                for var in variables:  # Use the defined variable order
+                    col_name = f"city{city_idx}_{var}"
+                    if col_name in normalized_data_df.columns:  # Check if it exists
+                        feature_columns.append(col_name)
+                    else:
+                        # This warning is less critical now, maybe remove later
+                        self.logger.debug(
+                            f"Warning: Column {col_name} missing in normalized_data_df."
+                        )
+        else:
+            self.logger.warning(
+                "Warning: City prefix pattern not found. Selecting base variables."
+            )
+            for var in variables:
+                if var in normalized_data_df.columns:
+                    feature_columns.append(var)
+
+        if not feature_columns:
+            self.logger.error(
+                f"ERROR: No features selected. Columns available in normalized_data_df: {normalized_data_df.columns.tolist()}"
+            )
+            raise ValueError("No feature columns selected.")
+
+        data_for_sequences = normalized_data_df[feature_columns].fillna(0).values
+
+        #  Step 6: Generate and Split Sequence Start Indices (Unchanged)
+        num_samples_sequences = data_for_sequences.shape[0]
+        max_target_lag = lags + max(0, target_offset - 1) + horizon - 1
+        upper_bound_start_index = num_samples_sequences - 1 - max_target_lag
+        if upper_bound_start_index < 0:
+            raise ValueError("Data series length too short.")
+        all_sequence_start_indices = np.arange(
+            0, upper_bound_start_index + 1, step=step_size
+        )
+        train_seq_indices = all_sequence_start_indices[
+            train_mask[all_sequence_start_indices]
+        ]
+        val_seq_indices = all_sequence_start_indices[
+            val_mask[all_sequence_start_indices]
+        ]
+        test_seq_indices = all_sequence_start_indices[
+            test_mask[all_sequence_start_indices]
+        ]
+        print(
+            f"Number of sequences: Train={len(train_seq_indices)}, Val={len(val_seq_indices)}, Test={len(test_seq_indices)}"
+        )
+
+        data_train = data_for_sequences
+        data_val_test = data_for_sequences
+
+        # --- Calculate lambda_max using PyG Transform ---
+        if self._lambda_max is None or self.force_reload:
+            if self.logger:
+                self.logger.info(
+                    "Calculating lambda_max for ChebConv using PyG transform..."
+                )
+            self._get_edges()
+            self._get_edge_weights()  # Ensure graph exists
+            edges_tensor = torch.tensor(self._edges, dtype=torch.long)
+            weights_tensor = (
+                torch.tensor(self._edge_weights, dtype=torch.float)
+                if self._edge_weights is not None
+                else None
+            )
+
+            try:
+                # Create a temporary Data object
+                temp_data = Data(
+                    edge_index=edges_tensor,
+                    edge_attr=weights_tensor,  # Use edge_attr for weights
+                    num_nodes=self.num_nodes,
+                )
+
+                # Instantiate and apply the transform
+                # is_undirected=True assumes your graph definition is symmetric
+                lambda_calculator = LaplacianLambdaMax(
+                    normalization="sym", is_undirected=True
+                )
+                transformed_data = lambda_calculator(temp_data)
+
+                # Check if lambda_max was computed
+                if (
+                    not hasattr(transformed_data, "lambda_max")
+                    or transformed_data.lambda_max is None
+                ):
+                    raise RuntimeError(
+                        "LaplacianLambdaMax transform did not compute lambda_max."
+                    )
+
+                lambda_max_val = transformed_data.lambda_max
+                # Clamp to ensure positivity (optional, but safe)
+                lambda_max_val = max(lambda_max_val, 1e-5)
+                self._lambda_max = torch.tensor(lambda_max_val, dtype=torch.float)
+                if self.logger:
+                    self.logger.info(
+                        f"Calculated lambda_max via PyG: {self._lambda_max.item()}"
+                    )
+
+            except Exception as e:
+                if self.logger:
+                    self.logger.error(
+                        f"Failed to calculate lambda_max using PyG transform: {e}",
+                        exc_info=True,
+                    )
+                raise RuntimeError(f"Failed to calculate lambda_max: {e}")
 
         self._get_edges()
         self._get_edge_weights()
-
-        # Check if we have city prefixes in the data
-        has_city_prefix = any(
-            f"{city}_NO2" in self._data.columns for city in self.cities
-        )
-
-        if has_city_prefix:
-            # Get data for each city and each variable
-            variable_data = []
-            for var in variables:
-                var_data = np.stack(
-                    [self._data[f"{city}_{var}"].values for city in self.cities], axis=1
-                )
-                variable_data.append(var_data)
-
-            # Stack all variable data together
-            if len(variable_data) > 1:
-                data = np.concatenate(variable_data, axis=1)
-            else:
-                data = variable_data[0]
-        else:
-            # Process data organized by city_name column
-            stacked_data = []
-
-            # Get unique city_ids from the data
-            city_ids = sorted(self._data["city_name"].unique())
-
-            # For each time step, create a row with values for each city
-            unique_datetimes = sorted(self._data["DateTime"].unique())
-
-            for dt in unique_datetimes:
-                row = []
-                valid_data = True
-
-                for city_id in city_ids:
-                    city_data = self._data[
-                        (self._data["DateTime"] == dt)
-                        & (self._data["city_name"] == city_id)
-                    ]
-
-                    if len(city_data) == 0:
-                        valid_data = False
-                        break
-
-                    # Get values for each variable
-                    city_values = []
-                    for var in variables:
-                        if var in city_data.columns:
-                            city_values.append(city_data[var].values[0])
-                        else:
-                            valid_data = False
-                            break
-
-                    if valid_data:
-                        row.extend(city_values)
-                    else:
-                        break
-
-                if valid_data:
-                    stacked_data.append(row)
-
-            # Convert to numpy array
-            data = np.array(stacked_data)
-        num_samples = data.shape[0]
-
-        # Apply sample_size if specified
-        if sample_size is not None:
-            if isinstance(sample_size, float) and 0 < sample_size <= 1:
-                num_samples_to_use = max(round(num_samples * sample_size), self.lags)
-                data = data[:num_samples_to_use]
-                print(f"Using {num_samples_to_use} samples ({sample_size:.2%} of data)")
-
-            elif isinstance(sample_size, int) and sample_size > 0:
-                # Use specified number of samples
-                num_samples_to_use = min(sample_size, num_samples)
-                data = data[:num_samples_to_use]
-                print(f"Using {num_samples_to_use} samples (out of {num_samples})")
-            else:
-                raise ValueError(
-                    "sample_size must be a positive int or float between 0-1"
-                )
-
-            # Adjust num_samples after sampling
-            num_samples = data.shape[0]
-
-        # Create tensor versions of edges and weights
-        edges = torch.tensor(self._edges, dtype=torch.int64)
-        edge_weights = torch.tensor(self._edge_weights, dtype=torch.float)
-
-        # Get timestamps corresponding to the raw data points used
-        if has_city_prefix:
-            # Assuming DateTime index or column exists and matches the 'data' array
-            all_timestamps = pd.to_datetime(
-                self._data.index
-                if self._data.index.name == "DateTime"
-                else self._data["DateTime"]
-            )
-            # If sampling was applied, timestamps need to match the sampled 'data' array
-            if sample_size is not None:
-                all_timestamps = all_timestamps[: data.shape[0]]
-        else:
-            # Use the unique_datetimes collected during data stacking
-            all_timestamps = pd.to_datetime(unique_datetimes)
-            # If sampling was applied, timestamps need to match the sampled 'data' array
-            if sample_size is not None:
-                all_timestamps = all_timestamps[: data.shape[0]]
-
-        # Now create indices for train/val/test split
-
-        num_samples = data.shape[0]
-        upper_bound_exclusive = num_samples - target_offset - horizon + 1
-
-        if upper_bound_exclusive <= 0:
-            raise ValueError(
-                "Data is too short for the given lags, horizon, and target_offset."
-            )
-
-        x_i = np.arange(0, upper_bound_exclusive, step=step_size)
-
-        # Get the actual timestamps for these potential start indices
-        timestamps_for_x_i = all_timestamps[x_i]
-
-        # Split based on time or percentages
-        if use_time_split:
-            print("Using custom time-based split...")
-            # Pass the timestamps corresponding to x_i and x_i itself
-            x_train, x_val, x_test = self._split_by_time(
-                timestamps_for_x_i, x_i, horizon
-            )
-        else:
-            # Use the original percentage-based split
-            print(f"Using percentage-based split: {ratio}")
-            num_samples_in_split = x_i.shape[0]  # Number of potential sequences
-
-            # Recalculate split sizes based on the number of sequences
-            num_train = round(num_samples_in_split * ratio[0])
-            num_val = round(num_samples_in_split * ratio[1])
-            num_test = num_samples_in_split - num_train - num_val
-
-            # Split indices from x_i
-            x_train = x_i[:num_train]
-            x_val = x_i[num_train : num_train + num_val]
-            x_test = x_i[-num_test:]  # Ensure all indices are used
-
-            # Log the split periods found using percentage split
-            if len(x_train) > 0:
-                print(
-                    f"Training period (percentage split): {timestamps_for_x_i[0]} to {timestamps_for_x_i[num_train - 1]}"
-                )
-            if len(x_val) > 0:
-                print(
-                    f"Validation period (percentage split): {timestamps_for_x_i[num_train]} to {timestamps_for_x_i[num_train + num_val - 1]}"
-                )
-            if len(x_test) > 0:
-                print(
-                    f"Test period (percentage split): {timestamps_for_x_i[num_train + num_val]} to {timestamps_for_x_i[-1]}"
-                )
-
-        # If smoothing is enabled, apply it only to training data
-        if self.smooth_data:
-            print("Applying smoothing to training data...")
-            # Create a copy of the data for smoothing to avoid modifying the original
-            train_data_smoothed = data.copy()  # Use the potentially sampled 'data'
-
-            # Apply smoothing only to training indices
-            # For each variable and city, apply smoothing
-            if has_city_prefix:
-                variables_to_smooth = (
-                    ["NO2"]
-                    if self.only_no2
-                    else ["NO2", "P", "SQ", "WD", "Wvh", "dewP", "temp"]
-                )
-                num_cities = len(self.cities)
-                num_vars = len(variables_to_smooth)
-
-                # Determine the column indices in the 'data' array
-                col_indices = {}
-                current_idx = 0
-                all_vars_in_data = variables  # Use the full list used to create 'data'
-                for var in all_vars_in_data:
-                    for city_idx in range(num_cities):
-                        # Store index for (city, var) pair
-                        col_indices[(city_idx, var)] = current_idx
-                        current_idx += 1
-
-                for var in variables_to_smooth:
-                    for city_idx, city in enumerate(self.cities):
-                        col_idx_in_data = col_indices.get((city_idx, var))
-
-                        if col_idx_in_data is not None:
-                            # Extract the relevant column data
-                            column_data = train_data_smoothed[:, col_idx_in_data]
-
-                            # Apply moving average using pandas Series for easy handling
-                            smooth_values = (
-                                pd.Series(column_data)  # Use the whole column
-                                .rolling(
-                                    window=self.smooth_window,
-                                    min_periods=1,
-                                    center=True,
-                                )  # Use min_periods=1
-                                .mean()
-                                .fillna(method="bfill")
-                                .fillna(method="ffill")
-                            )
-
-                            # Update the smoothed data array
-                            train_data_smoothed[:, col_idx_in_data] = (
-                                smooth_values.values
-                            )
-
-                            print(f"Applied smoothing to {city}_{var}")
-            else:
-                # Smoothing for non-prefixed data might need adjustment based on 'data' structure
-                print(
-                    "Warning: Smoothing for non-prefixed data structure not fully implemented."
-                )
-
-            # Use smoothed data only for training dataset creation
-            train_dataset = self.IndexDataset(
-                x_train,
-                train_data_smoothed,  # Use the smoothed data
-                horizon,
-                gpu=(allGPU != -1),
-                lazy=dask_batching,
-                lags=self.lags,
-                target_offset=target_offset,  # Pass target_offset
-            )
-        else:
-            # Use original data for training dataset creation
-            train_dataset = self.IndexDataset(
-                x_train,
-                data,  # Original data
-                horizon,
-                gpu=(allGPU != -1),
-                lazy=dask_batching,
-                lags=self.lags,
-                target_offset=target_offset,  # Pass target_offset
-            )
-
-        # Use original data for validation and test
-        val_dataset = self.IndexDataset(
-            x_val,
-            data,  # Original data
+        edges_tensor = torch.tensor(self._edges, dtype=torch.long)
+        edge_weights_tensor = torch.tensor(self._edge_weights, dtype=torch.float)
+        if horizon is None:
+            raise ValueError("Horizon must be specified.")
+        train_dataset = self.IndexDataset(
+            train_seq_indices,
+            data_train,
             horizon,
             gpu=(allGPU != -1),
             lazy=dask_batching,
             lags=self.lags,
-            target_offset=target_offset,  # Pass target_offset
+            target_offset=target_offset,
+        )
+        val_dataset = self.IndexDataset(
+            val_seq_indices,
+            data_val_test,
+            horizon,
+            gpu=(allGPU != -1),
+            lazy=dask_batching,
+            lags=self.lags,
+            target_offset=target_offset,
         )
         test_dataset = self.IndexDataset(
-            x_test,
-            data,  # Original data
+            test_seq_indices,
+            data_val_test,
             horizon,
             gpu=(allGPU != -1),
             lazy=dask_batching,
             lags=self.lags,
-            target_offset=target_offset,  # Pass target_offset
+            target_offset=target_offset,
         )
-
-        # Create dataloaders
         train_dataloader = DataLoader(
-            train_dataset, batch_size=batch_size, shuffle=shuffle
+            train_dataset, batch_size=batch_size, shuffle=shuffle, drop_last=True
         )
-        val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-        test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+        val_dataloader = DataLoader(
+            val_dataset, batch_size=batch_size, shuffle=False, drop_last=True
+        )
+        test_dataloader = DataLoader(
+            test_dataset, batch_size=batch_size, shuffle=False, drop_last=True
+        )
 
-        # At the end of the method, cache the result
+        #  Step 9: Cache and Return (Unchanged)
         result = (
             train_dataloader,
             val_dataloader,
             test_dataloader,
-            edges,
-            edge_weights,
+            self._edges,
+            self._edge_weights,
+            self._lambda_max,
         )
-
-        # Cache the result
         if cache_path:
             self._save_cache(cache_path, result)
+            self._save_scalers()  # Save train-fitted scalers
 
-        return result
+        self.force_reload = False
+        self.logger.info("Dataset processing complete (Normalization: Train Set Only).")
+        return (
+            train_dataloader,
+            val_dataloader,
+            test_dataloader,
+            edges_tensor,
+            edge_weights_tensor,
+            self._lambda_max,
+        )
