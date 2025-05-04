@@ -1,0 +1,3 @@
+- model=temporal_only_gru_tempatn
+- training.patience=10
+- data=all_vars

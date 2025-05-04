@@ -29,7 +29,8 @@ training:
   n_step: 24
   n_epochs: 1000
   patience: 15
-  # Learning rate, optimizer etc. could be added here if needed by train_utils
+  skip_training: false
+  load_model_path: "/home/nick/bachelor-project/third-copy/comparison_results/2025-05-03/17-13-58/chebconvgru.pt"
 track_energy: true
 
 # --- Optuna Hyperparameter Optimization ---

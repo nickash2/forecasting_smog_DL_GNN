@@ -1,4 +1,4 @@
 _target_: src.graph_modelling.models.attentiontemporalonlygnn.GATGRUModel
-hidden_channels: 64
+hidden_channels: 32
 heads: 1
-
+dropout: 0.2

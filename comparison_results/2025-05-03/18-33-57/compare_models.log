@@ -1,0 +1,75 @@
+[2025-05-03 18:33:57,745][__main__][INFO] - Hydra output directory: /home/nick/bachelor-project/third-copy/comparison_results/2025-05-03/18-33-57
+[2025-05-03 18:33:57,748][__main__][INFO] - Configuration:
+data:
+  only_no2: false
+  num_vars: 7
+  cache_file: no2_dataset_cache.pkl
+  force_reload: false
+  sample_size: 1.0
+  shuffle: true
+  ratio:
+  - 0.7
+  - 0.15
+  - 0.15
+  smooth_data: false
+  smooth_window: 12
+  use_time_split: true
+  split_dates:
+  - '2021-12-31'
+  - '2022-12-31'
+model:
+  _target_: src.graph_modelling.models.attentiontemporalonlygnn.GATGRUModel
+  hidden_channels: 64
+  heads: 1
+  dropout: 0.2
+seed: 34
+base_dir: .
+results_subdir: comparison_results
+training:
+  n_lags: 72
+  n_horizon: 24
+  batch_size: 16
+  n_step: 24
+  n_epochs: 1000
+  patience: 15
+  skip_training: false
+  load_model_path: /home/nick/bachelor-project/third-copy/comparison_results/2025-05-03/17-13-58/chebconvgru.pt
+track_energy: true
+optuna:
+  enabled: false
+  study_name: no2_model_optimization
+  storage: sqlite:///no2_models_optuna_4hrs.db
+  n_trials: 100
+  timeout: 21600
+  direction: minimize
+paths:
+  model_save_name: final_model.pt
+  history_save_name: training_history.json
+  metrics_save_name: test_metrics.json
+  tensorboard_subdir: tensorboard_logs
+  plot_subdir: plots
+  optuna_subdir: optuna_results
+
+[2025-05-03 18:33:57,750][__main__][INFO] - Random seed set to 34
+[2025-05-03 18:33:57,750][__main__][INFO] - Using device: cuda
+[2025-05-03 18:33:57,750][__main__][INFO] - Initializing dataset loader...
+[2025-05-03 18:33:57,762][__main__][INFO] - Loading dataset with lags=72, horizon=24...
+[2025-05-03 18:33:57,767][__main__][INFO] - Train batches: 43, Val batches: 7, Test batches: 7
+[2025-05-03 18:33:57,767][__main__][INFO] - Initializing model: GATGRUModel with all_vars data
+[2025-05-03 18:33:58,084][__main__][INFO] - Model:
+GATGRUModel(
+  (gat): GATConv(7, 64, heads=1)
+  (gru): GRU(64, 64, batch_first=True)
+  (temporal_attn): TemporalAttention(
+    (attn): Linear(in_features=64, out_features=1, bias=True)
+  )
+  (out_proj): Linear(in_features=64, out_features=24, bias=True)
+)
+[2025-05-03 18:33:58,084][__main__][INFO] - Starting training for GATGRUModel_all_vars...
+[2025-05-03 18:57:00,408][__main__][WARNING] - Training interrupted by user.
+[2025-05-03 18:57:00,410][__main__][INFO] - Starting evaluation for GATGRUModel_all_vars...
+[2025-05-03 18:57:06,725][__main__][INFO] - Test Loss for GATGRUModel_all_vars: 0.0298
+[2025-05-03 18:57:06,726][__main__][INFO] - Test metrics for GATGRUModel_all_vars - MSE: 0.0298, RMSE: 0.1727, MAE: 0.1371
+[2025-05-03 18:57:06,726][__main__][INFO] - Successfully denormalized predictions and targets
+[2025-05-03 18:57:08,192][__main__][INFO] - Prediction plots and detailed metrics created with per-city RMSE
+[2025-05-03 18:57:08,196][__main__][INFO] - Final model saved to /home/nick/bachelor-project/third-copy/comparison_results/2025-05-03/18-33-57/final_model.pt

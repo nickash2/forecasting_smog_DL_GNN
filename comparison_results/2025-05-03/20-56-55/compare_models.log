@@ -1,0 +1,77 @@
+[2025-05-03 20:56:55,838][__main__][INFO] - Hydra output directory: /home/nick/bachelor-project/third-copy/comparison_results/2025-05-03/20-56-55
+[2025-05-03 20:56:55,840][__main__][INFO] - Configuration:
+data:
+  only_no2: false
+  num_vars: 7
+  cache_file: no2_dataset_cache.pkl
+  force_reload: false
+  sample_size: 1.0
+  shuffle: true
+  ratio:
+  - 0.7
+  - 0.15
+  - 0.15
+  smooth_data: false
+  smooth_window: 12
+  use_time_split: true
+  split_dates:
+  - '2021-12-31'
+  - '2022-12-31'
+model:
+  _target_: src.graph_modelling.models.attentiontemporalonlygnn.AttentionChebGRU
+  hidden_channels: 32
+seed: 34
+base_dir: .
+results_subdir: comparison_results
+training:
+  n_lags: 72
+  n_horizon: 24
+  batch_size: 16
+  n_step: 24
+  n_epochs: 1000
+  patience: 10
+  skip_training: false
+  load_model_path: /home/nick/bachelor-project/third-copy/comparison_results/2025-05-03/17-13-58/chebconvgru.pt
+track_energy: true
+optuna:
+  enabled: false
+  study_name: no2_model_optimization
+  storage: sqlite:///no2_models_optuna_4hrs.db
+  n_trials: 100
+  timeout: 21600
+  direction: minimize
+paths:
+  model_save_name: final_model.pt
+  history_save_name: training_history.json
+  metrics_save_name: test_metrics.json
+  tensorboard_subdir: tensorboard_logs
+  plot_subdir: plots
+  optuna_subdir: optuna_results
+
+[2025-05-03 20:56:55,842][__main__][INFO] - Random seed set to 34
+[2025-05-03 20:56:55,842][__main__][INFO] - Using device: cuda
+[2025-05-03 20:56:55,842][__main__][INFO] - Initializing dataset loader...
+[2025-05-03 20:56:55,852][__main__][INFO] - Loading dataset with lags=72, horizon=24...
+[2025-05-03 20:56:55,855][__main__][INFO] - Train batches: 43, Val batches: 7, Test batches: 7
+[2025-05-03 20:56:55,855][__main__][INFO] - Initializing model: AttentionChebGRU with all_vars data
+[2025-05-03 20:56:56,127][__main__][INFO] - Model:
+AttentionChebGRU(
+  (chebconv): GATConv(7, 32, heads=1)
+  (gru): GRU(32, 32, batch_first=True)
+  (temporal_attn): TemporalAttention(
+    (attn): Sequential(
+      (0): LayerNorm((32,), eps=1e-05, elementwise_affine=True)
+      (1): Linear(in_features=32, out_features=1, bias=True)
+      (2): Dropout(p=0.5, inplace=False)
+    )
+  )
+  (output_layer): Linear(in_features=32, out_features=24, bias=True)
+)
+[2025-05-03 20:56:56,127][__main__][INFO] - Starting training for AttentionChebGRU_all_vars...
+[2025-05-03 21:20:23,230][__main__][INFO] - Training history plot created for AttentionChebGRU_all_vars
+[2025-05-03 21:20:23,231][__main__][INFO] - Starting evaluation for AttentionChebGRU_all_vars...
+[2025-05-03 21:20:29,650][__main__][INFO] - Test Loss for AttentionChebGRU_all_vars: 0.0113
+[2025-05-03 21:20:29,650][__main__][INFO] - Test metrics for AttentionChebGRU_all_vars - MSE: 0.0113, RMSE: 0.1063, MAE: 0.0773
+[2025-05-03 21:20:29,650][__main__][INFO] - Successfully denormalized predictions and targets
+[2025-05-03 21:20:31,152][__main__][INFO] - Prediction plots and detailed metrics created with per-city RMSE
+[2025-05-03 21:20:31,156][__main__][INFO] - Final model saved to /home/nick/bachelor-project/third-copy/comparison_results/2025-05-03/20-56-55/final_model.pt

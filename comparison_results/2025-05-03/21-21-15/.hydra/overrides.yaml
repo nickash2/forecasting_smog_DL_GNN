@@ -1,0 +1,3 @@
+- model=astgcn_like
+- training.patience=10
+- data=all_vars

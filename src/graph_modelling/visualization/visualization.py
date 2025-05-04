@@ -133,6 +133,7 @@ def plot_predictions(
     save_metrics=True,
     use_plotly=False,
     energy_metrics=None,
+    BASE_DIR=None,
 ):
     """
     Plot test predictions against actual values for each city and save metrics to log file

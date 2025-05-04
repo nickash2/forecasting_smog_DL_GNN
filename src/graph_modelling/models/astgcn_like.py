@@ -99,7 +99,8 @@ class SpatioTemporalBlock(nn.Module):
 
     def __init__(self, num_nodes, in_channels, hidden_channels, K, gru_hidden_channels):
         super().__init__()
-        attn_hidden = hidden_channels // 2  # Example dimension for attention Q,K
+        # Ensure attn_hidden is at least 1, e.g. if hidden_channels is 1
+        attn_hidden = max(hidden_channels // 2, 1)
 
         self.spatial_attn = SpatialAttentionLayer(num_nodes, in_channels, attn_hidden)
         self.graph_conv = ChebConv(in_channels, hidden_channels, K=K)
@@ -169,7 +170,6 @@ class ASTGCN_Like(nn.Module):
         gru_channels=32,
         K=2,
         num_blocks=1,
-        d_k=32,
     ):
         super().__init__()
         self.num_nodes = num_nodes
@@ -199,37 +199,78 @@ class ASTGCN_Like(nn.Module):
             in_channels=128, out_channels=horizon, kernel_size=(1, 1)
         )
 
-        self.final_temporal_attn = FinalTemporalAttention(d_model=horizon, d_k=d_k)
-
     def forward(self, x, edge_index, edge_weight=None, lambda_max=None):
         """
         Args:
-            x: Input (B, T, N*F) where T=lags
-            edge_index, edge_weight, lambda_max: Graph info
+            x: Input (B, T, N*F) where T=lags, F=num_vars
+            edge_index: Original edge index (2, E) - Will be batched internally
+            edge_weight: Original edge weights (E,) - Optional
+            lambda_max: Precomputed max eigenvalue for ChebConv
         Returns:
             Output (B, horizon, N)
         """
         B, T, NF = x.shape
-        assert T == self.lags and NF == self.num_nodes * self.num_vars
+        assert T == self.lags, (
+            f"Input sequence length ({T}) != expected lags ({self.lags})"
+        )
+        assert NF == self.num_nodes * self.num_vars, (
+            f"Input feature dim ({NF}) != nodes*vars ({self.num_nodes * self.num_vars})"
+        )
+        assert edge_index is not None, "edge_index must be provided"
 
-        # Reshape and embed input: (B, T, N, F) -> (B, T, N, block_channels)
+        device = x.device  # Get device from input tensor
+
+        # --- Prepare Batched Graph Structure ---
+        batched_edge_indices = []
+        for b in range(B):
+            offset = b * self.num_nodes
+            batched_edge_indices.append(edge_index + offset)
+        # Concatenate edge indices for all graphs in the batch
+        batched_edge_index = torch.cat(batched_edge_indices, dim=1).to(device)
+
+        # Repeat edge_weight if it exists
+        batched_edge_weight = None
+        if edge_weight is not None:
+            # Ensure edge_weight matches edge_index shape if provided
+            assert edge_weight.shape[0] == edge_index.shape[1], (
+                "edge_weight shape mismatch"
+            )
+            batched_edge_weight = edge_weight.repeat(B).to(device)
+
+        # Create batch vector mapping each node to its batch index
+        # Shape: (B*N,)
+        batch_vector = torch.arange(B, device=device).repeat_interleave(self.num_nodes)
+
+        # Reshape input: (B, T, N*F) -> (B, T, N, F)
         x = x.view(B, T, self.num_nodes, self.num_vars)
+        # Apply input embedding: (B, T, N, F) -> (B, T, N, block_channels)
         x = self.input_embedding(x)
 
         # Pass through spatio-temporal blocks
+        # Input to first block: (B, T, N, block_channels)
         for block in self.blocks:
-            x = block(x, edge_index, edge_weight, lambda_max)
-        # x shape after blocks: (B, T, N, gru_channels)
+            # --- Pass the batched graph info to each block ---
+            x = block(
+                x, batched_edge_index, batched_edge_weight, batch_vector, lambda_max
+            )
+        # x shape after last block: (B, T, N, gru_channels) if gru_channels=current_channels
 
-        # Instead of only last step, keep ALL steps
-        # Shape: (B, T, N, gru_channels)
+        # Final prediction layers
+        # Input needs shape (B, C_in, H, W) for Conv2d
+        # Here: (B, T, N, gru_channels) -> permute -> (B, gru_channels, T, N)
+        x = x.permute(0, 3, 1, 2)
 
-        x = x.permute(0, 3, 1, 2)  # (B, gru_channels, T, N)
+        # Apply 1x1 convolutions
+        # (B, gru_channels, T, N) -> (B, 128, T, N)
+        x_out = F_func.relu(self.final_conv1(x))
+        # (B, 128, T, N) -> (B, horizon, T, N)
+        x_out = self.final_conv2(x_out)
 
-        x_out = F_func.relu(self.final_conv1(x))  # (B, 128, T, N)
-        x_out = self.final_conv2(x_out)  # (B, horizon, T, N)
-
-        # Now, pool over T dimension (aggregate over time!)
-        x_out = x_out.mean(dim=2)  # (B, horizon, N)
+        # Aggregate over the time dimension (T) to get the final prediction
+        # Use mean or sum pooling, or take the last time step output (x_out[:, :, -1, :])
+        # Using mean here: (B, horizon, T, N) -> (B, horizon, N)
+        x_out = x_out.mean(dim=2)
+        # If predicting only based on the last time step's features:
+        # x_out = x_out[:, :, -1, :] # -> (B, horizon, N) - Uncomment if needed
 
         return x_out

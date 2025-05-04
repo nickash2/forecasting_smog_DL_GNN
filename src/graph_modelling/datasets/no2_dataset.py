@@ -29,7 +29,7 @@ class NO2DatasetLoader:
     """
 
     # Set a version for cache compatibility checks
-    CACHE_VERSION = 1
+    CACHE_VERSION = 72.2449
 
     def __init__(
         self,
@@ -512,64 +512,151 @@ class NO2DatasetLoader:
 
         return batched_dataset
 
-    def _split_by_time(self, timestamps, horizon, split_dates=None):
-        """Split data based on specific time points rather than percentages.
+    def _split_by_time(self, timestamps, original_indices, horizon):
+        """Split data based on specific, potentially non-contiguous time periods.
 
         Args:
-            timestamps: Array of timestamps for all data points
-            horizon: Prediction horizon
-            split_dates: Tuple of (train_end, val_end) dates as strings in 'YYYY-MM-DD' format
-                         If None, defaults to splitting the last year as test
+            timestamps: Array of timestamps corresponding to potential sample start dates.
+            original_indices: The original indices (e.g., from x_i) corresponding to timestamps.
+            horizon: Prediction horizon (used for validation).
 
         Returns:
-            Tuple of (x_train, x_val, x_test) indices
+            Tuple of (x_train, x_val, x_test) indices from original_indices.
         """
-        # Convert timestamps to datetime objects if they're strings
-        if isinstance(timestamps[0], str):
+        if not isinstance(timestamps, pd.DatetimeIndex):
             timestamps = pd.to_datetime(timestamps)
 
-        # If no split dates provided, use the last year as test data
-        if split_dates is None:
-            # Identify the last full year in the dataset
-            last_date = timestamps[-1]
-            test_start = pd.Timestamp(f"{last_date.year}-01-01")
+        # Ensure we have a pandas Series for easier boolean indexing
+        ts_series = pd.Series(timestamps)
 
-            # If test_start is before the dataset starts, adjust
-            if test_start < timestamps[0]:
-                test_start = timestamps[0]
+        # --- Define Date Ranges ---
+        # Training Ranges
+        train_mask = (
+            (
+                (ts_series.dt.year == 2017)
+                & (ts_series >= "2017-08-01")
+                & (ts_series <= "2017-12-30")
+            )
+            | (
+                (ts_series.dt.year == 2018)
+                & (ts_series >= "2018-08-01")
+                & (ts_series <= "2018-12-30")
+            )
+            | (
+                (ts_series.dt.year == 2020)
+                & (ts_series >= "2020-08-01")
+                & (ts_series <= "2020-12-30")
+            )
+            | (
+                (ts_series.dt.year == 2021)
+                & (ts_series >= "2021-08-01")
+                & (ts_series <= "2021-11-18")
+            )
+            | (
+                (ts_series.dt.year == 2022)
+                & (ts_series >= "2022-08-01")
+                & (ts_series <= "2022-11-18")
+            )
+        )
 
-            # Find the year before for validation
-            val_start = test_start - pd.DateOffset(months=4)
+        # Validation Ranges
+        val_mask = (
+            (
+                (ts_series.dt.year == 2021)
+                & (ts_series >= "2021-11-19")
+                & (ts_series <= "2021-12-09")
+            )
+            | (
+                (ts_series.dt.year == 2022)
+                & (ts_series >= "2022-11-19")
+                & (ts_series <= "2022-12-09")
+            )
+            | (
+                (ts_series.dt.year == 2023)
+                & (ts_series >= "2023-08-01")
+                & (ts_series <= "2023-10-02")
+            )
+        )
 
-            # Everything before validation start is training
-            train_end = val_start - pd.DateOffset(days=1)
-            val_end = test_start - pd.DateOffset(days=1)
+        # Testing Ranges
+        test_mask = (
+            (
+                (ts_series.dt.year == 2021)
+                & (ts_series >= "2021-12-10")
+                & (ts_series <= "2021-12-30")
+            )  # Starts after validation ends
+            | (
+                (ts_series.dt.year == 2022)
+                & (ts_series >= "2022-12-10")
+                & (ts_series <= "2022-12-30")
+            )  # Starts after validation ends
+            | (
+                (ts_series.dt.year == 2023)
+                & (ts_series >= "2023-10-03")
+                & (ts_series <= "2023-12-04")
+            )
+        )
+
+        # --- Get Indices ---
+        x_train = original_indices[train_mask.values]
+        x_val = original_indices[val_mask.values]
+        x_test = original_indices[test_mask.values]
+
+        # --- Validation and Logging ---
+        # Check for overlaps
+        train_set, val_set, test_set = set(x_train), set(x_val), set(x_test)
+        if (
+            train_set.intersection(val_set)
+            or train_set.intersection(test_set)
+            or val_set.intersection(test_set)
+        ):
+            print(
+                "Warning: Overlap detected between train/val/test sets after time splitting."
+            )
+            # You might want to raise an error or investigate further depending on the cause
+
+        # Log the split periods found
+        if len(x_train) > 0:
+            print(
+                f"Training period(s) found: {timestamps[train_mask].min()} to {timestamps[train_mask].max()}"
+            )
         else:
-            train_end, val_end = pd.to_datetime(split_dates)
-            val_start = train_end + pd.DateOffset(days=1)
-            test_start = val_end + pd.DateOffset(days=1)
+            print("Warning: No training data found for the specified ranges.")
+        if len(x_val) > 0:
+            print(
+                f"Validation period(s) found: {timestamps[val_mask].min()} to {timestamps[val_mask].max()}"
+            )
+        else:
+            print("Warning: No validation data found for the specified ranges.")
+        if len(x_test) > 0:
+            print(
+                f"Test period(s) found: {timestamps[test_mask].min()} to {timestamps[test_mask].max()}"
+            )
+        else:
+            print("Warning: No testing data found for the specified ranges.")
 
-        # Get indices for each split
-        x_train = np.where(timestamps <= train_end)[0]
-        x_val = np.where((timestamps > train_end) & (timestamps <= val_end))[0]
-        x_test = np.where(timestamps > val_end)[0]
-
-        # Log the split periods
-        print(f"Training period: {timestamps[x_train[0]]} to {timestamps[x_train[-1]]}")
-        print(f"Validation period: {timestamps[x_val[0]]} to {timestamps[x_val[-1]]}")
-        print(f"Test period: {timestamps[x_test[0]]} to {timestamps[x_test[-1]]}")
-
-        # Check that there's enough data in each split
+        # Check that there's enough data in each split relative to horizon
         for split_name, split_indices in [
             ("Training", x_train),
             ("Validation", x_val),
             ("Test", x_test),
         ]:
-            if len(split_indices) < horizon:
-                raise ValueError(
-                    f"{split_name} set has {len(split_indices)} samples, "
-                    f"which is less than the horizon {horizon}"
-                )
+            if len(split_indices) == 0:
+                print(f"Warning: {split_name} set is empty.")
+            # The IndexDataset itself handles the check if len < horizon internally,
+            # so we don't strictly need the horizon check here anymore.
+
+        # Calculate and print ratios
+        total_samples = len(x_train) + len(x_val) + len(x_test)
+        if total_samples > 0:
+            train_ratio = len(x_train) / total_samples * 100
+            val_ratio = len(x_val) / total_samples * 100
+            test_ratio = len(x_test) / total_samples * 100
+            print(
+                f"Split Ratios: Train={train_ratio:.1f}% / Val={val_ratio:.1f}% / Test={test_ratio:.1f}%"
+            )
+        else:
+            print("No samples found in any split.")
 
         return x_train, x_val, x_test
 
@@ -589,6 +676,7 @@ class NO2DatasetLoader:
         step_size=24,
         split_dates=None,
         use_time_split=False,
+        target_offset=72 - 24 + 1,
     ):
         """Returns torch dataloaders using index batching for NO2 forecasting dataset.
 
@@ -726,106 +814,147 @@ class NO2DatasetLoader:
         edges = torch.tensor(self._edges, dtype=torch.int64)
         edge_weights = torch.tensor(self._edge_weights, dtype=torch.float)
 
-        # Get timestamps
+        # Get timestamps corresponding to the raw data points used
         if has_city_prefix:
-            # Store the corresponding timestamps
-            timestamps = (
-                self._data.index.values
+            # Assuming DateTime index or column exists and matches the 'data' array
+            all_timestamps = pd.to_datetime(
+                self._data.index
                 if self._data.index.name == "DateTime"
-                else self._data["DateTime"].values
+                else self._data["DateTime"]
             )
+            # If sampling was applied, timestamps need to match the sampled 'data' array
+            if sample_size is not None:
+                all_timestamps = all_timestamps[: data.shape[0]]
         else:
-            # Get unique datetimes that were used in the data
-            timestamps = np.array(unique_datetimes)
+            # Use the unique_datetimes collected during data stacking
+            all_timestamps = pd.to_datetime(unique_datetimes)
+            # If sampling was applied, timestamps need to match the sampled 'data' array
+            if sample_size is not None:
+                all_timestamps = all_timestamps[: data.shape[0]]
 
         # Now create indices for train/val/test split
-        x_i = np.arange(0, num_samples - lags - horizon, step=step_size)
+
+        num_samples = data.shape[0]
+        upper_bound_exclusive = num_samples - target_offset - horizon + 1
+
+        if upper_bound_exclusive <= 0:
+            raise ValueError(
+                "Data is too short for the given lags, horizon, and target_offset."
+            )
+
+        x_i = np.arange(0, upper_bound_exclusive, step=step_size)
+
+        # Get the actual timestamps for these potential start indices
+        timestamps_for_x_i = all_timestamps[x_i]
 
         # Split based on time or percentages
         if use_time_split:
-            # First filter x_i to only include valid indices for the horizon
-            valid_timestamps = timestamps[x_i]
+            print("Using custom time-based split...")
+            # Pass the timestamps corresponding to x_i and x_i itself
             x_train, x_val, x_test = self._split_by_time(
-                valid_timestamps, horizon, split_dates
+                timestamps_for_x_i, x_i, horizon
             )
-
-            # Map back to original indices
-            x_train = x_i[x_train]
-            x_val = x_i[x_val]
-            x_test = x_i[x_test]
         else:
             # Use the original percentage-based split
-            # Recalculate number of samples after adjustments
-            num_samples = x_i.shape[0]
+            print(f"Using percentage-based split: {ratio}")
+            num_samples_in_split = x_i.shape[0]  # Number of potential sequences
 
-            # Recalculate split sizes
-            num_train = round(num_samples * ratio[0])
-            num_val = round(num_samples * ratio[1])
-            num_test = num_samples - num_train - num_val
+            # Recalculate split sizes based on the number of sequences
+            num_train = round(num_samples_in_split * ratio[0])
+            num_val = round(num_samples_in_split * ratio[1])
+            num_test = num_samples_in_split - num_train - num_val
 
-            # Split indices
+            # Split indices from x_i
             x_train = x_i[:num_train]
             x_val = x_i[num_train : num_train + num_val]
-            x_test = x_i[-num_test:]
+            x_test = x_i[-num_test:]  # Ensure all indices are used
 
-        # After splitting indices, also keep track of the corresponding dates
-        train_dates = timestamps[x_train]
-        val_dates = timestamps[x_val]
-        test_dates = timestamps[x_test]
-
-        print(f"Training period: {train_dates[0]} to {train_dates[-1]}")
-        print(f"Validation period: {val_dates[0]} to {val_dates[-1]}")
-        print(f"Test period: {test_dates[0]} to {test_dates[-1]}")
+            # Log the split periods found using percentage split
+            if len(x_train) > 0:
+                print(
+                    f"Training period (percentage split): {timestamps_for_x_i[0]} to {timestamps_for_x_i[num_train - 1]}"
+                )
+            if len(x_val) > 0:
+                print(
+                    f"Validation period (percentage split): {timestamps_for_x_i[num_train]} to {timestamps_for_x_i[num_train + num_val - 1]}"
+                )
+            if len(x_test) > 0:
+                print(
+                    f"Test period (percentage split): {timestamps_for_x_i[num_train + num_val]} to {timestamps_for_x_i[-1]}"
+                )
 
         # If smoothing is enabled, apply it only to training data
         if self.smooth_data:
             print("Applying smoothing to training data...")
             # Create a copy of the data for smoothing to avoid modifying the original
-            train_data = data.copy()
+            train_data_smoothed = data.copy()  # Use the potentially sampled 'data'
 
             # Apply smoothing only to training indices
             # For each variable and city, apply smoothing
             if has_city_prefix:
-                variables = (
+                variables_to_smooth = (
                     ["NO2"]
                     if self.only_no2
                     else ["NO2", "P", "SQ", "WD", "Wvh", "dewP", "temp"]
                 )
+                num_cities = len(self.cities)
+                num_vars = len(variables_to_smooth)
 
-                for var in variables:
+                # Determine the column indices in the 'data' array
+                col_indices = {}
+                current_idx = 0
+                all_vars_in_data = variables  # Use the full list used to create 'data'
+                for var in all_vars_in_data:
+                    for city_idx in range(num_cities):
+                        # Store index for (city, var) pair
+                        col_indices[(city_idx, var)] = current_idx
+                        current_idx += 1
+
+                for var in variables_to_smooth:
                     for city_idx, city in enumerate(self.cities):
-                        col_name = f"{city}_{var}"
-                        if col_name in self._data.columns:
-                            # Extract only the training portion
-                            train_indices = set(x_train)
+                        col_idx_in_data = col_indices.get((city_idx, var))
 
-                            # Apply moving average to just the training data
+                        if col_idx_in_data is not None:
+                            # Extract the relevant column data
+                            column_data = train_data_smoothed[:, col_idx_in_data]
+
+                            # Apply moving average using pandas Series for easy handling
                             smooth_values = (
-                                pd.Series(train_data[train_indices, city_idx])
-                                .rolling(window=self.smooth_window, center=True)
+                                pd.Series(column_data)  # Use the whole column
+                                .rolling(
+                                    window=self.smooth_window,
+                                    min_periods=1,
+                                    center=True,
+                                )  # Use min_periods=1
                                 .mean()
                                 .fillna(method="bfill")
                                 .fillna(method="ffill")
                             )
 
-                            # Update only the training indices
-                            for i, idx in enumerate(sorted(train_indices)):
-                                train_data[idx, city_idx] = smooth_values[i]
-
-                            print(
-                                f"Applied smoothing to {col_name} (training data only)"
+                            # Update the smoothed data array
+                            train_data_smoothed[:, col_idx_in_data] = (
+                                smooth_values.values
                             )
 
-            # Use smoothed data only for training
+                            print(f"Applied smoothing to {city}_{var}")
+            else:
+                # Smoothing for non-prefixed data might need adjustment based on 'data' structure
+                print(
+                    "Warning: Smoothing for non-prefixed data structure not fully implemented."
+                )
+
+            # Use smoothed data only for training dataset creation
             train_dataset = self.IndexDataset(
                 x_train,
-                train_data,  # Smoothed data
+                train_data_smoothed,  # Use the smoothed data
                 horizon,
                 gpu=(allGPU != -1),
                 lazy=dask_batching,
                 lags=self.lags,
+                target_offset=target_offset,  # Pass target_offset
             )
         else:
+            # Use original data for training dataset creation
             train_dataset = self.IndexDataset(
                 x_train,
                 data,  # Original data
@@ -833,19 +962,27 @@ class NO2DatasetLoader:
                 gpu=(allGPU != -1),
                 lazy=dask_batching,
                 lags=self.lags,
+                target_offset=target_offset,  # Pass target_offset
             )
 
         # Use original data for validation and test
         val_dataset = self.IndexDataset(
-            x_val, data, horizon, gpu=(allGPU != -1), lazy=dask_batching, lags=self.lags
-        )
-        test_dataset = self.IndexDataset(
-            x_test,
-            data,
+            x_val,
+            data,  # Original data
             horizon,
             gpu=(allGPU != -1),
             lazy=dask_batching,
             lags=self.lags,
+            target_offset=target_offset,  # Pass target_offset
+        )
+        test_dataset = self.IndexDataset(
+            x_test,
+            data,  # Original data
+            horizon,
+            gpu=(allGPU != -1),
+            lazy=dask_batching,
+            lags=self.lags,
+            target_offset=target_offset,  # Pass target_offset
         )
 
         # Create dataloaders

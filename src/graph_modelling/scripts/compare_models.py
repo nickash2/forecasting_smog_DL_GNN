@@ -24,9 +24,80 @@ from src.graph_modelling.visualization.visualization import (
     plot_predictions,
     set_base_dir,
 )
+import inspect
 
 # A logger for this file
 log = logging.getLogger(__name__)
+
+
+def initialize_model(
+    cfg: DictConfig,
+    device: torch.device,
+    edges: torch.Tensor,
+    edge_weights: torch.Tensor | None,
+):
+    """Initializes the model based on the configuration."""
+    # Find out which model we're creating for better logging
+    model_name = cfg.model._target_.split(".")[-1]
+    data_mode = "no2_only" if cfg.data.only_no2 else "all_vars"
+
+    # Create a friendly display name for logging and file naming
+    friendly_model_name = f"{model_name}_{data_mode}"
+
+    log.info(f"Initializing model: {model_name} with {data_mode} data")
+
+    try:
+        # Get model class to inspect its parameters
+        model_class = hydra.utils.get_class(cfg.model._target_)
+
+        # Get the parameters accepted by the model's __init__ method
+        valid_params = list(inspect.signature(model_class.__init__).parameters.keys())
+        if "self" in valid_params:
+            valid_params.remove("self")
+
+        # Make sure num_vars matches your data configuration
+        num_nodes = 3  # Assuming 3 cities for this dataset
+        num_vars = 1 if cfg.data.only_no2 else 7
+        log.info(
+            f"Setting num_vars={num_vars} based on cfg.data.only_no2={cfg.data.only_no2}"
+        )
+
+        # Create dictionary with common parameters
+        model_params = {
+            "num_nodes": num_nodes,
+            "num_vars": num_vars,
+            "lags": cfg.training.n_lags,
+            "horizon": cfg.training.n_horizon,
+        }
+
+        # Add parameters from cfg.model (like K, hidden_channels) ONLY if the model accepts them
+        for k, v in cfg.model.items():
+            if k != "_target_" and k in valid_params:
+                model_params[k] = v
+
+        # Filter to only include parameters this model accepts
+        model_params = {k: v for k, v in model_params.items() if k in valid_params}
+        log.info(f"Instantiating {model_name} with parameters: {model_params}")
+
+        # Instantiate with only the parameters this model accepts
+        model = hydra.utils.instantiate(
+            cfg.model,
+            **model_params,
+            _recursive_=False,
+        ).to(device)
+        model = model.float()
+
+        # Ensure correct dtype for edges and weights
+        edges = edges.long()
+        if edge_weights is not None:
+            edge_weights = edge_weights.float()
+
+        log.info(f"Model:\n{model}")
+        return model, edges, edge_weights, friendly_model_name
+
+    except Exception as e:
+        log.error(f"Error instantiating model: {e}")
+        raise e
 
 
 @hydra.main(version_base=None, config_path="conf", config_name="config")
@@ -81,16 +152,6 @@ def run_experiment(cfg: DictConfig) -> float:
 
     # Check if time-based splitting is enabled
     use_time_split = cfg.data.get("use_time_split", False)
-    split_dates = None
-
-    if use_time_split:
-        # If specific dates are provided, use them
-        if hasattr(cfg.data, "split_dates") and cfg.data.split_dates:
-            split_dates = tuple(cfg.data.split_dates)
-            log.info(f"Using time-based split with dates: {split_dates}")
-        else:
-            # Default to using the last year as test, the year before as validation
-            log.info("Using time-based split with default yearly boundaries")
 
     train_loader, val_loader, test_loader, edges, edge_weights = (
         loader.get_index_dataset(
@@ -105,7 +166,6 @@ def run_experiment(cfg: DictConfig) -> float:
             cache=True,
             step_size=cfg.training.n_step,
             use_time_split=use_time_split,
-            split_dates=split_dates,
         )
     )
 
@@ -113,105 +173,145 @@ def run_experiment(cfg: DictConfig) -> float:
         f"Train batches: {len(train_loader)}, Val batches: {len(val_loader)}, Test batches: {len(test_loader)}"
     )
 
-    # --- Model Initialization ---
-    # Assuming 3 nodes for this specific dataset (Amsterdam, Rotterdam, Utrecht)
+    skip_training = cfg.training.get("skip_training", False)
+    if skip_training:
+        # Check if we need to load pretrained model
+        model, edges, edge_weights, friendly_model_name = initialize_model(
+            cfg, device, edges, edge_weights
+        )
 
-    # Find out which model we're creating for better logging
-    model_name = cfg.model._target_.split(".")[-1]
-    data_mode = "no2_only" if cfg.data.only_no2 else "all_vars"
+        history = {}  # Initialize history
+        load_path_str = cfg.training.get("load_model_path", None)  # Use .get for safety
 
-    # Create a friendly display name for logging and file naming
-    friendly_model_name = f"{model_name}_{data_mode}"
+        if load_path_str:
+            load_path = Path(load_path_str)
+            # Resolve relative paths against the base directory if needed
+            if not load_path.is_absolute():
+                # Decide base path: project root (BASE_DIR) or hydra output (output_dir)?
+                # Using BASE_DIR seems more robust for predefined models.
+                load_path = BASE_DIR / load_path
 
-    log.info(f"Initializing model: {model_name} with {data_mode} data")
+            if load_path.exists():
+                log.info(f"Attempting to load pretrained model from: {load_path}")
+                try:
+                    model.load_state_dict(torch.load(load_path, map_location=device))
+                    log.info(f"Successfully loaded pretrained model: {load_path}")
+                    skip_training = True
+                except Exception as e:
+                    log.error(
+                        f"Failed to load model state from {load_path}: {e}. Proceeding with training."
+                    )
+            else:
+                log.warning(
+                    f"Pretrained model path specified but not found: {load_path}. Proceeding with training."
+                )
+        else:
+            log.info("No pretrained model path specified. Training from scratch.")
 
-    # In the model initialization section
-    try:
-        # Get model class to inspect its parameters
-        model_class = hydra.utils.get_class(cfg.model._target_)
-        import inspect
+    else:
+        # --- Model Initialization ---
+        # Assuming 3 nodes for this specific dataset (Amsterdam, Rotterdam, Utrecht)
 
-        # Get the parameters accepted by the model's __init__ method
-        valid_params = list(inspect.signature(model_class.__init__).parameters.keys())
-        if "self" in valid_params:
-            valid_params.remove("self")
+        # Find out which model we're creating for better logging
+        model_name = cfg.model._target_.split(".")[-1]
+        data_mode = "no2_only" if cfg.data.only_no2 else "all_vars"
 
-        # Make sure num_vars matches your data configuration
-        num_nodes = 3
-        num_vars = 1 if cfg.data.only_no2 else 7
-        print("num_vars", num_vars)
+        # Create a friendly display name for logging and file naming
+        friendly_model_name = f"{model_name}_{data_mode}"
 
-        # Create dictionary with common parameters
-        model_params = {
-            "num_nodes": num_nodes,
-            "num_vars": num_vars,
-            "lags": cfg.training.n_lags,
-            "horizon": cfg.training.n_horizon,
-        }
+        log.info(f"Initializing model: {model_name} with {data_mode} data")
 
-        # Add parameters from cfg.model (like K, hidden_channels) ONLY if the model accepts them
-        for k, v in cfg.model.items():
-            if k != "_target_" and k in valid_params:
-                model_params[k] = v
+        # In the model initialization section
+        try:
+            # Get model class to inspect its parameters
+            model_class = hydra.utils.get_class(cfg.model._target_)
+            import inspect
 
-        # Filter to only include parameters this model accepts
-        model_params = {k: v for k, v in model_params.items() if k in valid_params}
-
-        # Instantiate with only the parameters this model accepts
-        model = hydra.utils.instantiate(
-            cfg.model,
-            **model_params,
-            _recursive_=False,
-        ).to(device)
-        model = model.float()
-
-        edges = edges.long()
-
-        if edge_weights is not None:
-            edge_weights = edge_weights.float()  # Edge weights should be float32
-
-        log.info(f"Model:\n{model}")
-    except Exception as e:
-        log.error(f"Error instantiating model: {e}")
-        raise e
-
-    # --- Training ---
-    log.info(f"Starting training for {friendly_model_name}...")
-    tb_log_dir = output_dir / cfg.paths.tensorboard_subdir
-    tb_log_dir.mkdir(parents=True, exist_ok=True)
-    writer = SummaryWriter(log_dir=str(tb_log_dir))
-
-    try:
-        with EmissionsTracker(log_level="error") as train_tracker:
-            model, history = train_model_index(
-                model=model,
-                train_loader=train_loader,
-                val_loader=val_loader,
-                edge_index=edges.long().to(device),  # Ensure long dtype
-                edge_weight=edge_weights.float().to(device)
-                if edge_weights is not None
-                else None,  # Ensure float dtype
-                device=device,
-                epochs=cfg.training.n_epochs,
-                patience=cfg.training.patience,
-                writer=writer,
+            # Get the parameters accepted by the model's __init__ method
+            valid_params = list(
+                inspect.signature(model_class.__init__).parameters.keys()
             )
+            if "self" in valid_params:
+                valid_params.remove("self")
 
-        # Plot training history with model name
-        plots_dir = output_dir / cfg.paths.plot_subdir
-        plots_dir.mkdir(parents=True, exist_ok=True)
+            # Make sure num_vars matches your data configuration
+            num_nodes = 3
+            num_vars = 1 if cfg.data.only_no2 else 7
+            print("num_vars", num_vars)
 
-        # Use the visualization module's plotting with model name
-        set_base_dir(Path(cfg.base_dir))  # Set base directory for visualization module
-        plot_training_history(history, model_name=friendly_model_name)
-        log.info(f"Training history plot created for {friendly_model_name}")
+            # Create dictionary with common parameters
+            model_params = {
+                "num_nodes": num_nodes,
+                "num_vars": num_vars,
+                "lags": cfg.training.n_lags,
+                "horizon": cfg.training.n_horizon,
+            }
 
-    except KeyboardInterrupt:
-        log.warning("Training interrupted by user.")
-        history = {}  # Assign empty history
+            # Add parameters from cfg.model (like K, hidden_channels) ONLY if the model accepts them
+            for k, v in cfg.model.items():
+                if k != "_target_" and k in valid_params:
+                    model_params[k] = v
 
-    finally:
-        writer.close()
+            # Filter to only include parameters this model accepts
+            model_params = {k: v for k, v in model_params.items() if k in valid_params}
+
+            # Instantiate with only the parameters this model accepts
+            model = hydra.utils.instantiate(
+                cfg.model,
+                **model_params,
+                _recursive_=False,
+            ).to(device)
+            model = model.float()
+
+            edges = edges.long()
+
+            if edge_weights is not None:
+                edge_weights = edge_weights.float()  # Edge weights should be float32
+
+            log.info(f"Model:\n{model}")
+        except Exception as e:
+            log.error(f"Error instantiating model: {e}")
+            raise e
+
+        # --- Training ---
+        log.info(f"Starting training for {friendly_model_name}...")
+        tb_log_dir = output_dir / cfg.paths.tensorboard_subdir
+        tb_log_dir.mkdir(parents=True, exist_ok=True)
+        writer = SummaryWriter(log_dir=str(tb_log_dir))
+
+        try:
+            with EmissionsTracker(log_level="error") as train_tracker:
+                model, history = train_model_index(
+                    model=model,
+                    train_loader=train_loader,
+                    val_loader=val_loader,
+                    edge_index=edges.long().to(device),  # Ensure long dtype
+                    edge_weight=edge_weights.float().to(device)
+                    if edge_weights is not None
+                    else None,  # Ensure float dtype
+                    device=device,
+                    epochs=cfg.training.n_epochs,
+                    patience=cfg.training.patience,
+                    writer=writer,
+                )
+
+            # Plot training history with model name
+            plots_dir = output_dir / cfg.paths.plot_subdir
+            plots_dir.mkdir(parents=True, exist_ok=True)
+
+            # Use the visualization module's plotting with model name
+            set_base_dir(
+                Path(cfg.base_dir)
+            )  # Set base directory for visualization module
+            plot_training_history(history, model_name=friendly_model_name)
+            log.info(f"Training history plot created for {friendly_model_name}")
+
+        except KeyboardInterrupt:
+            log.warning("Training interrupted by user.")
+            history = {}  # Assign empty history
+
+        finally:
+            writer.close()
 
     # --- Evaluation ---
     log.info(f"Starting evaluation for {friendly_model_name}...")
@@ -235,16 +335,26 @@ def run_experiment(cfg: DictConfig) -> float:
     mse = test_loss  # Already MSE
     rmse = np.sqrt(mse)
     mae = np.mean(np.abs(predictions - targets))
-    train_emissions = train_tracker.final_emissions_data
-    eval_emissions = eval_tracker.final_emissions_data
 
-    metrics = {
-        "inference_time_s": inference_time,
-        "inference_energy_kWh": eval_emissions.energy_consumed,
-        "inference_emissions_gCO2": eval_emissions.emissions,
-        "training_energy_kWh": train_emissions.energy_consumed,
-        "training_emissions_gCO2": train_emissions.emissions,
-    }
+    if not skip_training:
+        train_emissions = train_tracker.final_emissions_data
+        eval_emissions = eval_tracker.final_emissions_data
+
+        metrics = {
+            "inference_time_s": inference_time,
+            "inference_energy_kWh": eval_emissions.energy_consumed,
+            "inference_emissions_gCO2": eval_emissions.emissions,
+            "training_energy_kWh": train_emissions.energy_consumed,
+            "training_emissions_gCO2": train_emissions.emissions,
+        }
+    else:
+        metrics = {
+            "inference_time_s": inference_time,
+            "inference_energy_kWh": None,
+            "inference_emissions_gCO2": None,
+            "training_energy_kWh": None,
+            "training_emissions_gCO2": None,
+        }
 
     log.info(
         f"Test metrics for {friendly_model_name} - MSE: {mse:.4f}, RMSE: {rmse:.4f}, MAE: {mae:.4f}"
@@ -267,6 +377,7 @@ def run_experiment(cfg: DictConfig) -> float:
                 save_metrics=True,
                 use_plotly=True,
                 energy_metrics=metrics,  # Pass the energy metrics here
+                BASE_DIR=BASE_DIR,
             )
 
             if plot_metrics:

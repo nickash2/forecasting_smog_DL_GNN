@@ -1,0 +1,66 @@
+[2025-05-03 16:50:03,643][__main__][INFO] - Hydra output directory: /home/nick/bachelor-project/third-copy/comparison_results/2025-05-03/16-50-03
+[2025-05-03 16:50:03,646][__main__][INFO] - Configuration:
+data:
+  only_no2: false
+  num_vars: 7
+  cache_file: no2_dataset_cache.pkl
+  force_reload: false
+  sample_size: 1.0
+  shuffle: true
+  ratio:
+  - 0.7
+  - 0.15
+  - 0.15
+  smooth_data: false
+  smooth_window: 12
+  use_time_split: true
+  split_dates:
+  - '2021-12-31'
+  - '2022-12-31'
+model:
+  _target_: src.graph_modelling.models.spatialonlygnn.SpatialOnlyGCN
+  K: 1
+  hidden_channels: 16
+  num_layers: 1
+seed: 34
+base_dir: .
+results_subdir: comparison_results
+training:
+  n_lags: 72
+  n_horizon: 24
+  batch_size: 16
+  n_step: 24
+  n_epochs: 1000
+  patience: 15
+track_energy: true
+optuna:
+  enabled: false
+  study_name: no2_model_optimization
+  storage: sqlite:///no2_models_optuna_4hrs.db
+  n_trials: 100
+  timeout: 21600
+  direction: minimize
+paths:
+  model_save_name: final_model.pt
+  history_save_name: training_history.json
+  metrics_save_name: test_metrics.json
+  tensorboard_subdir: tensorboard_logs
+  plot_subdir: plots
+  optuna_subdir: optuna_results
+
+[2025-05-03 16:50:03,648][__main__][INFO] - Random seed set to 34
+[2025-05-03 16:50:03,648][__main__][INFO] - Using device: cuda
+[2025-05-03 16:50:03,648][__main__][INFO] - Initializing dataset loader...
+[2025-05-03 16:50:03,658][__main__][INFO] - Loading dataset with lags=72, horizon=24...
+[2025-05-03 16:53:32,373][__main__][INFO] - Train batches: 43, Val batches: 7, Test batches: 7
+[2025-05-03 16:53:32,374][__main__][INFO] - Initializing model: SpatialOnlyGCN with all_vars data
+[2025-05-03 16:53:32,763][__main__][INFO] - Model:
+SpatialOnlyGCN(
+  (conv_layers): ModuleList(
+    (0): ChebConv(7, 16, K=1, normalization=sym)
+  )
+  (output_layer): Linear(in_features=16, out_features=24, bias=True)
+)
+[2025-05-03 16:53:32,763][__main__][INFO] - Starting training for SpatialOnlyGCN_all_vars...
+[2025-05-03 16:57:16,631][__main__][INFO] - Training history plot created for SpatialOnlyGCN_all_vars
+[2025-05-03 16:57:16,632][__main__][INFO] - Starting evaluation for SpatialOnlyGCN_all_vars...
