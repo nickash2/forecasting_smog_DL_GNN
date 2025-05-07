@@ -13,6 +13,6 @@
 source ../forecasting_smog_DL_GNN/.venv/bin/activate
 
 export TF_CPP_MIN_LOG_LEVEL=3   # Suppress TensorFlow warnings
-python -m src.graph_modelling.scripts.compare_models --multirun model=temporal_only_gru data=all_vars 
+python -m src.graph_modelling.scripts.compare_models --multirun model=temporal_only_gru,astgcn_like,astgcn data=all_vars 
 
 deactivate

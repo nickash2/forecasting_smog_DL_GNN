@@ -3,3 +3,4 @@ __pycache__/
 .env.*
 multirun
 comparison_results
+.env/

@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F_func
-from torch_geometric.nn import ChebConv
+from torch_geometric.nn import ChebConv, GCNConv
 from typing import Optional, List
 
 

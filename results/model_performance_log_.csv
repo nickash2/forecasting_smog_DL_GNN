@@ -1,0 +1,4 @@
+timestamp,model_name,overall_rmse,Amsterdam_rmse,Utrecht_rmse,Rotterdam_rmse,Amsterdam_smape,Utrecht_smape,Rotterdam_smape,inference_time_s,inference_time_std_s,inference_runs,inference_energy_kWh,inference_energy_std_kWh,inference_emissions_gCO2,inference_emissions_std_gCO2,training_energy_kWh,training_co2_kg
+20250505-181941,SpatialOnlyGCN_all_vars,9.4251,10.0036,8.4201,9.7737,51.9622,39.6397,44.9345,0.08867,0.08601,5,1.204e-05,4.692e-06,3.223e-06,1.256e-06,0.02382,0.00974
+20250505-211547,SimpleChebGRU_all_vars,4.9404,5.2780,5.1448,4.3470,23.2738,21.8249,19.3151,0.7313,0.05935,5,9.949e-06,4.77e-07,2.663e-06,1.276e-07,0.04763,0.01275
+20250505-211547,ASTGCN_Like_all_vars,8.4756,8.9158,8.4746,8.0124,38.2886,35.8235,34.2345,1.439,0.03931,5,1.586e-05,3.028e-07,4.244e-06,8.104e-08,0.03732,0.009989

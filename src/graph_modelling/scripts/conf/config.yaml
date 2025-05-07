@@ -2,7 +2,7 @@ defaults:
   - data: all_vars          # Default data setting
   - model: spatial_only_gcn # Default model
   - _self_
-  - override hydra/launcher: submitit_slurm
+  # - override hydra/launcher: submitit_slurm
 
 # --- General Experiment Settings ---
 seed: 34
@@ -61,10 +61,10 @@ hydra:
   sweep:
     dir: ${base_dir}/${results_subdir}/multirun/${now:%Y-%m-%d_%H-%M-%S}
     subdir: ${hydra.job.num}_${hydra.job.override_dirname}
-  launcher:
-    partition: gpu        # change to your GPU partition
-    gpus_per_node: 1      # GPUs per job
-    cpus_per_task: 4      # CPUs per job
-    tasks_per_node: 1
-    nodes: 1            # nodes per job
-    timeout_min: 420 # 7 hrs      # timeout in minutes
+  # launcher:
+  #   partition: gpu        # change to your GPU partition
+  #   gpus_per_node: 1      # GPUs per job
+  #   cpus_per_task: 4      # CPUs per job
+  #   tasks_per_node: 1
+  #   nodes: 1            # nodes per job
+  #   timeout_min: 420 # 7 hrs      # timeout in minutes
