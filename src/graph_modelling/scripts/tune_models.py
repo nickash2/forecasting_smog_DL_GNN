@@ -260,59 +260,101 @@ def run_experiment(cfg: DictConfig) -> float:
         else:
             # Load best parameters from existing study database
             try:
-                # Path to the existing database
-                db_path = BASE_DIR / cfg.optuna.storage
+                # Handle both SQLite connection strings and relative paths
                 storage_path = cfg.optuna.storage
 
-                # Import sqlite3 for direct database query
-                import sqlite3
-                import re
-
-                # Connect to the database to list available studies
-                conn = sqlite3.connect(str(db_path))
-                cursor = conn.cursor()
-                cursor.execute("SELECT study_name FROM studies")
-                available_studies = [row[0] for row in cursor.fetchall()]
-                conn.close()
-
-                # Pattern to match the study name format
-                # For example: no2_model_optimization_ASTGCN_Like_all_vars_20250430_200522
-                model_pattern = f"no2_model_optimization_{model_name}_{data_mode}"
-                matching_studies = [
-                    s for s in available_studies if s.startswith(model_pattern)
-                ]
-
-                if matching_studies:
-                    # Use the most recent study (assuming timestamp is at the end)
-                    study_name = sorted(matching_studies)[-1]
-                    log.info(f"Found matching study: {study_name}")
-
-                    # Load the study
-                    study = optuna.load_study(
-                        study_name=study_name, storage=storage_path
-                    )
-
-                    if study.best_params:
-                        # Update model parameters with best found params
-                        log.info(
-                            f"Found saved best parameters for {friendly_model_name}"
-                        )
-                        for k, v in study.best_params.items():
-                            if k in model_params:
-                                model_params[k] = v
-                        log.info(
-                            f"Using best parameters from saved study: {study.best_params}"
-                        )
-                    else:
-                        log.info(
-                            f"No best parameters found for {friendly_model_name}, using defaults"
-                        )
+                # If it's just a filename or relative path (not already a connection string)
+                if not storage_path.startswith(
+                    ("sqlite:///", "mysql://", "postgresql://")
+                ):
+                    db_path = BASE_DIR / storage_path
+                    storage_path = f"sqlite:///{db_path}"
+                # If it's already a connection string, extract the file path
+                elif storage_path.startswith("sqlite:///"):
+                    db_path = Path(storage_path.replace("sqlite:///", ""))
                 else:
-                    log.info(f"No matching study found for pattern: {model_pattern}")
-                    log.info(f"Available studies: {available_studies}")
+                    # For other database types, we can't check the file directly
+                    db_path = None
+
+                log.info(f"Using Optuna storage at: {storage_path}")
+
+                # Check if database file exists (only for SQLite)
+                if db_path is not None and not db_path.exists():
+                    log.info(f"Optuna database file does not exist at: {db_path}")
+                    log.info("Creating directory if needed")
+                    if db_path.parent:  # Make sure parent path exists
+                        db_path.parent.mkdir(parents=True, exist_ok=True)
                     log.info("Using default parameters from configuration")
+                else:
+                    try:
+                        # Try to load study directly
+                        available_studies = []
+                        model_pattern = (
+                            f"no2_model_optimization_{model_name}_{data_mode}"
+                        )
+
+                        # For SQLite, we can query the database
+                        if db_path and db_path.exists():
+                            # Import sqlite3 for direct database query
+                            import sqlite3
+
+                            # Connect to the database to list available studies
+                            conn = sqlite3.connect(str(db_path))
+                            cursor = conn.cursor()
+                            cursor.execute("SELECT study_name FROM studies")
+                            available_studies = [row[0] for row in cursor.fetchall()]
+                            conn.close()
+
+                            matching_studies = [
+                                s
+                                for s in available_studies
+                                if s.startswith(model_pattern)
+                            ]
+
+                            if matching_studies:
+                                # Use the most recent study (assuming timestamp is at the end)
+                                study_name = sorted(matching_studies)[-1]
+                                log.info(f"Found matching study: {study_name}")
+
+                                # Load the study
+                                study = optuna.load_study(
+                                    study_name=study_name, storage=storage_path
+                                )
+
+                                if study.best_params:
+                                    # Update model parameters with best found params
+                                    log.info(
+                                        f"Found saved best parameters for {friendly_model_name}"
+                                    )
+                                    for k, v in study.best_params.items():
+                                        if k in model_params:
+                                            model_params[k] = v
+                                    log.info(
+                                        f"Using best parameters from saved study: {study.best_params}"
+                                    )
+                                else:
+                                    log.info(
+                                        f"No best parameters found for {friendly_model_name}, using defaults"
+                                    )
+                            else:
+                                log.info(
+                                    f"No matching study found for pattern: {model_pattern}"
+                                )
+                                log.info(f"Available studies: {available_studies}")
+                                log.info("Using default parameters from configuration")
+                        else:
+                            log.info(
+                                "Database path could not be determined or doesn't exist"
+                            )
+                            log.info("Using default parameters from configuration")
+                    except Exception as inner_e:
+                        log.info(f"Error querying database: {inner_e}")
+                        log.info("Using default parameters from configuration")
             except Exception as e:
+                import traceback
+
                 log.info(f"Could not load parameters from study database: {e}")
+                log.info(traceback.format_exc())
                 log.info("Using default parameters from configuration")
 
         # Instantiate the model (with best params if optuna was run)

@@ -20,6 +20,8 @@ data:
   split_dates: null
   target_offset: 49 # N_HOURS_IN - N_HOURS_OUT + 1
 
+weights_file: null
+
 # --- Training Parameters ---
 training:
   n_lags: 72

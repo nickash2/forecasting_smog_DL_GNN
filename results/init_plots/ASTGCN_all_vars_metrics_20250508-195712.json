@@ -1,0 +1,41 @@
+{
+    "timestamp": "20250508-195712",
+    "model_name": "ASTGCN_all_vars",
+    "overall": {
+        "MSE": 1.69788405308551,
+        "RMSE": 1.3030287997912824,
+        "MAE": 0.6934162024279229,
+        "SMAPE": 6.079221590287057
+    },
+    "per_city": {
+        "Amsterdam": {
+            "MSE": 2.062270436486715,
+            "RMSE": 1.4360607356538633,
+            "MAE": 0.7465931984673565,
+            "SMAPE": 7.373494094593895
+        },
+        "Rotterdam": {
+            "MSE": 2.027485482274575,
+            "RMSE": 1.4238979887177925,
+            "MAE": 0.7430028358551984,
+            "SMAPE": 6.1570377561514285
+        },
+        "Utrecht": {
+            "MSE": 1.0038962404952398,
+            "RMSE": 1.001946226349119,
+            "MAE": 0.5906525729612137,
+            "SMAPE": 4.707132920115851
+        }
+    },
+    "energy": {
+        "inference_time_s": 3.0596008777618406,
+        "inference_time_std_s": 0.30857961931138206,
+        "inference_runs": 5,
+        "inference_energy_kWh": 3.0066662219578408e-05,
+        "inference_energy_std_kWh": 2.7174262527226864e-06,
+        "inference_emissions_gCO2": 8.046500276528014e-06,
+        "inference_emissions_std_gCO2": 7.272430486061506e-07,
+        "training_energy_kWh": null,
+        "training_emissions_gCO2": null
+    }
+}

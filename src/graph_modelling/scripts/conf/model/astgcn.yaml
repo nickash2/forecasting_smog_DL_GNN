@@ -1,6 +1,6 @@
 _target_: src.graph_modelling.models.astgcn.ASTGCN
 timesteps: 72
 K: 1
-num_blocks: 1
+num_blocks: 3
 horizon: 24
-block_channels: 16
+block_channels: 48
