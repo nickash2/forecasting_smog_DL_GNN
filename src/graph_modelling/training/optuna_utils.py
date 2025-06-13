@@ -8,6 +8,7 @@ import json
 from typing import Dict, Any, Optional, Callable
 import numpy as np
 import os
+from .train_utils import PINNLoss
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -72,6 +73,11 @@ def define_model_param_space(trial, model_name: str) -> Dict[str, Any]:
         "lr": trial.suggest_float("lr", 1e-7, 1e-4, log=True),
         "weight_decay": trial.suggest_float("weight_decay", 1e-8, 1e-3, log=True),
         "patience": trial.suggest_int("patience", 5, 20, step=5),
+        "ref_coeff": trial.suggest_float(
+            "ref_coeff",
+            1e-6,
+            1e-3,
+        ),
     }
 
     # Model-specific parameters
@@ -157,6 +163,7 @@ def create_objective(
             lr = params.pop("lr")
             weight_decay = params.pop("weight_decay")
             patience = params.pop("patience")
+            reg_coeff = params.pop("ref_coeff")
 
             model_params.update(params)
             model = model_fn(**model_params).to(device)
@@ -177,6 +184,8 @@ def create_objective(
             best_val_loss = float("inf")
             patience_counter = 0
             history = {"train_loss": [], "val_loss": [], "epochs": []}
+
+            criterion = PINNLoss(reg_coef=reg_coeff)
 
             # Training loop with pruning
             for epoch in range(1, n_epochs + 1):
@@ -207,9 +216,9 @@ def create_objective(
                         y_batch_reshaped = y_batch.view(B, H, num_nodes, num_vars)
                         y_batch_no2 = y_batch_reshaped[:, :, :, 0]
 
-                        loss = torch.nn.functional.mse_loss(y_hat, y_batch_no2)
+                        loss = criterion(y_hat, y_batch_no2, x_batch)
                     else:
-                        loss = torch.nn.functional.mse_loss(y_hat, y_batch)
+                        loss = criterion(y_hat, y_batch, x_batch)
 
                     loss.backward()
                     optimizer.step()

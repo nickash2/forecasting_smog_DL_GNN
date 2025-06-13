@@ -27,7 +27,7 @@ class NO2DatasetLoader:
         force_reload (bool, optional): If True, recompute the dataset even if cache exists. Defaults to False.
     """
 
-    CACHE_VERSION = 65
+    CACHE_VERSION = 10
 
     def __init__(
         self,
@@ -139,6 +139,11 @@ class NO2DatasetLoader:
         except Exception as e:
             raise ValueError(f"Could not parse 'DateTime': {e}")
         current_data = current_data.sort_values(by=["DateTime"]).reset_index(drop=True)
+        # Convert Wvh from m/s to km/h
+        for city in self.cities:
+            wvh_col = f"{city}_Wvh"  # Adjust column name if needed
+            if wvh_col in current_data.columns:
+                current_data[wvh_col] = current_data[wvh_col] * 3.6
 
         self._data_original = current_data
 
