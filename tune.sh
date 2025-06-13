@@ -10,6 +10,6 @@
 module purge
 export TF_CPP_MIN_LOG_LEVEL=3   # Suppress TensorFlow warnings
 source ~/forecasting_smog_DL_GNN/.venv/bin/activate
-python -m src.graph_modelling.scripts.tune_models --multirun model=spatial_only_gcn,temporal_only_gru,astgcn_like,astgcn data=all_vars optuna.enabled=True
+python -m src.graph_modelling.scripts.tune_models --multirun model=spatial_only_gcn, astgcn data=all_vars optuna.enabled=True
 
 deactivate
