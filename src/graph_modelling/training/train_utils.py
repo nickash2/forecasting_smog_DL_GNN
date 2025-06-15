@@ -73,67 +73,114 @@ class PINNLoss(torch.nn.MSELoss):
         self.reg_coef = reg_coef
 
     def forward(self, y_hat, y_true, input_matrix=None):
-        # Calculate the MSE loss
-        mse_loss = torch.nn.functional.mse_loss(
-            y_hat[:, :, 2], y_true[:, :, 2]
-        )  # mse of utrecht
+        # Calculate the MSE loss for all nodes
+        mse_loss = torch.nn.functional.mse_loss(y_hat, y_true)
 
         # If reg_coef is provided, apply the PINN regularization term
         if self.reg_coef is not None:
             Wvx, Wvy = get_scaled_vx_vy(input_matrix)
 
-            # phy loss = something, L  = mse + reg_coef * phy_loss
-            # phy loss = dc/dt + dc/dx + dc/dy
-
-            # dcdt = current prediction - prediction one hour ago, but the zeroth pred one will be compared with the concentration before pred starts
-            # y0 = the last observed value before predictions begin
-            # Get y0: last known value before prediction starts (at hour 47)
-            # Indices of the 3 cities in the input features (example)
+            # Get last known true values for all cities at last time step
             city_feature_indices = [0, 1, 2]  # adjust as needed
-
-            # Extract last known true values for these cities at last time step
             y0 = input_matrix[:, -1, city_feature_indices]  # shape: [B, 3]
-
-            # Add time dim
             y0 = y0.unsqueeze(1)  # shape: [B, 1, 3]
 
-            # Now concatenate with y_hat along time dim
+            # Concatenate with y_hat along time dim
             y_combined = torch.cat((y0, y_hat), dim=1)  # shape: [B, T+1, 3]
 
-            # Compute temporal difference: dcdt = c(t) - c(t-1)
-            dcdt = torch.diff(y_combined, dim=1)  # shape: [B, T, N]
-            dcdt = dcdt[:, :, 2]
+            # Compute temporal difference for all nodes
+            dcdt = torch.diff(y_combined, dim=1)  # shape: [B, T, 3]
 
-            c_pred = y_hat[:, :, 2]  # shape: [B, N*F] (current utrecht prediction)
-            c_ams = y_hat[:, :, 0]  # shape: [B, N*F] (Amsterdam prediction)
-            c_rot = y_hat[:, :, 1]  # shape: [B, N*F] (Rotterdam prediction)
+            # Define relative coordinates for each city
+            # Amsterdam (0) relative to other cities
+            coords_ams = torch.tensor(
+                [
+                    [
+                        utr_amst[0],
+                        utr_rot[0] - utr_amst[0],
+                    ],  # Utrecht and Rotterdam relative to Amsterdam
+                    [utr_amst[1], utr_rot[1] - utr_amst[1]],
+                ],
+                device=y_hat.device,
+            )
 
-            delta_c_ams = c_ams - c_pred  # shape: [B, N*F] (Amsterdam - Utrecht)
-            delta_c_rot = c_rot - c_pred  # shape: [B, N*F] (Rotterdam - Utrecht)
+            # Utrecht (1) relative to other cities
+            coords_utr = torch.tensor(
+                [
+                    [
+                        -utr_amst[0],
+                        utr_rot[0],
+                    ],  # Amsterdam and Rotterdam relative to Utrecht
+                    [-utr_amst[1], utr_rot[1]],
+                ],
+                device=y_hat.device,
+            )
 
-            delta_c = torch.stack([delta_c_ams, delta_c_rot], dim=2)
-            coords_T = coords.T  # shape: [2, N-1]
+            # Rotterdam (2) relative to other cities
+            coords_rot = torch.tensor(
+                [
+                    [
+                        -utr_rot[0] + utr_amst[0],
+                        -utr_amst[0],
+                    ],  # Amsterdam and Utrecht relative to Rotterdam
+                    [-utr_rot[1] + utr_amst[1], -utr_amst[1]],
+                ],
+                device=y_hat.device,
+            )
 
-            # Compute A = (X^T X)^(-1) X^T
-            A = torch.inverse(coords_T @ coords) @ coords_T  # shape: [2, N-1]
-            A = A.to(y_hat.device)
-            delta_c = delta_c.to(y_hat.device)
+            coords_list = [coords_ams, coords_utr, coords_rot]
 
-            # delta_c_spatial shape: [B, T, N-1]
+            total_phy_loss = 0.0
 
-            # Compute gradients: grad_c shape [B, T, 2]
-            grad_c = torch.einsum("ij,btk->bti", A, delta_c)
+            # Compute physics loss for each node
+            for node_idx in range(3):  # For each city
+                # Get predictions for current node
+                c_pred = y_hat[:, :, node_idx]  # shape: [B, T]
 
-            # Extract spatial derivatives
-            dcdx = grad_c[:, :, 0]  # shape: [B, T]
-            dcdy = grad_c[:, :, 1]  # shape: [B, T]
+                # Get predictions for other two nodes
+                other_indices = [i for i in range(3) if i != node_idx]
+                c_other1 = y_hat[:, :, other_indices[0]]  # shape: [B, T]
+                c_other2 = y_hat[:, :, other_indices[1]]  # shape: [B, T]
 
-            residual = dcdt + Wvx * dcdx + Wvy * dcdy
-            phy_loss = torch.mean(residual**2)  # shape: [B, T]
-            total_loss = mse_loss + self.reg_coef * phy_loss
-            total_loss = total_loss.to(y_hat.device)
+                # Compute concentration differences
+                delta_c1 = c_other1 - c_pred  # shape: [B, T]
+                delta_c2 = c_other2 - c_pred  # shape: [B, T]
+
+                # Stack differences
+                delta_c = torch.stack([delta_c1, delta_c2], dim=2)  # shape: [B, T, 2]
+
+                # Get coordinate matrix for this node
+                coords_node = coords_list[node_idx]  # shape: [2, 2]
+
+                # Compute A = (X^T X)^(-1) X^T
+                A = (
+                    torch.inverse(coords_node @ coords_node.T) @ coords_node
+                )  # shape: [2, 2]
+
+                # Compute gradients: grad_c shape [B, T, 2]
+                grad_c = torch.einsum("ij,btk->bti", A, delta_c)
+
+                # Extract spatial derivatives
+                dcdx = grad_c[:, :, 0]  # shape: [B, T]
+                dcdy = grad_c[:, :, 1]  # shape: [B, T]
+
+                # Get temporal derivative for this node
+                dcdt_node = dcdt[:, :, node_idx]  # shape: [B, T]
+
+                # Compute residual for this node
+                residual = dcdt_node + Wvx * dcdx + Wvy * dcdy
+                node_phy_loss = torch.mean(residual**2)
+
+                total_phy_loss += node_phy_loss
+
+            # Average physics loss across all nodes
+            avg_phy_loss = total_phy_loss / 3.0
+
+            total_loss = mse_loss + self.reg_coef * avg_phy_loss
             return total_loss
-        raise ValueError("reg_coef must be provided for PINN loss calculation")
+
+        # If no reg_coef, just return MSE loss
+        return mse_loss
         # Compute spatial derivatives from input_matri
 
         # dcdx and dcdy
