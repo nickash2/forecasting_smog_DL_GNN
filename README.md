@@ -1,11 +1,11 @@
 # Thesis repository: 'Forecasting Smog Clouds With Graph Neural Networks'
 
+**ECAI 2025:** For ECAI2025, please consult the `physics` branch, as all PEML implementations are only on that branch. 
+
 
 For direct contact or questions, please contact: [n.assiotis@student.rug.nl](mailto:n.assiotis@student.rug.nl) (and [n.ashiotis.work@gmail.com](mailto:n.ashiotis.work@gmail.com) in cc, in case access to the former is lost).
 
 This version is a fork from [valentijn7](https://github.com/valentijn7/forecasting_smog_DL) which is significantly adapted for use with cities other than just Utrecht, and also the utilization of Graphical Neural Networks to experiment with their performance.
-
-**ECAI 2025:** For ECAI2025, please consult the `physics` branch, as all PEML implementations are only on that branch. 
 
 
 ***_Note:_***
