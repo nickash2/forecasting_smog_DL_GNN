@@ -5,6 +5,7 @@ The following branch includes the PEML implementations mentioned in the submissi
 - Python 3.10
 - Ubuntu 20.04 LTS
 
+To download the required libraries for this codebase:
 ```bash
 pip install -r requirements.txt
 ```
